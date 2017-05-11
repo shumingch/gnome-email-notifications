@@ -1,0 +1,80 @@
+msgid "en"
+msgstr "it"
+"Project-Id-Version: gmail_notify\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-01-07 02:23+0100\n"
+"PO-Revision-Date: 2012-01-07 20:42+0100\n"
+"Last-Translator: Adam Jabłoński <jablona123@gmail.com>\n"
+"Language-Team: \n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-Language: Italian\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl\n"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:48
+msgid "New gmail message"
+msgstr "Nuovo messaggio GMail"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:88
+#, python-format
+msgid "New mail from %s"
+msgstr "Nuovo messaggio e-mail da %s"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:212
+msgid "GMail not authenticated"
+msgstr "GMail non autenticato"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:216
+msgid "GMail not connected"
+msgstr "GMail non connesso"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:338
+msgid "Settings"
+msgstr "Impostazioni"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:341
+msgid "Use default email client instead of browser"
+msgstr "Usa il client e-mail preferito al posto del browser"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:352
+msgid "Notify about incoming mail"
+msgstr "Notifica e-mail in arrivo"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:363
+msgid "Show email summary"
+msgstr "Mostra riassunto e-mail"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:375
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:384
+msgid "Check every {0} sec: "
+msgstr "Controlla ogni {0} secondi: "
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:401
+msgid "Extension position"
+msgstr "Posizione dell'estensione"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:408
+msgid "Left"
+msgstr "Sinistra"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:410
+msgid "Center"
+msgstr "Centro"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:412
+msgid "Right"
+msgstr "Destra"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:552
+msgid "No new messages"
+msgstr "Nessun nuovo messaggio"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:713
+msgid "Install gir1.2-goa package to run this extension"
+msgstr "Installare il pacchetto gir1.2-goa per eseguire questa estensione"
+

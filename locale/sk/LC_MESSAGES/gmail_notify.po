@@ -1,0 +1,87 @@
+# Dušan Kazik <prescott66@gmail.com>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gmail_notify\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-02-01 22:33+0100\n"
+"PO-Revision-Date: 2015-06-10 11:38+0100\n"
+"Last-Translator: Adam Jabłoński <jablona123@gmail.com>\n"
+"Language-Team: \n"
+"Language: sk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Poedit 1.8.1\n"
+"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl\n"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:123
+msgid "New gmail message"
+msgstr "Nová správa v účte gmail"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:163
+#, python-format
+msgid "New mail from %s"
+msgstr "Nová pošta od %s"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:438
+msgid "No new messages"
+msgstr "Žiadne nové správy"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:506
+msgid "Settings"
+msgstr "Nastavenia"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:509
+msgid "Use default email client instead of browser"
+msgstr "Použiť predvoleného poštového klienta namiesto prehliadača"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:520
+msgid "Notify about incoming mail"
+msgstr "Upozorniť na prichádzajúcu poštu"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:531
+msgid "Show email summary"
+msgstr "Zobraziť súhrn emailu"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:543
+msgid "Check for new versions on startup"
+msgstr "Skontrolovať novú verziu po spustení"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:556
+msgid "Safe mode"
+msgstr "Bezpečný režim"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:569
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:578
+msgid "Check every {0} sec: "
+msgstr "Skontrolovať každých {0} sekúnd: "
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:595
+msgid "Extension position"
+msgstr "Pozícia rozšírenia "
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:602
+msgid "Right"
+msgstr "Vpravo"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:604
+msgid "Center"
+msgstr "V strede"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:606
+msgid "Left"
+msgstr "Vľavo"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:685
+#, python-format
+msgid "There is newer version of this extension: %s - click to download"
+msgstr "Je dostupná novšia verzia tohto rozšírenia. %s - kliknutím ju prevezmete"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:1002
+msgid "Extension requires Goa,Soup,Gio typelibs - click for instructions how to install"
+msgstr "Rozšírenie vyžaduje knižnice Goa,Soup,Gio - kliknutím získate inštrukcie ako ich nainštalovať"

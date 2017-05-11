@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="gnome-shell-extensions-gmailnotify">
+  <schema path="/org/gnome/shell/extensions/gmailnotify/" id="org.gnome.shell.extensions.gmailnotify">
+    <key type="s" name="position">
+        <default>"right"</default>
+        <summary>Position of extension in the top bar</summary>
+        <description>Can be left or center.</description>
+    </key>
+    <key type="i" name="usemail">
+        <default>0</default>
+        <summary>Use default email client instead of browser</summary>
+        <description>Use default email client instead of browser.</description>
+    </key>
+    <key type="i" name="notify">
+        <default>1</default>
+        <summary>Notify about mail</summary>
+        <description>Can be left or center.</description>
+    </key>
+    <key type="i" name="showsummary">
+        <default>1</default>
+        <summary>Position of extension in the top bar</summary>
+        <description>Can be left or center.</description>
+    </key>
+    <key type="i" name="timeout">
+        <default>300</default>
+        <summary>Check mail every (sec):</summary>
+        <description>Check mail every (sec):</description>
+    </key>
+    <key type="i" name="safemode">
+        <default>1</default>
+        <summary>Check mail every (sec):</summary>
+        <description>Check mail every (sec):</description>
+    </key>
+    <key type="i" name="checknew">
+        <default>1</default>
+        <summary>Check for new versons on startup:</summary>
+        <description>Check for new versons on startup:</description>
+    </key>
+    <key type="s" name="btext">
+        <default>"%s(&lt;u&gt;%s&lt;/u&gt;)"</default>
+        <summary>Button template:</summary>
+        <description>Button template:</description>
+    </key>
+  </schema>
+</schemalist>

@@ -1,0 +1,102 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: gmail_notify\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-02-01 22:06+0100\n"
+"PO-Revision-Date: 2012-02-04 17:57+0100\n"
+"Last-Translator: Adam Jabłoński <jablona123@gmail.com>\n"
+"Language-Team: Benjamin <jesuisbenjamin@gmail.com>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-Language: Hindi\n"
+"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl\n"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:123
+msgid "New gmail message"
+msgstr "नया जीमेल संदेश"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:163
+#, python-format
+msgid "New mail from %s"
+msgstr "%s से नयी डाक"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:438
+msgid "No new messages"
+msgstr "कुछ डाक नहीं"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:506
+msgid "Settings"
+msgstr "समायोजन"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:509
+msgid "Use default email client instead of browser"
+msgstr "वेब ब्राउज़र के बजाय ईमेल पाठक का उपयोग करना"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:520
+msgid "Notify about incoming mail"
+msgstr "आनी वाली डाक की सुचना देना"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:531
+msgid "Show email summary"
+msgstr "ईमेल का संक्षेप दिखाना"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:543
+msgid "Check for new versions on startup"
+msgstr "प्रारंभ में नया संस्करण की तलाश करना"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:556
+msgid "Safe mode"
+msgstr "सुरक्षित पद्धति"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:569
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:578
+msgid "Check every {0} sec: "
+msgstr "हर {0} सेकंड जाँचना: "
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:595
+msgid "Extension position"
+msgstr "विस्तार का स्थान"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:602
+msgid "Right"
+msgstr "दाहिना"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:604
+msgid "Center"
+msgstr "मध्य"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:606
+msgid "Left"
+msgstr "बायाँ"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:685
+#, python-format
+msgid "There is newer version of this extension: %s - click to download"
+msgstr "इस विस्तार का नया संस्करण है %s"
+
+#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:1002
+msgid "Extension requires Goa,Soup,Gio typelibs - click for instructions how to install"
+msgstr "यह विस्तार Goa, Soup, Gio typelibs पर अवलंबित है । अधिष्ठापन के उपदेश के लिए क्लिक किजिए"
+
+#~ msgid "GMail not authenticated"
+#~ msgstr "Niezalogowany w Gmail"
+
+#~ msgid "GMail not connected"
+#~ msgstr "Gmail nie jest podłączony"
+
+#~ msgid "GN_NO_MESSAGES"
+#~ msgstr "Brak nowych wiadomości"
+
+#~ msgid "GN_SETTINGS"
+#~ msgstr "Ustawienia"
+
+#~ msgid "Extenstion position"
+#~ msgstr "Pozycja w panelu"
+
+#~ msgid "System Information"
+#~ msgstr "Informacje systemowe"

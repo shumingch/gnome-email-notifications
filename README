@@ -1,0 +1,9 @@
+Gmail Message Tray Gnome Shell Extension
+
+Forked from Gmail Notify Gnome Shell Extension
+Utilizes Gnome Online Accounts to login to Gmail and check
+your incoming email
+
+Authors:
+Adam Jabłoński <jablona123@gmail.com>
+Shuming Chan <shuming0207@gmail.com>
