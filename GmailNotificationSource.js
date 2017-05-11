@@ -18,7 +18,7 @@
  *
  * Authors:
  * Adam Jabłoński <jablona123@gmail.com>
- * Shuming Chan <@gmail.com>
+ * Shuming Chan <shuming0207@gmail.com>
  *
  */
 const Me = imports.misc.extensionUtils.getCurrentExtension();

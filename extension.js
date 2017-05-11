@@ -18,7 +18,7 @@
  *
  * Authors:
  * Adam Jabłoński <jablona123@gmail.com>
- * Shuming Chan <@gmail.com>
+ * Shuming Chan <shuming0207@gmail.com>
  *
  */
 const GLib = imports.gi.GLib;
@@ -123,10 +123,6 @@ function oneTime() {
     }
     return false;
 }
-
-
-
-
 
 function _mailNotify(content) {
     try {
@@ -303,40 +299,6 @@ function _browseGn() {
         Utils.trySpawnCommandLine(config._browser + " http://gn.makrodata.org");
     }
 }
-
-
-
-
-function MailboxMenuItem() {
-    this._init.apply(this, arguments);
-}
-
-MailboxMenuItem.prototype = {
-    __proto__: PopupMenu.PopupBaseMenuItem.prototype,
-
-    _init: function (text, params) {
-        try {
-            PopupMenu.PopupBaseMenuItem.prototype._init.call(this, params);
-            this.label = new St.BoxLayout({vertical: false});
-            let iconBox = new St.Bin({style_class: 'avatar-box'});
-            iconBox._size = 48;
-            iconBox.child = Clutter.Texture.new_from_file(extensionPath + "/icons/mailbox.png");
-            iconBox.set_style("padding-right:10px");
-            this.label.add(iconBox);
-            let mailbox = new St.Label({text: text});
-            mailbox.set_style("font-size:14px;");
-            this.label.add(mailbox);
-            this.actor.add_child(this.label);
-        }
-        catch (err) {
-            global.log("Mailbox Menu item Init:" + err.message);
-        }
-    },
-    setProvider: function (provider) {
-        this.provider = provider
-    }
-
-};
 
 
 const GmailConf = function () {

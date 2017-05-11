@@ -18,7 +18,7 @@
  *
  * Authors:
  * Adam Jabłoński <jablona123@gmail.com>
- * Shuming Chan <@gmail.com>
+ * Shuming Chan <shuming0207@gmail.com>
  *
  */
 const Me = imports.misc.extensionUtils.getCurrentExtension();
@@ -30,7 +30,7 @@ const Imap = Me.imports.imap;
 const Main = imports.ui.main;
 const _DEBUG = true;
 const extension = Me.imports.extension;
-const x = extension;
+const MailboxMenuItem = Me.imports.MailboxMenuItem.MailboxMenuItem;
 
 function GmailButton(extensionPath) {
     this._init(extensionPath);
@@ -199,7 +199,7 @@ GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
 
                 this._showNoMessage(provider);
             }
-            let mbox = new extension.MailboxMenuItem(mailbox);
+            let mbox = new MailboxMenuItem(mailbox);
             mbox.setProvider(provider);
             mbox.connect('activate', extension._showHello);
             this.boxes.push(mbox);
