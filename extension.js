@@ -32,23 +32,20 @@ catch (err) {
     global.log("Gio import error:" + err.message);
 }
 const Main = imports.ui.main;
-const Tweener = imports.ui.tweener;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Gmail = Me.imports.gmail;
-const Imap = Me.imports.imap;
-const GmailButton = Me.imports.GmailButton;
-const GmailNotificationSource = Me.imports.GmailNotificationSource;
+const GmailNotification = Me.imports.GmailNotification.GmailNotification;
+const GmailButton = Me.imports.GmailButton.GmailButton;
+const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 const XML = Me.imports.rexml;
-const Signals = imports.signals;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 const GConf = imports.gi.GConf;
 const Utils = imports.misc.util;
 const MessageTray = imports.ui.messageTray;
 const PopupMenu = imports.ui.popupMenu;
-const Slider = imports.ui.slider;
 const Lib = Me.imports.lib;
 
 const Clutter = imports.gi.Clutter;
@@ -87,10 +84,9 @@ catch (err) {
 }
 
 
-let box, text, button, event, browserCmd, extensionPath, currentPos, config, onetime, goaAccounts, sM, sU, numGoogle,
+let text, button, event, extensionPath, currentPos, config, onetime, goaAccounts, sM, sU, numGoogle,
     nVersion, bText, safemode, settings;
 
-let sigid = 0;
 
 function onTimer() {
     if (_DEBUG) global.log("onTimer");
@@ -129,51 +125,11 @@ function oneTime() {
 
 
 
-function GmailNotification(source, content) {
-    this._init(source, content);
-}
-
-GmailNotification.prototype = {
-    __proto__: MessageTray.Notification.prototype,
-
-    _init: function (source, content) {
-        if (_DEBUG) global.log('entering notification');
-        try {
-            MessageTray.Notification.prototype._init.call(this, source,
-                _("New mail from %s").format(content.from), null,
-                {customContent: true});
-            this.expanded = true;
-            this._table.add_style_class_name('multi-line-notification');
-            let blayout = new St.BoxLayout({vertical: false});
-            let layout = new St.BoxLayout({vertical: true});
-            let label = new St.Label({text: (new Date(content.date)).toLocaleString()});
-            label.set_style("font-size:10px;");
-            layout.add(label);
-            let label1 = new St.Label({text: content.subject});
-            layout.add(label1);
-            blayout.add(layout);
-            this.addActor(blayout);
-        }
-        catch (err) {
-            global.log('notification init error:' + err.message);
-        }
-    },
-
-    _canExpandContent: function () {
-        return true;
-    },
-
-    destroy: function () {
-        MessageTray.Notification.prototype.destroy.call(this);
-    }
-
-
-};
 
 
 function _mailNotify(content) {
     try {
-        let source = new GmailNotificationSource.GmailNotificationSource();
+        let source = new GmailNotificationSource();
         Main.messageTray.add(source);
 
         for (let i = 0; i < content.length; i++) {
@@ -606,7 +562,7 @@ function show() {
 
 function enable() {
     try {
-        button = new GmailButton.GmailButton(extensionPath);
+        button = new GmailButton(extensionPath);
         config = new GmailConf();
         bText = config._btext;
         if (_DEBUG) global.log('init numbers' + config._numbers);
