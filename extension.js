@@ -18,7 +18,7 @@
  *
  * Authors:
  * Adam Jabłoński <jablona123@gmail.com>
- * Shuming Chan <shuming0207@gmail.com>
+ * Shuming Chan <@gmail.com>
  *
  */
 const GLib = imports.gi.GLib;
@@ -36,6 +36,8 @@ const Tweener = imports.ui.tweener;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Gmail = Me.imports.gmail;
 const Imap = Me.imports.imap;
+const GmailButton = Me.imports.GmailButton;
+const GmailNotificationSource = Me.imports.GmailNotificationSource;
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 const XML = Me.imports.rexml;
@@ -46,7 +48,6 @@ const GConf = imports.gi.GConf;
 const Utils = imports.misc.util;
 const MessageTray = imports.ui.messageTray;
 const PopupMenu = imports.ui.popupMenu;
-const PanelMenu = imports.ui.panelMenu;
 const Slider = imports.ui.slider;
 const Lib = Me.imports.lib;
 
@@ -126,51 +127,6 @@ function oneTime() {
     return false;
 }
 
-function GmailNotificationSource() {
-    this._init();
-}
-
-GmailNotificationSource.prototype = {
-    __proto__: MessageTray.Source.prototype,
-
-    _init: function () {
-        try {
-            if (_DEBUG) global.log("Entering Nofy source create ");
-            MessageTray.Source.prototype._init.call(this, _("New gmail message"), "");
-            this._setSummaryIcon(this.createNotificationIcon());
-            this._nbNotifications = 0;
-        }
-        catch (err) {
-            global.log('Err: GmainNotificationSource Init:' + err.message);
-        }
-    },
-
-    notify: function (notification) {
-        try {
-            MessageTray.Source.prototype.notify.call(this, notification);
-            this._nbNotifications += 1;
-            // Display the source while there is at least one notification
-            notification.connect('destroy', Lang.bind(this, () => {
-                this._nbNotifications -= 1;
-                if (this._nbNotifications === 0)
-                    this.destroy();
-            }));
-        }
-        catch (err) {
-            global.log('Err: GmainNotificationSource notify:' + err.message);
-        }
-    },
-
-    createNotificationIcon: function () {
-        try {
-            return Clutter.Texture.new_from_file(extensionPath + "/icons/gmail-icon48.png");
-        }
-        catch (err) {
-            global.log('Err: Crea noti icon:' + err.message);
-        }
-    }
-
-};
 
 
 function GmailNotification(source, content) {
@@ -217,7 +173,7 @@ GmailNotification.prototype = {
 
 function _mailNotify(content) {
     try {
-        let source = new GmailNotificationSource();
+        let source = new GmailNotificationSource.GmailNotificationSource();
         Main.messageTray.add(source);
 
         for (let i = 0; i < content.length; i++) {
@@ -262,7 +218,7 @@ function _processData(oImap, resp, error) {
         if (_DEBUG) global.log("Safemode= " + config._safemode);
         if (config._safemode === 1 ? maxSafeId > safeentry : maxId > entry) {
             for (let i = 0; i < oImap.folders.length; i++) {
-                var notes = [];
+                const notes = [];
                 for (let j = 0; j < oImap.folders[i].list.length; j++) {
                     if (config._safemode === 1) {
                         if (oImap.folders[i].list[j].safeid > safeentry) {
@@ -390,204 +346,6 @@ function _browseGn() {
         Utils.trySpawnCommandLine(config._browser + " http://gn.makrodata.org");
     }
 }
-//
-//GmailButton
-//
-
-function GmailButton() {
-    this._init();
-}
-
-GmailButton.prototype = {
-    __proto__: PanelMenu.Button.prototype,
-
-    _init: function () {
-        try {
-            PanelMenu.Button.prototype._init.call(this, 0.0);
-            this._label = new St.Bin({
-                style_class: 'panel-button', reactive: true,
-                can_focus: true,
-                x_fill: true,
-                y_fill: false,
-                track_hover: true
-            });
-            this._box = new St.BoxLayout();
-
-            this._icon_gray = Clutter.Texture.new_from_file(extensionPath + "/icons/gmaillogo-notifier-gray.svg");
-            this._icon_red = Clutter.Texture.new_from_file(extensionPath + "/icons/gmaillogo-notifier-red.svg");
-            this._icon = this._icon_gray;
-            this._box.insert_child_at_index(this._icon_gray, 1);
-            this._box.insert_child_at_index(this._icon_red, 1);
-            this.text = new St.Label({text: "0(0)"});
-            this.etext = new St.Label({text: ""});
-            this._box.insert_child_at_index(this.text, 2);
-            this._box.insert_child_at_index(this.etext, 3);
-            this._label.set_child(this._box);
-
-            this.actor.add_actor(this._label);
-        } catch (err) {
-            global.log("Button init" + err.message);
-        }
-
-    },
-
-    showNumbers: function (show) {
-        try {
-            if (show === 0) {
-
-                this.text.hide();
-                this.etext.show();
-            }
-            else {
-
-                this.text.show();
-                this.etext.hide();
-            }
-        }
-        catch (err) {
-            global.log("Show NUmbers" + err.message);
-        }
-
-    },
-    _showNoMessage: function (provider) {
-        provider = typeof(provider) === 'undefined' ? 'GOOGLE' : provider;
-        if (_DEBUG) global.log("Gmail set content: no message");
-        try {
-            let note = new Imap.ImapMessage();
-            note.date = new Date();
-            note.subject = _('No new messages');
-            let msg = new GmailMenuItem(note, {
-                reactive: true
-            }, provider);
-            msg.connect('activate', _showHello);
-            this.menu.addMenuItem(msg, 0);
-            this.msgs.push(msg)
-        } catch (err) {
-            global.log(err.message);
-        }
-    },
-    _showError: function (err) {
-        if (_DEBUG) global.log("_showError: no message");
-        try {
-            let note = new Imap.ImapMessage();
-            note.date = new Date();
-            note.subject = _(err);
-            let msg = new GmailMenuItem(note, {
-                reactive: true
-            });
-            msg.connect('activate', _browseGn);
-            this.menu.addMenuItem(msg, 0);
-            this.msgs.push(msg)
-        } catch (err) {
-            global.log(err.message);
-        }
-    },
-    _onButtonPress: function (actor, event) {
-        if (_DEBUG) global.log("Button pres" + event.get_button().toString());
-        if (event.get_button() === 1) {
-            try {
-                if (!this.menu.isOpen) {
-                    let monitor = Main.layoutManager.primaryMonitor;
-                    this.menu.actor.style = ('max-height: ' +
-                    Math.round(monitor.height - Main.panel.actor.height) +
-                    'px;');
-                }
-                if (this.submenu !== null && typeof(this.submenu) !== 'undefined') {
-                    this.submenu.destroy();
-                }
-                this.menu.toggle();
-            }
-            catch (err) {
-                global.log("onButtonPress" + err.message);
-            }
-
-        }
-        else {
-            onTimer();
-        }
-    },
-    _onDestroy: function () {
-    },
-
-    setIcon: function (n) {
-
-        if (n > 0 || nVersion > _version) {
-            this._icon = this._icon_red.show();
-            this._icon = this._icon_gray.hide();
-        }
-        else {
-            this._icon = this._icon_gray.show();
-            this._icon = this._icon_red.hide();
-        }
-
-    }
-};
-
-GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
-    add = typeof(add) === 'undefined' ? 0 : add;
-    mailbox = typeof(mailbox) === 'undefined' ? '' : mailbox;
-    provider = typeof(provider) === 'undefined' ? 'GOOGLE' : provider;
-    try {
-        if (_DEBUG) global.log("Gmail set content: 1");
-        if (add === 0) {
-            Main.panel.menuManager.removeMenu(this.menu);
-            this.menu.destroy();
-            this.menu = new PopupMenu.PopupMenu(this.actor, 0.0, St.Side.TOP);
-            this.menu.actor.add_style_class_name('panel-menu');
-            this.menu.connect('open-state-changed', Lang.bind(this, this._onOpenStateChanged));
-            this.menu.actor.connect('key-press-event', Lang.bind(this, this._onMenuKeyPress));
-            Main.uiGroup.add_actor(this.menu.actor);
-            this.menu.actor.hide();
-            this.msgs = [];
-            this.boxes = [];
-        }
-        if (_DEBUG) global.log("Gmail set content: 2");
-        if (typeof(content) !== 'undefined') {
-            if (_DEBUG) global.log("Gmail set content: 3");
-
-            if (content.length > 0) {
-
-                if (_DEBUG) global.log("Gmail set content: 4");
-                for (let k = 0; k < Math.min(content.length, 10); k++) {
-                    let msg = new GmailMenuItem(content[k], {
-                        reactive: true
-                    });
-                    msg.connect('activate', _showHello);
-                    this.menu.addMenuItem(msg, 0);
-                    this.msgs.push(msg);
-                }
-            }
-            else {
-
-                this._showNoMessage(provider);
-            }
-            let mbox = new MailboxMenuItem(mailbox);
-            mbox.setProvider(provider);
-            mbox.connect('activate', _showHello);
-            this.boxes.push(mbox);
-            this.menu.addMenuItem(mbox, 0);
-        }
-        else {
-            this._showNoMessage();
-        }
-        if (nVersion > _version) {
-            let note = new Imap.ImapMessage();
-            note.date = new Date();
-            note.from = "Gmail Notify";
-            note.subject = _('There is newer version of this extension: %s - click to download').format(nVersion);
-            let msg = new GmailMenuItem(note, {
-                reactive: true
-            });
-            msg.connect('activate', _browseGn);
-            this.menu.addMenuItem(msg);
-
-        }
-
-    } catch (err) {
-        global.log("Gmail set content:" + err.message)
-    }
-    Main.panel.menuManager.addMenu(this.menu);
-};
 
 
 function GmailMenuItem() {
@@ -691,7 +449,7 @@ MailboxMenuItem.prototype = {
 };
 
 
-var GmailConf = function () {
+const GmailConf = function () {
     this._init();
 };
 GmailConf.prototype = {
@@ -762,7 +520,7 @@ GmailConf.prototype = {
 
     }
 
-}
+};
 
 //Signals.addSignalMethods(GmailConf.prototype);
 
@@ -773,15 +531,7 @@ function init(extensionMeta) {
     let userExtensionLocalePath = extensionPath + '/locale';
     imports.gettext.bindtextdomain('gmail_notify', userExtensionLocalePath);
 
-    try {
-
-    }
-    catch (err) {
-        global.log(err.message);
-    }
     libCheck();
-
-
 }
 
 function libCheck() {
@@ -856,8 +606,7 @@ function show() {
 
 function enable() {
     try {
-
-        button = new GmailButton();
+        button = new GmailButton.GmailButton(extensionPath);
         config = new GmailConf();
         bText = config._btext;
         if (_DEBUG) global.log('init numbers' + config._numbers);
@@ -878,7 +627,7 @@ function enable() {
         if (_DEBUG) global.log('Event created: ' + event);
     }
     catch (err) {
-        global.log("Enable error: " + err.message);
+        log("Enable error: " + err.message, err.stack);
     }
 }
 

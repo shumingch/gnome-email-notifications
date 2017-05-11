@@ -159,3 +159,4 @@ function ParseAttribute(str_input, Attribute) {
     else if (str.indexOf(Attribute + '="') > -1) Attr = new RegExp(".*" + Attribute + '="([^"]*)".*>');
     return str.replace(Attr, "$1");
 }
+
