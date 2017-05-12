@@ -46,7 +46,7 @@ GmailConnection.prototype = {
             TlsConn.TlsConnection.prototype._init.call(this, this._oMail.imap_host, 993, this._oMail.imap_use_tls)
         }
         catch (err) {
-            console.log("gmailConnection.proto:" + err.message);
+            console.log(err);
         }
     }
 

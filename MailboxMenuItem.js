@@ -26,6 +26,7 @@ const extension = Me.imports.extension;
 const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
+const console = Me.imports.console.console;
 
 function MailboxMenuItem() {
     this._init.apply(this, arguments);
@@ -49,7 +50,7 @@ MailboxMenuItem.prototype = {
             this.actor.add_child(this.label);
         }
         catch (err) {
-            log(err.message, err.stack);
+            console.error(err);
         }
     },
     setProvider: function (provider) {

@@ -21,6 +21,8 @@
  * Shuming Chan <shuming0207@gmail.com>
  *
  */
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const console = Me.imports.console.console;
 const MessageTray = imports.ui.messageTray;
 const St = imports.gi.St;
 
@@ -49,7 +51,7 @@ GmailNotification.prototype = {
             this.addActor(blayout);
         }
         catch (err) {
-            global.log('notification init error:' + err.message);
+            console.error(err);
         }
     },
 

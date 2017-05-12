@@ -122,7 +122,7 @@ GmailFeed.prototype = {
 
         }
         catch (err) {
-            console.log(err.message, err.stack);
+            console.error(err);
             this.emit('inbox-fed', folder, err);
             if (typeof(callback) !== 'undefined') callback.apply(this, [this, folder, err]);
         }

@@ -22,7 +22,6 @@
  */
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const TlsConn = Me.imports.tlsconnection;
 const Imap = Me.imports.imap;
 const OAuth = Me.imports.oauth;
 const GLib = imports.gi.GLib;
@@ -40,12 +39,10 @@ try {
     const Goa = imports.gi.Goa;
 }
 catch (err) {
-    console.log("Goa import error:" + err.message);
+    console.error(err);
 }
 
 const _DEBUG = true;
-
-
 
 
 function GmailImap() {
@@ -71,7 +68,7 @@ GmailImap.prototype = {
             }))
         }
         catch (err) {
-            console.log("gmailImap.proto:" + err.message);
+            console.error(err);
         }
     },
     authenticate: function (account, service, callback) {
@@ -92,7 +89,7 @@ GmailImap.prototype = {
             }
         }
         catch (err) {
-            console.log("authenticate: " + err.message)
+            console.error(err);
         }
     },
     _doauthenticate: function (account, service, callback) {
@@ -124,7 +121,7 @@ GmailImap.prototype = {
             );
         }
         catch (err) {
-            console.log("_doAuthenticate: " + err.message)
+            console.error(err);
         }
     },
     scanInbox: function (callback) {
@@ -146,7 +143,7 @@ GmailImap.prototype = {
             }
         }
         catch (err) {
-            console.log("scanInbox: " + err.message)
+            console.error(err);
         }
 
     },
@@ -160,25 +157,22 @@ GmailImap.prototype = {
                     if (typeof(callback) !== 'undefined') {
                         if (typeof(error) === 'undefined') {
                             callback.apply(this, [this, resp]);
-
                         }
                         else {
-
                             callback.apply(this, [this, resp, error]);
                         }
-
                     }
                     if (_DEBUG) console.log("doScan" + this.folders.length);
 
                     this.emit('inbox-scanned', resp, error)
                 }
                 catch (err) {
-                    console.log("doScan :" + err.message)
+                    console.error(err);
                 }
             }));
         }
         catch (err) {
-            console.log("_doscanInbox: " + err.message)
+            console.error(err);
         }
     }
 };

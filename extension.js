@@ -29,7 +29,7 @@ try {
     Gio = imports.gi.Gio;
 }
 catch (err) {
-    log("Gio import error:" + err.message);
+    console.error(err);
 }
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
@@ -47,11 +47,9 @@ const _ = Gettext.gettext;
 const GConf = imports.gi.GConf;
 const Utils = imports.misc.util;
 const MessageTray = imports.ui.messageTray;
-const PopupMenu = imports.ui.popupMenu;
 const Lib = Me.imports.lib;
 const console = Me.imports.console.console;
 
-const Clutter = imports.gi.Clutter;
 const CHECK_TIMEOUT = 300;
 const GCONF_ACC_KEY = "/apps/gmail_notify/accounts";
 const GCONF_DIR = "/apps/gmail_notify";
@@ -73,7 +71,7 @@ try {
     Soup.Session.prototype.add_feature.call(sSes, new Soup.ProxyResolverDefault());
 }
 catch (err) {
-    console.log("Soup import error:" + err.message);
+    console.error(err);
 }
 
 
@@ -82,7 +80,7 @@ try {
     Goa = imports.gi.Goa;
 }
 catch (err) {
-    console.log("Goa import error:" + err.message);
+    console.error(err);
 }
 
 
@@ -103,7 +101,7 @@ function onTimer() {
         if (_DEBUG) console.log("Post oTimer: " + goaAccounts.length);
     }
     catch (err) {
-        console.log("onTimer :" + err.message);
+        console.error(err);
     }
     return true;
 }
@@ -120,7 +118,7 @@ function oneTime() {
         if (_DEBUG) console.log("Post oneTime " + goaAccounts.length);
     }
     catch (err) {
-        console.log("oneTime :" + err.message);
+        console.error(err);
     }
     return false;
 }
@@ -138,7 +136,7 @@ function _mailNotify(content) {
         }
     }
     catch (err) {
-        console.log("_mail notify:" + err.message);
+        console.error(err);
         button.text.text = err.message;
     }
 
@@ -211,7 +209,7 @@ function _processData(oImap) {
         button.setIcon(sU);
     }
     catch (err) {
-        console.log(err.message, err.stack);
+        console.error(err);
         button.text.text = err.message;
     }
     if (_DEBUG) console.log("Post Process Data " + oImap._conn._oAccount.get_account().id);
@@ -246,7 +244,7 @@ function _initData() {
         if (_DEBUG) console.log("Post Init data l:" + goaAccounts.length);
     }
     catch (err) {
-        if (_DEBUG) console.log(err.message, err.stack);
+        if (_DEBUG) console.error(err);
     }
 
 }
@@ -280,7 +278,7 @@ function _showHello(object, event) {
 
     }
     catch (err) {
-        console.log("Show Hello:" + err.message);
+        console.error(err);
         button.text.text = err.message;
     }
 }
@@ -307,19 +305,19 @@ GmailConf.prototype = {
             }
             catch (err) {
                 this._browser = "firefox";
-                console.log("Config init browser : " + err.message);
+                console.error(err);
             }
             try {
                 this._mail = Gio.app_info_get_default_for_uri_scheme("mailto").get_executable();
             }
             catch (err) {
-                console.log("Config init mail : " + err.message);
+                console.error(err);
                 this._mail = "";
             }
             this._readValues();
         }
         catch (err) {
-            console.log("Config init: " + err.message);
+            console.error(err);
         }
 
     },
@@ -390,7 +388,7 @@ function libCheck() {
         }
     }
     catch (err) {
-        console.log(err.message);
+        console.error(err);
     }
 }
 
@@ -400,23 +398,18 @@ function _checkVersion() {
         let sSes = new Soup.SessionAsync();
         let sMes = Soup.Message.new('GET', 'http://gn.makrodata.org/index.php/current');
         sSes.queue_message(sMes, Lang.bind(this, function (oSes, oMes) {
-            try {
-                if (_DEBUG) console.log(oMes.response_body.data);
-                let xdoc = new REXML(oMes.response_body.data.replace('<?xml version="1.0" encoding="utf-8" ?>', ''));
-                if (_DEBUG) console.log("Current Verison: " + xdoc.version[0].number);
-                nVersion = xdoc.rootElement.ChildElement('number').text;
-                if (nVersion > _version) {
-                    //bText=' ! %s(<u>%s</u>)'
-                }
-            }
-            catch (err) {
-                console.log("Check version callback:" + err.message)
+            if (_DEBUG) console.log(oMes.response_body.data);
+            let xdoc = new REXML(oMes.response_body.data.replace('<?xml version="1.0" encoding="utf-8" ?>', ''));
+            if (_DEBUG) console.log("Current Verison: " + xdoc.version[0].number);
+            nVersion = xdoc.rootElement.ChildElement('number').text;
+            if (nVersion > _version) {
+                //bText=' ! %s(<u>%s</u>)'
             }
 
         }))
     }
     catch (err) {
-        console.log("Check version:" + err.message)
+        console.error(err);
     }
 }
 
@@ -441,7 +434,7 @@ function show() {
         currentPos = config._position;
     }
     catch (err) {
-        console.log(err.message);
+        console.error(err);
     }
 
 }
@@ -468,7 +461,7 @@ function enable() {
         if (_DEBUG) console.log('Event created: ' + event);
     }
     catch (err) {
-        console.log("Enable error: " + err.message, err.stack);
+        console.error(err);
     }
 }
 
@@ -477,7 +470,7 @@ function hide() {
         button.destroy();
     }
     catch (err) {
-        console.log(err.message);
+        console.error(err);
     }
 }
 

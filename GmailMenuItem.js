@@ -26,6 +26,7 @@ const extension = Me.imports.extension;
 const PopupMenu = imports.ui.popupMenu;
 const St = imports.gi.St;
 const Clutter = imports.gi.Clutter;
+const console = Me.imports.console.console;
 const _DEBUG = true;
 
 function GmailMenuItem() {
@@ -67,7 +68,7 @@ GmailMenuItem.prototype = {
                     dt.getDate().toString() + " " + dt.getHours().toString() + ":" + dt.getMinutes().toString();
             }
             catch (err) {
-                global.log('Date converison error in gmail menu item proto');
+                console.error(err);
             }
             dts += " " + content.from;
             let label = new St.Label({text: dts});
@@ -80,7 +81,7 @@ GmailMenuItem.prototype = {
                 subtext += content.subject.length > 50 ? content.subject.substr(0, 50) + '...' : content.subject;
             }
             catch (err) {
-                global.log('Subject converison error in gmail menu item proto' + err.message);
+                console.error(err);
             }
             let label1 = new St.Label({text: subtext});
             layout.add(label1);
@@ -89,7 +90,7 @@ GmailMenuItem.prototype = {
             this.actor.add_child(this.label);
         }
         catch (err) {
-            global.log("GmailMenuItem proto error ", err.message, err.stack);
+            console.error(err);
         }
     }
 

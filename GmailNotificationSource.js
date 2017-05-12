@@ -40,7 +40,7 @@ GmailNotificationSource.prototype = {
             this._nbNotifications = 0;
         }
         catch (err) {
-            console.log('Err: GmainNotificationSource Init:' + err.message);
+            console.error(err);
         }
     },
 
@@ -56,7 +56,7 @@ GmailNotificationSource.prototype = {
             }));
         }
         catch (err) {
-            console.log('Err: GmainNotificationSource notify:' + err.message);
+            console.error(err);
         }
     },
 
@@ -65,7 +65,7 @@ GmailNotificationSource.prototype = {
             return Clutter.Texture.new_from_file(extensionPath + "/icons/gmail-icon48.png");
         }
         catch (err) {
-            console.log('Err: Crea noti icon:' + err.message);
+            console.error(err);
         }
     }
 

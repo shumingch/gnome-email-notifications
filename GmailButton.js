@@ -31,6 +31,7 @@ const Main = imports.ui.main;
 const _DEBUG = true;
 const extension = Me.imports.extension;
 const MailboxMenuItem = Me.imports.MailboxMenuItem.MailboxMenuItem;
+const console = Me.imports.console.console;
 
 function GmailButton(extensionPath) {
     this._init(extensionPath);
@@ -64,7 +65,7 @@ GmailButton.prototype = {
 
             this.actor.add_actor(this._label);
         } catch (err) {
-            global.log("Button init", err.message);
+            console.error(err);
         }
 
     },
@@ -83,13 +84,13 @@ GmailButton.prototype = {
             }
         }
         catch (err) {
-            global.log("Show Numbers" + err.message);
+            console.error(err);
         }
 
     },
     _showNoMessage: function (provider) {
         provider = typeof(provider) === 'undefined' ? 'GOOGLE' : provider;
-        if (_DEBUG) global.log("Gmail set content: no message");
+        if (_DEBUG) console.log("Gmail set content: no message");
         try {
             let note = new Imap.ImapMessage();
             note.date = new Date();
@@ -101,11 +102,11 @@ GmailButton.prototype = {
             this.menu.addMenuItem(msg, 0);
             this.msgs.push(msg)
         } catch (err) {
-            global.log(err.message);
+            console.error(err);
         }
     },
     _showError: function (err) {
-        if (_DEBUG) global.log("_showError: no message");
+        if (_DEBUG) console.error(err);
         try {
             let note = new Imap.ImapMessage();
             note.date = new Date();
@@ -117,11 +118,11 @@ GmailButton.prototype = {
             this.menu.addMenuItem(msg, 0);
             this.msgs.push(msg)
         } catch (err) {
-            global.log(err.message);
+            console.error(err);
         }
     },
     _onButtonPress: function (actor, event) {
-        if (_DEBUG) global.log("Button pres" + event.get_button().toString());
+        if (_DEBUG) console.log("Button pres" + event.get_button().toString());
         if (event.get_button() === 1) {
             try {
                 if (!this.menu.isOpen) {
@@ -136,7 +137,7 @@ GmailButton.prototype = {
                 this.menu.toggle();
             }
             catch (err) {
-                global.log("onButtonPress" + err.message);
+                console.error(err);
             }
 
         }
@@ -166,7 +167,7 @@ GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
     mailbox = typeof(mailbox) === 'undefined' ? '' : mailbox;
     provider = typeof(provider) === 'undefined' ? 'GOOGLE' : provider;
     try {
-        if (_DEBUG) global.log("Gmail set content: 1");
+        if (_DEBUG) console.log("Gmail set content: 1");
         if (add === 0) {
             Main.panel.menuManager.removeMenu(this.menu);
             this.menu.destroy();
@@ -179,13 +180,13 @@ GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
             this.msgs = [];
             this.boxes = [];
         }
-        if (_DEBUG) global.log("Gmail set content: 2");
+        if (_DEBUG) console.log("Gmail set content: 2");
         if (typeof(content) !== 'undefined') {
-            if (_DEBUG) global.log("Gmail set content: 3");
+            if (_DEBUG) console.log("Gmail set content: 3");
 
             if (content.length > 0) {
 
-                if (_DEBUG) global.log("Gmail set content: 4");
+                if (_DEBUG) console.log("Gmail set content: 4");
                 for (let k = 0; k < Math.min(content.length, 10); k++) {
                     let msg = new extension.GmailMenuItem(content[k], {
                         reactive: true
@@ -222,7 +223,7 @@ GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
         }
 
     } catch (err) {
-        log("Gmail set content:", err.message, err.stack)
+        console.error(err);
     }
     Main.panel.menuManager.addMenu(this.menu);
 };
