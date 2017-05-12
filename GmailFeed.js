@@ -23,7 +23,7 @@
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const OAuth = Me.imports.oauth;
-const gmail = Me.imports.gmail;
+const GmailHttps = Me.imports.GmailHttps.GmailHttps;
 const XML = Me.imports.rexml;
 const Imap = Me.imports.imap;
 const Soup = imports.gi.Soup;
@@ -41,7 +41,7 @@ function GmailFeed() {
 GmailFeed.prototype = {
     _init: function (conn) {
         this.authenticated = true;
-        this._conn = new gmail.GmailHttps(conn);
+        this._conn = new GmailHttps(conn);
         this.folders = [];
     },
     scanInbox: function (callback) {
