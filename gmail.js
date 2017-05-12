@@ -20,6 +20,7 @@
  * Shuming Chan <shuming0207@gmail.com>
  *
  */
+"use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const TlsConn = Me.imports.tlsconnection;
 const Imap = Me.imports.imap;
@@ -45,32 +46,6 @@ catch (err) {
 const _DEBUG = true;
 
 
-const GmailConnection = function () {
-    this._init.apply(this, arguments);
-};
-
-GmailConnection.prototype = {
-    __proto__: TlsConn.TlsConnection.prototype,
-    _init: function (account) {
-        try {
-            let sprovider = account.get_account().provider_name.toUpperCase();
-            if (sprovider !== "GOOGLE" && sprovider !== "MICROSOFT ACCOUNT") {
-                throw new Error('This is not Google/Windows Account')
-            }
-            this._oAccount = account;
-            if (_DEBUG) console.log("Creating gmail conn .." + this._oAccount.get_account().id);
-            if (_DEBUG) console.log("Creating gmail conn .." + this._oAccount.get_account().identity);
-            this._oMail = this._oAccount.get_mail();
-            if (_DEBUG) console.log("Omailuse tls: " + this._oMail.imap_use_tls);
-            if (_DEBUG) console.log("Omailuse host: " + this._oMail.imap_host);
-            TlsConn.TlsConnection.prototype._init.call(this, this._oMail.imap_host, 993, this._oMail.imap_use_tls)
-        }
-        catch (err) {
-            console.log("gmailConnection.proto:" + err.message);
-        }
-    }
-
-};
 
 //dummy class to emulate imap;
 
