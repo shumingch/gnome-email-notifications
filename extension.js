@@ -353,15 +353,12 @@ GmailConf.prototype = {
         return this._client.get_string(key)
     },
     _onNotify: function (client, object, p0) {
-
         return true;
     },
     _onDestroy: function (client, object, p0) {
-
         return true;
     },
     _onValueChanged: function (client, key, p0) {
-
         return true;
     },
     _disconnectSignals: function () {
@@ -382,7 +379,6 @@ function init(extensionMeta) {
     settings = Lib.getSettings(Me);
     let userExtensionLocalePath = extensionPath + '/locale';
     imports.gettext.bindtextdomain('gmail_notify', userExtensionLocalePath);
-
     libCheck();
 }
 
@@ -465,7 +461,6 @@ function enable() {
         button.showNumbers(config._numbers);
         button.setIcon(0);
 
-        let userExtensionLocalePath = extensionPath + '/locale';
         global.log(' Enbling Gmail notify version ' + _version);
         if (config === null) config = new GmailConf();
         show();
@@ -485,7 +480,6 @@ function enable() {
 
 function hide() {
     try {
-
         button.destroy();
     }
     catch (err) {
