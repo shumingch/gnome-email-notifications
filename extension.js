@@ -29,7 +29,7 @@ try {
     Gio = imports.gi.Gio;
 }
 catch (err) {
-    global.log("Gio import error:" + err.message);
+    log("Gio import error:" + err.message);
 }
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
@@ -38,6 +38,7 @@ const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const GmailButton = Me.imports.GmailButton.GmailButton;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
 const GmailMenuItem = Me.imports.GmailMenuItem.GmailMenuItem;
+const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 const XML = Me.imports.rexml;
@@ -48,6 +49,7 @@ const Utils = imports.misc.util;
 const MessageTray = imports.ui.messageTray;
 const PopupMenu = imports.ui.popupMenu;
 const Lib = Me.imports.lib;
+const console = Me.imports.console.console;
 
 const Clutter = imports.gi.Clutter;
 const CHECK_TIMEOUT = 300;
@@ -64,7 +66,6 @@ const GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY = 'showsummary';
 const GMAILNOTIFY_SETTINGS_KEY_SAFEMODE = 'safemode';
 const GMAILNOTIFY_SETTINGS_KEY_USEMAIL = 'usemail';
 
-
 let Soup, sSes;
 try {
     Soup = imports.gi.Soup;
@@ -72,7 +73,7 @@ try {
     Soup.Session.prototype.add_feature.call(sSes, new Soup.ProxyResolverDefault());
 }
 catch (err) {
-    global.log("Soup import error:" + err.message);
+    console.log("Soup import error:" + err.message);
 }
 
 
@@ -81,7 +82,7 @@ try {
     Goa = imports.gi.Goa;
 }
 catch (err) {
-    global.log("Goa import error:" + err.message);
+    console.log("Goa import error:" + err.message);
 }
 
 
@@ -90,36 +91,36 @@ let text, button, event, extensionPath, currentPos, config, onetime, goaAccounts
 
 
 function onTimer() {
-    if (_DEBUG) global.log("onTimer");
+    if (_DEBUG) console.log("onTimer");
     try {
         sM = 0;
         sU = 0;
         numGoogle = 0;
         for (let i = 0; i < goaAccounts.length; i++) {
-            if (_DEBUG) global.log("Running scan: " + i + " " + goaAccounts[i]._conn._oAccount.get_account().id);
+            if (_DEBUG) console.log("Running scan: " + i + " " + goaAccounts[i]._conn._oAccount.get_account().id);
             goaAccounts[i].scanInbox();
         }
-        if (_DEBUG) global.log("Post oTimer: " + goaAccounts.length);
+        if (_DEBUG) console.log("Post oTimer: " + goaAccounts.length);
     }
     catch (err) {
-        global.log("onTimer :" + err.message);
+        console.log("onTimer :" + err.message);
     }
     return true;
 }
 function oneTime() {
-    if (_DEBUG) global.log("oneTime");
+    if (_DEBUG) console.log("oneTime");
     try {
         sM = 0;
         sU = 0;
         numGoogle = 0;
         for (let i = 0; i < goaAccounts.length; i++) {
-            if (_DEBUG) global.log("Running scan: " + i + " " + goaAccounts[i]._conn._oAccount.get_account().id);
+            if (_DEBUG) console.log("Running scan: " + i + " " + goaAccounts[i]._conn._oAccount.get_account().id);
             goaAccounts[i].scanInbox();
         }
-        if (_DEBUG) global.log("Post oneTime " + goaAccounts.length);
+        if (_DEBUG) console.log("Post oneTime " + goaAccounts.length);
     }
     catch (err) {
-        global.log("oneTime :" + err.message);
+        console.log("oneTime :" + err.message);
     }
     return false;
 }
@@ -131,21 +132,20 @@ function _mailNotify(content) {
 
         for (let i = 0; i < content.length; i++) {
             let notification = new GmailNotification(source, content[i]);
-            if (_DEBUG) global.log("After cretae notification ");
+            if (_DEBUG) console.log("After cretae notification ");
             notification.setTransient(true);
             source.notify(notification);
         }
     }
     catch (err) {
-        global.log("_mail notify:" + err.message);
+        console.log("_mail notify:" + err.message);
         button.text.text = err.message;
     }
 
 }
 
-function _processData(oImap, resp, error) {
-    if (_DEBUG) global.log("Entering process Data ");
-    if (_DEBUG) global.log("Process Data " + oImap._conn._oAccount.get_account().id);
+function _processData(oImap) {
+    if (_DEBUG) console.log("Process Data " + oImap._conn._oAccount.get_account().id);
     try {
         let maxId = 0;
         let maxSafeId = '';
@@ -157,24 +157,24 @@ function _processData(oImap, resp, error) {
                 if (oImap.folders[i].list[j].safeid > maxSafeId) maxSafeId = oImap.folders[i].list[j].safeid;
             }
         }
-        if (_DEBUG) global.log("maxSafeId= " + maxSafeId);
-        if (_DEBUG) global.log("total= " + sM);
-        if (_DEBUG) global.log("unseen= " + sU);
-        if (_DEBUG) global.log("Getting entry for  " + oImap._conn._oAccount.get_account().id);
+        if (_DEBUG) console.log("maxSafeId= " + maxSafeId);
+        if (_DEBUG) console.log("total= " + sM);
+        if (_DEBUG) console.log("unseen= " + sU);
+        if (_DEBUG) console.log("Getting entry for  " + oImap._conn._oAccount.get_account().id);
         let entry = config.get_int(GCONF_ACC_KEY + "/" + oImap._conn._oAccount.get_account().id);
-        let safeentry = config.get_string(GCONF_ACC_KEY + "/" + oImap._conn._oAccount.get_account().id + '_safe');
+        let safeEntry = config.get_string(GCONF_ACC_KEY + "/" + oImap._conn._oAccount.get_account().id + '_safe');
         entry = typeof(entry) !== 'undefined' && entry !== null ? entry : 0;
-        safeentry = typeof(safeentry) !== 'undefined' && safeentry !== null ? safeentry : '';
-        if (_DEBUG) global.log("safeentry= " + safeentry);
-        if (_DEBUG) global.log("maxid= " + maxId);
-        if (_DEBUG) global.log("entry= " + entry);
-        if (_DEBUG) global.log("Safemode= " + config._safemode);
-        if (config._safemode === 1 ? maxSafeId > safeentry : maxId > entry) {
+        safeEntry = typeof(safeEntry) !== 'undefined' && safeEntry !== null ? safeEntry : '';
+        if (_DEBUG) console.log("safeentry= " + safeEntry);
+        if (_DEBUG) console.log("maxid= " + maxId);
+        if (_DEBUG) console.log("entry= " + entry);
+        if (_DEBUG) console.log("Safemode= " + config._safemode);
+        if (config._safemode === 1 ? maxSafeId > safeEntry : maxId > entry) {
             for (let i = 0; i < oImap.folders.length; i++) {
                 const notes = [];
                 for (let j = 0; j < oImap.folders[i].list.length; j++) {
                     if (config._safemode === 1) {
-                        if (oImap.folders[i].list[j].safeid > safeentry) {
+                        if (oImap.folders[i].list[j].safeid > safeEntry) {
                             notes.push(oImap.folders[i].list[j]);
                         }
                     }
@@ -184,7 +184,7 @@ function _processData(oImap, resp, error) {
                         }
                     }
                 }
-                if (_DEBUG) global.log("Notes length:" + notes.length);
+                if (_DEBUG) console.log("Notes length:" + notes.length);
                 if (notes.length > 0 && config._notify) {
                     _mailNotify(notes);
                 }
@@ -199,9 +199,9 @@ function _processData(oImap, resp, error) {
         }
         //todo:get not only from inbox
         if (_DEBUG) {
-            global.log("Num google:" + numGoogle);
-            global.log("Setting Content 0:" + oImap.folders[0].list.length);
-            global.log("Setting Content 1:" + oImap._conn._oAccount.get_account().identity);
+            console.log("Num google:" + numGoogle);
+            console.log("Setting Content 0:" + oImap.folders[0].list.length);
+            console.log("Setting Content 1:" + oImap._conn._oAccount.get_account().identity);
         }
 
         button.setContent(oImap.folders[0].list, numGoogle, oImap._conn._oAccount.get_account().presentation_identity, oImap._conn._oAccount.get_account().provider_name.toUpperCase());
@@ -211,48 +211,42 @@ function _processData(oImap, resp, error) {
         button.setIcon(sU);
     }
     catch (err) {
-        global.log("process data:" + err.message);
+        console.log(err.message, err.stack);
         button.text.text = err.message;
     }
-    if (_DEBUG) global.log("Post Process Data " + oImap._conn._oAccount.get_account().id);
+    if (_DEBUG) console.log("Post Process Data " + oImap._conn._oAccount.get_account().id);
 }
 
 function _initData() {
-
-    if (_DEBUG) global.log("Init data");
     try {
         goaAccounts = [];
         let aClient = Goa.Client.new_sync(null);
         let accounts = aClient.get_accounts();
 
-        if (_DEBUG) global.log("init data");
-
         for (let i = 0; i < accounts.length; i++) {
-            if (_DEBUG) global.log(accounts[i].get_account().provider_name.toUpperCase());
-            if (_DEBUG) global.log(accounts[i].get_account().id);
-            if (_DEBUG) global.log(accounts[i].get_account().provider_name.toUpperCase());
+            if (_DEBUG) console.log(accounts[i].get_account().provider_name.toUpperCase());
+            if (_DEBUG) console.log(accounts[i].get_account().id);
+            if (_DEBUG) console.log(accounts[i].get_account().provider_name.toUpperCase());
             let sprovider = accounts[i].get_account().provider_name.toUpperCase();
-            if (_DEBUG) global.log("sprovider:" + sprovider);
+            if (_DEBUG) console.log("sprovider:" + sprovider);
             if (sprovider === "GOOGLE" || (sprovider === "MICROSOFT ACCOUNT" && config._safemode === 0)) {
-                if (_DEBUG) global.log("Post oneTime adding");
-                let len = goaAccounts.push(config._safemode === 1 ? new Gmail.GmailFeed(accounts[i]) : new Gmail.GmailImap(accounts[i]));
-                //let len=goaAccounts.push( new Gmail.GmailImap(accounts[i]) );
+                if (_DEBUG) console.log("Post oneTime adding");
+                let len = goaAccounts.push(config._safemode === 1 ? new GmailFeed(accounts[i]) : new Gmail.GmailImap(accounts[i]));
                 goaAccounts[len - 1].connect('inbox-scanned', _processData);
                 goaAccounts[len - 1].connect('inbox-fed', _processData);
-                if (_DEBUG) global.log("Post oneTime added:" + goaAccounts[i]._conn._oAccount.get_account().id);
+                if (_DEBUG) console.log("Post oneTime added:" + goaAccounts[i]._conn._oAccount.get_account().id);
             }
         }
 
         if (_DEBUG) {
             for (let i = 0; i < goaAccounts.length; i++) {
-                global.log("Checking Accounts" + goaAccounts[i]._conn._oAccount.get_account().id);
+                console.log("Checking Accounts" + goaAccounts[i]._conn._oAccount.get_account().id);
             }
         }
-
-        if (_DEBUG) global.log("Post Init data l:" + goaAccounts.length);
+        if (_DEBUG) console.log("Post Init data l:" + goaAccounts.length);
     }
     catch (err) {
-        if (_DEBUG) global.log("Init data : " + err.message);
+        if (_DEBUG) console.log(err.message, err.stack);
     }
 
 }
@@ -260,14 +254,14 @@ function _initData() {
 
 // well run reader really
 function _showHello(object, event) {
-    global.log("show hello entry");
+    console.log("show hello entry");
     try {
         if (config._reader === 0) {
             if (config._browser === "") {
-                global.log("gmail notify: no default browser")
+                console.log("gmail notify: no default browser")
             }
             else {
-                global.log("object link: " + object.link);
+                console.log("object link: " + object.link);
                 if (object.link !== '' && typeof(object.link) !== 'undefined') {
                     Utils.trySpawnCommandLine(config._browser + " " + object.link);
                 }
@@ -277,7 +271,7 @@ function _showHello(object, event) {
             }
         } else {
             if (config._mail === "") {
-                global.log("gmail notify: no default mail reader")
+                console.log("gmail notify: no default mail reader")
             }
             else {
                 Utils.trySpawnCommandLine(config._mail);
@@ -286,14 +280,14 @@ function _showHello(object, event) {
 
     }
     catch (err) {
-        global.log("Show Hello:" + err.message);
+        console.log("Show Hello:" + err.message);
         button.text.text = err.message;
     }
 }
 
 function _browseGn() {
     if (config._browser === "") {
-        global.log("gmail notify: no default browser")
+        console.log("gmail notify: no default browser")
     }
     else {
         Utils.trySpawnCommandLine(config._browser + " http://gn.makrodata.org");
@@ -313,19 +307,19 @@ GmailConf.prototype = {
             }
             catch (err) {
                 this._browser = "firefox";
-                global.log("Config init browser : " + err.message);
+                console.log("Config init browser : " + err.message);
             }
             try {
                 this._mail = Gio.app_info_get_default_for_uri_scheme("mailto").get_executable();
             }
             catch (err) {
-                global.log("Config init mail : " + err.message);
+                console.log("Config init mail : " + err.message);
                 this._mail = "";
             }
             this._readValues();
         }
         catch (err) {
-            global.log("Config init: " + err.message);
+            console.log("Config init: " + err.message);
         }
 
     },
@@ -374,7 +368,7 @@ GmailConf.prototype = {
 //Signals.addSignalMethods(GmailConf.prototype);
 
 function init(extensionMeta) {
-    global.log('Init Gmail notify version ' + _version);
+    console.log('Init Gmail notify version ' + _version);
     extensionPath = extensionMeta.path;
     settings = Lib.getSettings(Me);
     let userExtensionLocalePath = extensionPath + '/locale';
@@ -386,7 +380,7 @@ function libCheck() {
     try {
         if (typeof(Goa) !== 'undefined' && typeof(Soup) !== 'undefined' && typeof(Gio) !== 'undefined' && typeof(Gonf) !== 'undefined') {
             button.setContent();
-            if (_DEBUG) global.log('init timeout' + config._timeout);
+            if (_DEBUG) console.log('init timeout' + config._timeout);
         }
         else {
             button._showError(_('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'));
@@ -396,7 +390,7 @@ function libCheck() {
         }
     }
     catch (err) {
-        global.log("init error:" + err.message);
+        console.log(err.message);
     }
 }
 
@@ -407,29 +401,29 @@ function _checkVersion() {
         let sMes = Soup.Message.new('GET', 'http://gn.makrodata.org/index.php/current');
         sSes.queue_message(sMes, Lang.bind(this, function (oSes, oMes) {
             try {
-                if (_DEBUG) global.log(oMes.response_body.data);
+                if (_DEBUG) console.log(oMes.response_body.data);
                 let xdoc = new REXML(oMes.response_body.data.replace('<?xml version="1.0" encoding="utf-8" ?>', ''));
-                if (_DEBUG) global.log("Current Verison: " + xdoc.version[0].number);
+                if (_DEBUG) console.log("Current Verison: " + xdoc.version[0].number);
                 nVersion = xdoc.rootElement.ChildElement('number').text;
                 if (nVersion > _version) {
                     //bText=' ! %s(<u>%s</u>)'
                 }
             }
             catch (err) {
-                global.log("Check version callback:" + err.message)
+                console.log("Check version callback:" + err.message)
             }
 
         }))
     }
     catch (err) {
-        global.log("Check version:" + err.message)
+        console.log("Check version:" + err.message)
     }
 }
 
 function show() {
     try {
-        if (_DEBUG) global.log('Showing button');
-        if (_DEBUG) global.log(config._position);
+        if (_DEBUG) console.log('Showing button');
+        if (_DEBUG) console.log(config._position);
         switch (config._position) {
             case 'right':
                 Main.panel.addToStatusArea('gmail-notify', button, 0, 'right');
@@ -447,7 +441,7 @@ function show() {
         currentPos = config._position;
     }
     catch (err) {
-        global.log(err.message);
+        console.log(err.message);
     }
 
 }
@@ -457,11 +451,11 @@ function enable() {
         button = new GmailButton(extensionPath);
         config = new GmailConf();
         bText = config._btext;
-        if (_DEBUG) global.log('init numbers' + config._numbers);
+        if (_DEBUG) console.log('init numbers' + config._numbers);
         button.showNumbers(config._numbers);
         button.setIcon(0);
 
-        global.log(' Enbling Gmail notify version ' + _version);
+        console.log('Enabling Gmail Message Tray version ' + _version);
         if (config === null) config = new GmailConf();
         show();
         _initData();
@@ -471,10 +465,10 @@ function enable() {
         //if (config.get_int(GCONF_DIR+'/vcheck')==1) _checkVersion();
         onetime = GLib.timeout_add_seconds(0, 5, oneTime);
         event = GLib.timeout_add_seconds(0, config._timeout, onTimer);
-        if (_DEBUG) global.log('Event created: ' + event);
+        if (_DEBUG) console.log('Event created: ' + event);
     }
     catch (err) {
-        log("Enable error: " + err.message, err.stack);
+        console.log("Enable error: " + err.message, err.stack);
     }
 }
 
@@ -483,7 +477,7 @@ function hide() {
         button.destroy();
     }
     catch (err) {
-        global.log(err.message);
+        console.log(err.message);
     }
 }
 

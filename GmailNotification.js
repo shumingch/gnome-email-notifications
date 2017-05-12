@@ -32,7 +32,6 @@ GmailNotification.prototype = {
     __proto__: MessageTray.Notification.prototype,
 
     _init: function (source, content) {
-        if (_DEBUG) global.log('entering notification');
         try {
             MessageTray.Notification.prototype._init.call(this, source,
                 _("New mail from %s").format(content.from), null,

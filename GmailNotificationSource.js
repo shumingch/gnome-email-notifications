@@ -24,7 +24,7 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const MessageTray = imports.ui.messageTray;
 const Clutter = imports.gi.Clutter;
-const _DEBUG = true;
+const console = Me.imports.console.console;
 
 function GmailNotificationSource() {
     this._init();
@@ -35,13 +35,12 @@ GmailNotificationSource.prototype = {
 
     _init: function () {
         try {
-            if (_DEBUG) global.log("Entering Nofy source create ");
             MessageTray.Source.prototype._init.call(this, _("New gmail message"), "");
             this._setSummaryIcon(this.createNotificationIcon());
             this._nbNotifications = 0;
         }
         catch (err) {
-            global.log('Err: GmainNotificationSource Init:' + err.message);
+            console.log('Err: GmainNotificationSource Init:' + err.message);
         }
     },
 
@@ -57,7 +56,7 @@ GmailNotificationSource.prototype = {
             }));
         }
         catch (err) {
-            global.log('Err: GmainNotificationSource notify:' + err.message);
+            console.log('Err: GmainNotificationSource notify:' + err.message);
         }
     },
 
@@ -66,7 +65,7 @@ GmailNotificationSource.prototype = {
             return Clutter.Texture.new_from_file(extensionPath + "/icons/gmail-icon48.png");
         }
         catch (err) {
-            global.log('Err: Crea noti icon:' + err.message);
+            console.log('Err: Crea noti icon:' + err.message);
         }
     }
 
