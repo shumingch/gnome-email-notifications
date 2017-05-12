@@ -36,8 +36,7 @@ GmailNotification.prototype = {
     _init: function (source, content) {
         try {
             MessageTray.Notification.prototype._init.call(this, source,
-                _("New mail from %s").format(content.from), null,
-                {customContent: true});
+                _("New mail from %s").format(content.from), null);
             this.expanded = true;
             this._table.add_style_class_name('multi-line-notification');
             let blayout = new St.BoxLayout({vertical: false});

@@ -67,7 +67,6 @@ GmailFeed.prototype = {
                         this.folders = [];
                         let messages = [];
                         let xmltx = msg.response_body.data.substr(msg.response_body.data.indexOf('>') + 1).replace('xmlns="http://purl.org/atom/ns#"', '');
-                        if (_DEBUG) console.log('xml created:' + xmltx);
                         let oxml = new XML.REXML(xmltx);
 
                         if (_DEBUG) console.log('xml name:' + oxml.rootElement.name);

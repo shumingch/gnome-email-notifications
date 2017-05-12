@@ -28,5 +28,8 @@ Console.prototype.log = function (...args) {
 Console.prototype.error = function (err) {
     global.log(this.extensionString, err.message, err.stack);
 };
+Console.prototype.json = function (obj) {
+    global.log(this.extensionString, JSON.stringify(obj));
+};
 
 const console = new Console();

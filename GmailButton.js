@@ -31,6 +31,7 @@ const Main = imports.ui.main;
 const _DEBUG = true;
 const extension = Me.imports.extension;
 const MailboxMenuItem = Me.imports.MailboxMenuItem.MailboxMenuItem;
+const GmailMenuItem = Me.imports.GmailMenuItem.GmailMenuItem;
 const console = Me.imports.console.console;
 
 function GmailButton(extensionPath) {
@@ -42,6 +43,7 @@ GmailButton.prototype = {
 
     _init: function (extensionPath) {
         try {
+            this.msgs = [];
             PanelMenu.Button.prototype._init.call(this, 0.0);
             this._label = new St.Bin({
                 style_class: 'panel-button', reactive: true,
@@ -68,6 +70,14 @@ GmailButton.prototype = {
             console.error(err);
         }
 
+    },
+    _browseGn: function () {
+        if (config._browser === "") {
+            console.log("gmail notify: no default browser")
+        }
+        else {
+            Utils.trySpawnCommandLine(config._browser + " http://gn.makrodata.org");
+        }
     },
 
     showNumbers: function (show) {
@@ -106,7 +116,7 @@ GmailButton.prototype = {
         }
     },
     _showError: function (err) {
-        if (_DEBUG) console.error(err);
+        if (_DEBUG) console.log(err);
         try {
             let note = new Imap.ImapMessage();
             note.date = new Date();
@@ -114,7 +124,7 @@ GmailButton.prototype = {
             let msg = new GmailMenuItem(note, {
                 reactive: true
             });
-            msg.connect('activate', _browseGn);
+            msg.connect('activate', this._browseGn);
             this.menu.addMenuItem(msg, 0);
             this.msgs.push(msg)
         } catch (err) {
@@ -150,7 +160,7 @@ GmailButton.prototype = {
 
     setIcon: function (n) {
 
-        if (n > 0 || Me.nVersion > Me._version) {
+        if (n > 0 || extension.nVersion > extension._version) {
             this._icon = this._icon_red.show();
             this._icon = this._icon_gray.hide();
         }
@@ -217,7 +227,7 @@ GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
             let msg = new GmailMenuItem(note, {
                 reactive: true
             });
-            msg.connect('activate', _browseGn);
+            msg.connect('activate', this._browseGn);
             this.menu.addMenuItem(msg);
 
         }

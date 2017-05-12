@@ -71,9 +71,9 @@ OAuth.prototype = {
                 this.oAuth_auth += anames[i] + "=\"" + avalues1[i] + "\",";
             }
 
-            this.oAuth_sigKey = encodeURI(this.oAuth.consumer_secret) + "&" + encodeURI(this.acc_token[2]);
+            //this.oAuth_sigKey = encodeURI(this.oAuth.consumer_secret) + "&" + encodeURI(this.acc_token[2]);
 
-            let shaObj = new jsSHA(this.oAuth_base, "ASCII");
+            //let shaObj = new jsSHA(this.oAuth_base, "ASCII");
 
 
             if (_DEBUG) global.log('user=' + this.oAcc.presentation_identity + String.fromCharCode(1) + 'auth=Bearer ' + this.acc_token[1] + ' ' + String.fromCharCode(1) + String.fromCharCode(1));

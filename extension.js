@@ -24,13 +24,6 @@
 const GLib = imports.gi.GLib;
 
 const St = imports.gi.St;
-let Gio;
-try {
-    Gio = imports.gi.Gio;
-}
-catch (err) {
-    console.error(err);
-}
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Gmail = Me.imports.gmail;
@@ -39,12 +32,12 @@ const GmailButton = Me.imports.GmailButton.GmailButton;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
 const GmailMenuItem = Me.imports.GmailMenuItem.GmailMenuItem;
 const GmailFeed = Me.imports.GmailFeed.GmailFeed;
+const GmailConf = Me.imports.GmailConf.GmailConf;
 const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 const XML = Me.imports.rexml;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
-const GConf = imports.gi.GConf;
 const Utils = imports.misc.util;
 const MessageTray = imports.ui.messageTray;
 const Lib = Me.imports.lib;
@@ -52,17 +45,9 @@ const console = Me.imports.console.console;
 
 const CHECK_TIMEOUT = 300;
 const GCONF_ACC_KEY = "/apps/gmail_notify/accounts";
-const GCONF_DIR = "/apps/gmail_notify";
 const _DEBUG = true;
 const _version = "0.3.6";
 
-const GMAILNOTIFY_SETTINGS_KEY_TIMEOUT = 'timeout';
-const GMAILNOTIFY_SETTINGS_KEY_BTEXT = 'btext';
-const GMAILNOTIFY_SETTINGS_KEY_POSITION = 'position';
-const GMAILNOTIFY_SETTINGS_KEY_NOTIFY = 'notify';
-const GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY = 'showsummary';
-const GMAILNOTIFY_SETTINGS_KEY_SAFEMODE = 'safemode';
-const GMAILNOTIFY_SETTINGS_KEY_USEMAIL = 'usemail';
 
 let Soup, sSes;
 try {
@@ -74,6 +59,13 @@ catch (err) {
     console.error(err);
 }
 
+let Gio;
+try {
+    Gio = imports.gi.Gio;
+}
+catch (err) {
+    console.error(err);
+}
 
 let Goa;
 try {
@@ -85,11 +77,10 @@ catch (err) {
 
 
 let text, button, event, extensionPath, currentPos, config, onetime, goaAccounts, sM, sU, numGoogle,
-    nVersion, bText, safemode, settings;
+    nVersion, bText, safemode;
 
 
 function onTimer() {
-    if (_DEBUG) console.log("onTimer");
     try {
         sM = 0;
         sU = 0;
@@ -101,17 +92,17 @@ function onTimer() {
         if (_DEBUG) console.log("Post oTimer: " + goaAccounts.length);
     }
     catch (err) {
-        console.error(err);
+         console.error(err);
     }
     return true;
 }
 function oneTime() {
-    if (_DEBUG) console.log("oneTime");
     try {
         sM = 0;
         sU = 0;
         numGoogle = 0;
         for (let i = 0; i < goaAccounts.length; i++) {
+            console.json(goaAccounts);
             if (_DEBUG) console.log("Running scan: " + i + " " + goaAccounts[i]._conn._oAccount.get_account().id);
             goaAccounts[i].scanInbox();
         }
@@ -283,95 +274,13 @@ function _showHello(object, event) {
     }
 }
 
-function _browseGn() {
-    if (config._browser === "") {
-        console.log("gmail notify: no default browser")
-    }
-    else {
-        Utils.trySpawnCommandLine(config._browser + " http://gn.makrodata.org");
-    }
-}
 
-
-const GmailConf = function () {
-    this._init();
-};
-GmailConf.prototype = {
-    _init: function () {
-        try {
-            this._client = GConf.Client.get_default();
-            try {
-                this._browser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
-            }
-            catch (err) {
-                this._browser = "firefox";
-                console.error(err);
-            }
-            try {
-                this._mail = Gio.app_info_get_default_for_uri_scheme("mailto").get_executable();
-            }
-            catch (err) {
-                console.error(err);
-                this._mail = "";
-            }
-            this._readValues();
-        }
-        catch (err) {
-            console.error(err);
-        }
-
-    },
-
-    _readValues: function () {
-        this._timeout = settings.get_int(GMAILNOTIFY_SETTINGS_KEY_TIMEOUT);
-        this._reader = settings.get_int(GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
-        this._position = settings.get_string(GMAILNOTIFY_SETTINGS_KEY_POSITION);
-        this._numbers = settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY);
-        this._notify = settings.get_int(GMAILNOTIFY_SETTINGS_KEY_NOTIFY);
-        this._vcheck = 0;
-        this._safemode = settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SAFEMODE);
-        this._btext = settings.get_string(GMAILNOTIFY_SETTINGS_KEY_BTEXT);
-    },
-    set_int: function (key, val) {
-        return this._client.set_int(key, val)
-    },
-    get_int: function (key) {
-        return this._client.get_int(key)
-    },
-    set_string: function (key, val) {
-        return this._client.set_string(key, val)
-    },
-    get_string: function (key) {
-        return this._client.get_string(key)
-    },
-    _onNotify: function (client, object, p0) {
-        return true;
-    },
-    _onDestroy: function (client, object, p0) {
-        return true;
-    },
-    _onValueChanged: function (client, key, p0) {
-        return true;
-    },
-    _disconnectSignals: function () {
-        //this._client.notify_remove(this.np);
-        //this._client.remove_dir(GCONF_DIR);
-        //this._client.disconnect(this.pid);
-        //settings.disconnect(sigid);
-
-    }
-
-};
-
-//Signals.addSignalMethods(GmailConf.prototype);
 
 function init(extensionMeta) {
     console.log('Init Gmail notify version ' + _version);
     extensionPath = extensionMeta.path;
-    settings = Lib.getSettings(Me);
     let userExtensionLocalePath = extensionPath + '/locale';
     imports.gettext.bindtextdomain('gmail_notify', userExtensionLocalePath);
-    libCheck();
 }
 
 function libCheck() {
@@ -384,7 +293,6 @@ function libCheck() {
             button._showError(_('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'));
             button.setIcon(1);
             Main.panel.menuManager.addMenu(button.menu);
-            show();
         }
     }
     catch (err) {
@@ -417,18 +325,19 @@ function show() {
     try {
         if (_DEBUG) console.log('Showing button');
         if (_DEBUG) console.log(config._position);
+        const statusName = 'gmail-message-tray';
         switch (config._position) {
             case 'right':
-                Main.panel.addToStatusArea('gmail-notify', button, 0, 'right');
+                Main.panel.addToStatusArea(statusName, button, 0, 'right');
                 break;
             case 'center':
-                Main.panel.addToStatusArea('gmail-notify', button, 0, 'center');
+                Main.panel.addToStatusArea(statusName, button, 0, 'center');
                 break;
             case 'left':
-                Main.panel.addToStatusArea('gmail-notify', button, 0, 'left');
+                Main.panel.addToStatusArea(statusName, button, 0, 'left');
                 break;
             default:
-                Main.panel.addToStatusArea('gmail-notify', button, 0, 'right');
+                Main.panel.addToStatusArea(statusName, button, 0, 'right');
                 break;
         }
         currentPos = config._position;
@@ -459,6 +368,7 @@ function enable() {
         onetime = GLib.timeout_add_seconds(0, 5, oneTime);
         event = GLib.timeout_add_seconds(0, config._timeout, onTimer);
         if (_DEBUG) console.log('Event created: ' + event);
+        libCheck();
     }
     catch (err) {
         console.error(err);

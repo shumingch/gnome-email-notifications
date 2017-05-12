@@ -30,6 +30,7 @@ const Lang = imports.lang;
 const Soup = imports.gi.Soup;
 const XML = Me.imports.rexml;
 const sess = new Soup.SessionAsync();
+const GmailConnection = Me.imports.GmailConnection.GmailConnection;
 const console = Me.imports.console.console;
 
 Soup.Session.prototype.add_feature.call(sess, new Soup.ProxyResolverDefault());
@@ -74,7 +75,6 @@ GmailImap.prototype = {
     authenticate: function (account, service, callback) {
 
         try {
-            if (_DEBUG) console.log('Entering authenticate...');
             if (this._conn.connected) {
                 this._doauthenticate(account, service, callback)
             }
@@ -94,10 +94,8 @@ GmailImap.prototype = {
     },
     _doauthenticate: function (account, service, callback) {
         try {
-            if (_DEBUG) console.log('Entering _doauthenticate...');
             let oAuth = new OAuth.OAuth(account, service);
             let auth_str = oAuth.oAuth_str;
-            //if (_DEBUG) console.log('auth_string: '+auth_str);
 
             this._command("AUTHENTICATE XOAUTH2 " + auth_str + String.fromCharCode(13) + String.fromCharCode(10), false, Lang.bind(this, function (oGIMap, resp) {
                     if (_DEBUG) {
@@ -150,9 +148,7 @@ GmailImap.prototype = {
 
     _doScanInbox: function (callback, i) {
         try {
-            if (_DEBUG) console.log("doScan entry");
             this._scanFolder("INBOX", Lang.bind(this, function (oImap, resp, error) {
-                if (_DEBUG) console.log("doScan callback i=");
                 try {
                     if (typeof(callback) !== 'undefined') {
                         if (typeof(error) === 'undefined') {
