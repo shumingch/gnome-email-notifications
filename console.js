@@ -20,16 +20,16 @@
  * Shuming Chan <shuming0207@gmail.com>
  */
 function Console() {
-    this.extensionString = "[GMAIL MESSAGE TRAY]";
+    this.extensionString = "[GMAIL MESSAGE TRAY]: ";
 }
 Console.prototype.log = function (...args) {
-    global.log(this.extensionString, ...args);
+    global.log(this.extensionString + args.join());
 };
 Console.prototype.error = function (err) {
-    global.log(this.extensionString, err.message, err.stack);
+    this.log(err.message, err.stack);
 };
 Console.prototype.json = function (obj) {
-    global.log(this.extensionString, JSON.stringify(obj));
+    this.log(JSON.stringify(obj));
 };
 
 const console = new Console();

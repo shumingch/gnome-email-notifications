@@ -22,6 +22,8 @@
  */
 const Signals = imports.signals;
 const GLib = imports.gi.GLib;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+const console = Me.imports.console.console;
 const _DEBUG = true;
 
 const OAuth = function (account, method, service) {
@@ -30,26 +32,21 @@ const OAuth = function (account, method, service) {
 OAuth.prototype = {
     _init: function (account, service, method) {
         try {
-            if (_DEBUG) global.log('Account: ' + account);
+            if (_DEBUG) console.log('Account: ' + account);
             this.account = account;
             this.method = typeof(method) !== 'undefined' ? method : "GET";
             this.service = service;
             this.oAuth = account.get_oauth2_based();
-            if (_DEBUG) global.log('OAuth: ' + account.get_account().id);
+            if (_DEBUG) console.log('OAuth: ' + account.get_account().id);
             this.oAcc = account.get_account();
             this.acc_token = this.oAuth.call_get_access_token_sync(null);
             this.oAuth_auth = "";
             this.error = null;
             this._makeStrings();
         }
-        catch (e) {
-            if (_DEBUG) global.log('Oauth Init error:', e.message, e.lineNumber);
+        catch (err) {
+            console.error(err);
         }
-    },
-
-    _initStrings: function () {
-        this.oAuth_base = encodeURI(this.method) + "&" + encodeURIComponent(this.service) + "&";
-
     },
     _setNonce: function () {
         this.nonce = "";
@@ -61,29 +58,21 @@ OAuth.prototype = {
 
         //https://mail.google.com/mail/b/"+_email+"/imap/
         try {
-            this._initStrings();
             this._setNonce();
             let anames = ["oauth_consumer_key", "oauth_nonce", "oauth_signature_method", "oauth_timestamp", "oauth_token", "oauth_version"];
-            let avalues = [this.oAuth.consumer_key, this.nonce, "HMAC-SHA1", this.timestamp, encodeURIComponent(this.acc_token[1]), "1.0"]
             let avalues1 = [this.oAuth.consumer_key, this.nonce, "HMAC-SHA1", this.timestamp, this.acc_token[1], "1.0"]
             for (let i = 0; i < anames.length; i++) {
-                this.oAuth_base += encodeURIComponent(( i > 0 ? "&" : "") + anames[i] + "=" + avalues[i]);
                 this.oAuth_auth += anames[i] + "=\"" + avalues1[i] + "\",";
             }
 
-            //this.oAuth_sigKey = encodeURI(this.oAuth.consumer_secret) + "&" + encodeURI(this.acc_token[2]);
-
-            //let shaObj = new jsSHA(this.oAuth_base, "ASCII");
-
-
-            if (_DEBUG) global.log('user=' + this.oAcc.presentation_identity + String.fromCharCode(1) + 'auth=Bearer ' + this.acc_token[1] + ' ' + String.fromCharCode(1) + String.fromCharCode(1));
+            if (_DEBUG) console.log('user=' + this.oAcc.presentation_identity + String.fromCharCode(1) + 'auth=Bearer ' + this.acc_token[1] + ' ' + String.fromCharCode(1) + String.fromCharCode(1));
 
             this.oAuth_str = GLib.base64_encode('user=' + this.oAcc.presentation_identity + String.fromCharCode(1) + 'auth=Bearer ' + this.acc_token[1] + ' ' + String.fromCharCode(1) + String.fromCharCode(1));
             this.error = null;
         }
 
         catch (err) {
-            global.log(err.message);
+            console.error(err);
             this.emit('error', err);
             this.error = err;
         }
@@ -94,5 +83,5 @@ try {
     Signals.addSignalMethods(OAuth.prototype);
 }
 catch (err) {
-    global.log(err.message);
+    console.error(err);
 }

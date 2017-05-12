@@ -38,7 +38,6 @@ GmailNotification.prototype = {
             MessageTray.Notification.prototype._init.call(this, source,
                 _("New mail from %s").format(content.from), null);
             this.expanded = true;
-            this._table.add_style_class_name('multi-line-notification');
             let blayout = new St.BoxLayout({vertical: false});
             let layout = new St.BoxLayout({vertical: true});
             let label = new St.Label({text: (new Date(content.date)).toLocaleString()});
