@@ -26,7 +26,6 @@ catch (err) {
     global.log("Soup import error:" + err.message);
 }
 const Signals = imports.signals;
-const Lang = imports.lang;
 const Unicode = Me.imports.unicode;
 const BigInteger = Me.imports.biginteger;
 const _DEBUG = false;
@@ -122,7 +121,7 @@ Imap.prototype = {
         }
 
         if (_DEBUG) global.log("Reading buffer .. " + i);
-        this._conn.inputStream.read_line_async(0, null, Lang.bind(this, (stream, result) => {
+        this._conn.inputStream.read_line_async(0, null, (stream, result) => {
                 if (_DEBUG) global.log("Finishing read .. ");
                 let buff = this._conn.inputStream.read_line_finish(result);
                 if (_DEBUG) global.log(buff);
@@ -152,19 +151,19 @@ Imap.prototype = {
                     this._readBuffer(tag, is_init, decode, callback, read, i);
                 }
 
-            }),
+            },
             null);
     },
     _logout: function () {
         if (this.connected) {
             let tag = this._gen_tag();
             this._output_stream.put_string(tag + " LOGOUT" + _newline, null);
-            this._readBuffer(tag, false, true, Lang.bind(this, function (oImap, resp) {
+            this._readBuffer(tag, false, true, (oImap, resp) => {
                 if (_DEBUG) {
                     for (let i = 0; i < resp.length; i++) global.log(resp[i]);
                     this.emit('logged out', resp);
                 }
-            }));
+            });
         }
     },
     _command: function (cmd, decode, callback) {
@@ -175,7 +174,7 @@ Imap.prototype = {
 
         //if (this._conn.outputStream.put_string(tag+" CAPABILITIES"+this._conn.newline,null))
         if (this._conn.outputStream.put_string(tag + " " + cmd + this._conn.newline, null)) {
-            this._readBuffer(tag, false, decode, Lang.bind(this, function (oImap, resp) {
+            this._readBuffer(tag, false, decode, (oImap, resp) => {
                 if (_DEBUG) global.log("Entering callback .. ");
                 if (_DEBUG) {
                     for (let i = 0; i < resp.length; i++) global.log("< " + resp[i]);
@@ -184,7 +183,7 @@ Imap.prototype = {
                     if (_DEBUG) global.log("Calling callback .. ");
                     callback.apply(this, [this, resp]);
                 }
-            }));
+            });
         }
         else {
             throw new Error('Imap command: cannot put command');
@@ -193,9 +192,9 @@ Imap.prototype = {
     _scanFolder: function (folder, callback) {
         try {
             this.folders = [];
-            this._command("CAPABILITY", true, Lang.bind(this, () => {
+            this._command("CAPABILITY", true, () => {
 
-                this._command("EXAMINE " + folder, true, Lang.bind(this, (oImap, resp) => {
+                this._command("EXAMINE " + folder, true, (oImap, resp) => {
                     if (_DEBUG) {
                         for (let i = 0; i < resp.length; i++) global.log("< " + resp[i]);
                     }
@@ -213,7 +212,7 @@ Imap.prototype = {
                     try {
                         let messages = [];
 
-                        this._command("SEARCH UNSEEN", true, Lang.bind(this, (oImap, resp) => {
+                        this._command("SEARCH UNSEEN", true, (oImap, resp) => {
 
                             let xmatches = resp[0].match(/(([0-9]+[ ]*)+){1}/g);
                             if (xmatches !== null) {
@@ -226,7 +225,7 @@ Imap.prototype = {
                                 }
                                 if (_DEBUG) global.log("FETCH");
 
-                                this._command("FETCH " + xmatches[0].replace(/ /g, ",") + " (FLAGS BODY.PEEK[HEADER.FIELDS (DATE FROM SUBJECT)] X-GM-MSGID)", false, Lang.bind(this, (oImap, presp) => {
+                                this._command("FETCH " + xmatches[0].replace(/ /g, ",") + " (FLAGS BODY.PEEK[HEADER.FIELDS (DATE FROM SUBJECT)] X-GM-MSGID)", false, (oImap, presp) => {
                                     try {
                                         if (_DEBUG) {
                                             for (let d = 0; d < presp.length; d++) {
@@ -315,7 +314,7 @@ Imap.prototype = {
                                         }
 
                                     }
-                                }));	//FETCH
+                                });	//FETCH
                             }
                             else {
                                 this.folders.push(new Object({
@@ -331,15 +330,15 @@ Imap.prototype = {
                                 this.emit('folder-scanned', folder);
                             }
 
-                        }));
+                        });
                     }
                     catch (err) {
                         if (typeof (callback) !== 'undefined') {
                             callback.apply(this, [this, null, err])
                         }
                     }
-                }))
-            }));
+                })
+            });
         }
         catch (err) {
             if (typeof (callback) !== 'undefined') {
@@ -353,11 +352,11 @@ Imap.prototype = {
         if (this.authenticated) {
             global.log("weel authenticated ..");
             try {
-                this._command("EXAMINE INBOX", true, Lang.bind(this, (oImap, resp) => {
+                this._command("EXAMINE INBOX", true, (oImap, resp) => {
                     if (_DEBUG) {
                         for (let i = 0; i < resp.length; i++) global.log("< " + resp[i]);
                     }
-                    this._command("LIST \"\" *", false, Lang.bind(this, (oImap, resp) => {
+                    this._command("LIST \"\" *", false, (oImap, resp) => {
                         if (_DEBUG) {
                             for (let i = 0; i < resp.length; i++) global.log(resp[i]);
                         }
@@ -367,7 +366,7 @@ Imap.prototype = {
                         for (let i = 0; i < resp.length; i++) {
                             let matches = inboxOnly ? resp[i].match(/("INBOX")$/g) : resp[i].match(/("[^".]*")$/g);
                             if (matches !== null) {
-                                this._command("STATUS " + matches[0] + " (MESSAGES UNSEEN)", true, Lang.bind(this, function (oImap, cmdstatus) {
+                                this._command("STATUS " + matches[0] + " (MESSAGES UNSEEN)", true, function (oImap, cmdstatus) {
                                     if (this._commandOK(cmdstatus)) {
                                         for (let k = 0; k < cmdstatus.length - 1; k++) {
                                             let cmdmatches = cmdstatus[k].match(/^\* STATUS "(.*)" \(MESSAGES ([0-9]*) UNSEEN ([0-9]*)\)$/);
@@ -381,13 +380,13 @@ Imap.prototype = {
                                             }
                                         }
                                     }
-                                })); 	//STATUS MESSAGES UNSEEN
+                                }); 	//STATUS MESSAGES UNSEEN
                                 //
                                 if (inboxOnly) break;
                             }
                         }
-                    })); //LIST
-                })); //EXAMINE INBOX
+                    }); //LIST
+                }); //EXAMINE INBOX
 
             }
             catch (err) {

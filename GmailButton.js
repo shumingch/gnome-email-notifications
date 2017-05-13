@@ -184,8 +184,8 @@ GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
             this.menu.destroy();
             this.menu = new PopupMenu.PopupMenu(this.actor, 0.0, St.Side.TOP);
             this.menu.actor.add_style_class_name('panel-menu');
-            this.menu.connect('open-state-changed', extension.Lang.bind(this, this._onOpenStateChanged));
-            this.menu.actor.connect('key-press-event', extension.Lang.bind(this, this._onMenuKeyPress));
+            this.menu.connect('open-state-changed', this._onOpenStateChanged.bind(this));
+            this.menu.actor.connect('key-press-event', this._onMenuKeyPress.bind(this));
             Main.uiGroup.add_actor(this.menu.actor);
             this.menu.actor.hide();
             this.msgs = [];

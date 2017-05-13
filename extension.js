@@ -33,10 +33,9 @@ const GmailButton = Me.imports.GmailButton.GmailButton;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
 const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const GmailConf = Me.imports.GmailConf.GmailConf;
-const Lang = imports.lang;
 const Mainloop = imports.mainloop;
 const XML = Me.imports.rexml;
-const Gettext = imports.gettext.domain('gmail_notify');
+const Gettext = imports.gettext.domain('gmailmessagetray');
 const _ = Gettext.gettext;
 const Utils = imports.misc.util;
 const MessageTray = imports.ui.messageTray;
@@ -301,7 +300,7 @@ function _checkVersion() {
     try {
         let sSes = new Soup.SessionAsync();
         let sMes = Soup.Message.new('GET', 'http://gn.makrodata.org/index.php/current');
-        sSes.queue_message(sMes, Lang.bind(this, function (oSes, oMes) {
+        sSes.queue_message(sMes, (oSes, oMes) => {
             if (_DEBUG) console.log(oMes.response_body.data);
             let xdoc = new REXML(oMes.response_body.data.replace('<?xml version="1.0" encoding="utf-8" ?>', ''));
             if (_DEBUG) console.log("Current Verison: " + xdoc.version[0].number);
@@ -310,7 +309,7 @@ function _checkVersion() {
                 //bText=' ! %s(<u>%s</u>)'
             }
 
-        }))
+        });
     }
     catch (err) {
         console.error(err);

@@ -25,7 +25,6 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const extension = Me.imports.extension;
 const MessageTray = imports.ui.messageTray;
 const Clutter = imports.gi.Clutter;
-const Lang = imports.lang;
 const console = Me.imports.console.console;
 
 function GmailNotificationSource() {
@@ -50,11 +49,11 @@ GmailNotificationSource.prototype = {
             MessageTray.Source.prototype.notify.call(this, notification);
             this._nbNotifications += 1;
             // Display the source while there is at least one notification
-            notification.connect('destroy', Lang.bind(this, () => {
+            notification.connect('destroy', () => {
                 this._nbNotifications -= 1;
                 if (this._nbNotifications === 0)
                     this.destroy();
-            }));
+            });
         }
         catch (err) {
             console.error(err);

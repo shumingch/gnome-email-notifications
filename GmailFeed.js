@@ -27,7 +27,6 @@ const GmailHttps = Me.imports.GmailHttps.GmailHttps;
 const XML = Me.imports.rexml;
 const Imap = Me.imports.imap;
 const Soup = imports.gi.Soup;
-const Lang = imports.lang;
 const extension = Me.imports.extension;
 const Signals = imports.signals;
 const Sess = new Soup.SessionAsync();
@@ -58,7 +57,7 @@ GmailFeed.prototype = {
             if (_DEBUG) console.log('auth req', oAuth.oAuth_auth);
             msg.request_headers.append('Authorization' + (sprovider === "GOOGLE" ? '' : ''), (sprovider === "GOOGLE" ? 'OAuth ' : 'Bearer ') + oAuth.acc_token[1]);
             if (_DEBUG) console.log((sprovider === "GOOGLE" ? 'OAuth ' : 'Bearer ') + oAuth.acc_token[1]);
-            Sess.queue_message(msg, Lang.bind(this, (sess, msg, callback) => {
+            Sess.queue_message(msg, (sess, msg, callback) => {
                 if (_DEBUG) console.log('Message status:' + msg.status_code);
                 if (msg.status_code === 200) {
                     try {
@@ -111,7 +110,7 @@ GmailFeed.prototype = {
                     if (_DEBUG) console.log('Message body:' + msg.response_body.data);
                     throw new Error('Google connection Status: ' + msg.status + ' ' + msg.message_body.data);
                 }
-            }), callback);
+            }, callback);
         }
         catch (err) {
             console.error(err);

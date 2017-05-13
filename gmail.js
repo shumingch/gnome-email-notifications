@@ -26,7 +26,6 @@ const Imap = Me.imports.imap;
 const OAuth = Me.imports.oauth;
 const GLib = imports.gi.GLib;
 const Signals = imports.signals;
-const Lang = imports.lang;
 const Soup = imports.gi.Soup;
 const XML = Me.imports.rexml;
 const sess = new Soup.SessionAsync();
@@ -64,9 +63,9 @@ GmailImap.prototype = {
                 if (_DEBUG) console.log("Imap created: .." + this._conn._oAccount.get_account().id);
             }
             this.authenticated = false;
-            this._conn.connect('disconnected', Lang.bind(this, () => {
+            this._conn.connect('disconnected', () => {
                 this.authenticated = false;
-            }))
+            });
         }
         catch (err) {
             console.error(err);
@@ -82,9 +81,9 @@ GmailImap.prototype = {
                 if (_DEBUG) console.log('Not Connected...');
                 const _acc = account;
                 const _call = callback;
-                this._conn._connect(Lang.bind(this, () => {
+                this._conn._connect(() => {
                     this._doauthenticate(_acc, _call)
-                }));
+                });
             }
         }
         catch (err) {
@@ -96,7 +95,7 @@ GmailImap.prototype = {
             let oAuth = new OAuth.OAuth(account);
             let auth_str = oAuth.oAuth_str;
 
-            this._command("AUTHENTICATE XOAUTH2 " + auth_str + String.fromCharCode(13) + String.fromCharCode(10), false, Lang.bind(this, function (oGIMap, resp) {
+            this._command("AUTHENTICATE XOAUTH2 " + auth_str + String.fromCharCode(13) + String.fromCharCode(10), false, (oGIMap, resp) => {
                     if (_DEBUG) {
                         for (let i = 0; i < resp.length; i++) console.log(resp[i]);
                     }
@@ -114,7 +113,7 @@ GmailImap.prototype = {
                         }
                         this.emit('authenticated', false);
                     }
-                })
+                }
             );
         }
         catch (err) {
@@ -133,9 +132,9 @@ GmailImap.prototype = {
                 const _call = callback;
 
                 this.authenticate(this._conn._oAccount,
-                    Lang.bind(this, () => {
+                    () => {
                         this._doScanInbox(_call);
-                    }))
+                    })
             }
         }
         catch (err) {
@@ -146,7 +145,7 @@ GmailImap.prototype = {
 
     _doScanInbox: function (callback, i) {
         try {
-            this._scanFolder("INBOX", Lang.bind(this, function (oImap, resp, error) {
+            this._scanFolder("INBOX", (oImap, resp, error) => {
                 try {
                     if (typeof(callback) !== 'undefined') {
                         if (typeof(error) === 'undefined') {
@@ -163,7 +162,7 @@ GmailImap.prototype = {
                 catch (err) {
                     console.error(err);
                 }
-            }));
+            });
         }
         catch (err) {
             console.error(err);
