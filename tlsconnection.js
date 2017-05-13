@@ -18,14 +18,9 @@
  * Author: Adam Jabłoński <jablona123@gmail.com>
  *
  */
-try {
-    const Gio = imports.gi.Gio;
-}
-catch (err) {
-    global.log("Soup import error:" + err.message);
-}
+const Gio = imports.gi.Gio;
 const Signals = imports.signals;
-const _DEBUG = false;
+const _DEBUG = true;
 
 function Connection(host, port, usetls) {
     this._init(host, port, usetls);
@@ -42,8 +37,6 @@ Connection.prototype = {
             this.port = port;
             this.tls = usetls;
             this._connection = null;
-            this.inputBuffer = null;
-            this.outputBuffer = null;
             if (_DEBUG) global.log("Conection post _init " + host);
         }
         catch (err) {
@@ -155,4 +148,4 @@ TlsConnection.prototype = {
         if (_DEBUG) global.log("TlsConection _init " + host);
         Connection.prototype._init.call(this, host, port, true);
     }
-}
+};

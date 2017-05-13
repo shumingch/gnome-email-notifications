@@ -24,6 +24,7 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const TlsConn = Me.imports.tlsconnection;
 const console = Me.imports.console.console;
+const _DEBUG = true;
 
 const GmailConnection = function () {
     this._init.apply(this, arguments);

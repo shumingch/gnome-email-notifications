@@ -32,19 +32,14 @@ const OAuth = function (account, method, service) {
 };
 OAuth.prototype = {
     _init: function (account) {
-        try {
-            if (_DEBUG) console.log('Account: ' + account);
-            this.oAuth = account.get_oauth2_based();
-            if (_DEBUG) console.log('OAuth: ' + account.get_account().id);
-            this.oAcc = account.get_account();
-            this.acc_token = this.oAuth.call_get_access_token_sync(null);
-            this.oAuth_auth = "";
-            this.error = null;
-            this._makeStrings();
-        }
-        catch (err) {
-            console.error(err);
-        }
+        if (_DEBUG) console.log('Account: ' + account);
+        this.oAuth = account.get_oauth2_based();
+        if (_DEBUG) console.log('OAuth: ' + account.get_account().id);
+        this.oAcc = account.get_account();
+        this.acc_token = this.oAuth.call_get_access_token_sync(null);
+        this.oAuth_auth = "";
+        this.error = null;
+        this._makeStrings();
     },
     _setNonce: function () {
         this.nonce = "";

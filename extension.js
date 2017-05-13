@@ -38,7 +38,6 @@ const XML = Me.imports.rexml;
 const Gettext = imports.gettext.domain('gmailmessagetray');
 const _ = Gettext.gettext;
 const Utils = imports.misc.util;
-const MessageTray = imports.ui.messageTray;
 const console = Me.imports.console.console;
 
 const CHECK_TIMEOUT = 300;
@@ -73,8 +72,8 @@ catch (err) {
     console.error(err);
 }
 
-let text, button, event, extensionPath, currentPos, config, onetime, goaAccounts, sM, sU, numGoogle,
-    nVersion, bText;
+let button, event, extensionPath, currentPos, config, onetime, goaAccounts, sM, sU, numGoogle,
+    nVersion;
 
 
 function onTimer() {
@@ -118,7 +117,8 @@ function _mailNotify(content) {
 
         for (let i = 0; i < content.length; i++) {
             let notification = new GmailNotification(source, content[i]);
-            notification.setTransient(true);
+            notification.setTransient(false);
+            notification.setResident(true);
             source.notify(notification);
         }
     }
@@ -130,8 +130,9 @@ function _mailNotify(content) {
 }
 
 function _processData(oImap) {
-    if (_DEBUG) console.log("Process Data " + oImap._conn._oAccount.get_account().id);
     try {
+        if (_DEBUG) console.log("Process Data " + oImap._conn._oAccount.get_account().id);
+        const bText = config.getBText();
         let maxId = 0;
         let maxSafeId = '';
         for (let i = 0; i < oImap.folders.length; i++) {
@@ -153,12 +154,12 @@ function _processData(oImap) {
         if (_DEBUG) console.log("safeentry= " + safeEntry);
         if (_DEBUG) console.log("maxid= " + maxId);
         if (_DEBUG) console.log("entry= " + entry);
-        if (_DEBUG) console.log("Safemode= " + config._safemode);
-        if (config._safemode === 1 ? maxSafeId > safeEntry : maxId > entry) {
+        if (_DEBUG) console.log("Safemode= " + config.getSafeMode());
+        if (config.getSafeMode() === 1 ? maxSafeId > safeEntry : maxId > entry) {
             for (let i = 0; i < oImap.folders.length; i++) {
                 const notes = [];
                 for (let j = 0; j < oImap.folders[i].list.length; j++) {
-                    if (config._safemode === 1) {
+                    if (config.getSafeMode() === 1) {
                         if (oImap.folders[i].list[j].safeid > safeEntry) {
                             notes.push(oImap.folders[i].list[j]);
                         }
@@ -170,12 +171,12 @@ function _processData(oImap) {
                     }
                 }
                 if (_DEBUG) console.log("Notes length:" + notes.length);
-                if (notes.length > 0 && config._notify) {
+                if (notes.length > 0 && config.getNotify()) {
                     _mailNotify(notes);
                 }
 
             }
-            if (config._safemode === 1) {
+            if (config.getSafeMode() === 1) {
                 config.set_string(GCONF_ACC_KEY + "/" + oImap._conn._oAccount.get_account().id + '_safe', maxSafeId);
             }
             else {
@@ -192,7 +193,7 @@ function _processData(oImap) {
         button.setContent(oImap.folders[0].list, numGoogle, oImap._conn._oAccount.get_account().presentation_identity, oImap._conn._oAccount.get_account().provider_name.toUpperCase());
         oImap._conn._disconnect();
         numGoogle++;
-        button.text.clutter_text.set_markup(config._safemode ? ('%s').format(sM.toString()) : bText.format(sM.toString(), sU.toString()));
+        button.text.clutter_text.set_markup(config.getSafeMode() ? ('%s').format(sM.toString()) : bText.format(sM.toString(), sU.toString()));
         button.setIcon(sU);
     }
     catch (err) {
@@ -214,9 +215,9 @@ function _initData() {
             if (_DEBUG) console.log(accounts[i].get_account().provider_name.toUpperCase());
             let sprovider = accounts[i].get_account().provider_name.toUpperCase();
             if (_DEBUG) console.log("sprovider:" + sprovider);
-            if (sprovider === "GOOGLE" || (sprovider === "MICROSOFT ACCOUNT" && config._safemode === 0)) {
+            if (sprovider === "GOOGLE" || (sprovider === "MICROSOFT ACCOUNT" && config.getSafeMode() === 0)) {
                 if (_DEBUG) console.log("Post oneTime adding");
-                let len = goaAccounts.push(config._safemode === 1 ? new GmailFeed(accounts[i]) : new Gmail.GmailImap(accounts[i]));
+                let len = goaAccounts.push(config.getSafeMode() === 1 ? new GmailFeed(accounts[i]) : new Gmail.GmailImap(accounts[i]));
                 goaAccounts[len - 1].connect('inbox-scanned', _processData);
                 goaAccounts[len - 1].connect('inbox-fed', _processData);
                 if (_DEBUG) console.log("Post oneTime added:" + goaAccounts[i]._conn._oAccount.get_account().id);
@@ -240,7 +241,7 @@ function _initData() {
 // well run reader really
 function _showHello(object) {
     try {
-        if (config._reader === 0) {
+        if (config.getReader() === 0) {
             if (config._browser === "") {
                 console.log("gmail notify: no default browser")
             }
@@ -282,7 +283,7 @@ function libCheck() {
     try {
         if (typeof(Goa) !== 'undefined' && typeof(Soup) !== 'undefined' && typeof(Gio) !== 'undefined' && typeof(GConf) !== 'undefined') {
             button.setContent();
-            if (_DEBUG) console.log('init timeout' + config._timeout);
+            if (_DEBUG) console.log('init timeout' + config.getTimeout());
         }
         else {
             button._showError(_('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'));
@@ -303,7 +304,7 @@ function _checkVersion() {
         sSes.queue_message(sMes, (oSes, oMes) => {
             if (_DEBUG) console.log(oMes.response_body.data);
             let xdoc = new REXML(oMes.response_body.data.replace('<?xml version="1.0" encoding="utf-8" ?>', ''));
-            if (_DEBUG) console.log("Current Verison: " + xdoc.version[0].number);
+            if (_DEBUG) console.log("Current Version: " + xdoc.version[0].number);
             nVersion = xdoc.rootElement.ChildElement('number').text;
             if (nVersion > _version) {
                 //bText=' ! %s(<u>%s</u>)'
@@ -318,10 +319,13 @@ function _checkVersion() {
 
 function show() {
     try {
-        if (_DEBUG) console.log('Showing button');
-        if (_DEBUG) console.log(config._position);
+        button = new GmailButton(extensionPath);
+        button.showNumbers(config.getNumbers());
+        button.setIcon(0);
+        const position = config.getPosition();
+        //const position = config.get_string("position");
         const statusName = 'gmail-message-tray';
-        switch (config._position) {
+        switch (position) {
             case 'right':
                 Main.panel.addToStatusArea(statusName, button, 0, 'right');
                 break;
@@ -335,7 +339,7 @@ function show() {
                 Main.panel.addToStatusArea(statusName, button, 0, 'right');
                 break;
         }
-        currentPos = config._position;
+        currentPos = position;
     }
     catch (err) {
         console.error(err);
@@ -345,23 +349,14 @@ function show() {
 
 function enable() {
     try {
-        button = new GmailButton(extensionPath);
         config = new GmailConf();
-        bText = config._btext;
-        if (_DEBUG) console.log('init numbers' + config._numbers);
-        button.showNumbers(config._numbers);
-        button.setIcon(0);
-
         console.log('Enabling Gmail Message Tray version ' + _version);
-        if (config === null) config = new GmailConf();
         show();
         _initData();
         nVersion = '';
 
-
-        //if (config.get_int(GCONF_DIR+'/vcheck')==1) _checkVersion();
         onetime = GLib.timeout_add_seconds(0, 5, oneTime);
-        event = GLib.timeout_add_seconds(0, config._timeout, onTimer);
+        event = GLib.timeout_add_seconds(0, config.getTimeout(), onTimer);
         if (_DEBUG) console.log('Event created: ' + event);
         libCheck();
     }
@@ -382,7 +377,7 @@ function hide() {
 function disable() {
     hide();
 
-    config._disconnectSignals();
+    //config._disconnectSignals();
     config = null;
     Mainloop.source_remove(onetime);
     Mainloop.source_remove(event);

@@ -40,6 +40,11 @@ const GmailConf = function () {
 };
 GmailConf.prototype = {
     _init: function () {
+        this.settings = Lib.getSettings(Me);
+        this.settings.connect("change-event", ()=>{
+            extension.hide();
+            extension.show();
+        });
         const Gio = extension.Gio;
         try {
             this._client = GConf.Client.get_default();
@@ -64,7 +69,6 @@ GmailConf.prototype = {
                 console.error(err);
                 this._mail = "";
             }
-            this._readValues();
         }
         catch (err) {
             console.error(err);
@@ -72,16 +76,26 @@ GmailConf.prototype = {
 
     },
 
-    _readValues: function () {
-        const settings = Lib.getSettings(Me);
-        this._timeout = settings.get_int(GMAILNOTIFY_SETTINGS_KEY_TIMEOUT);
-        this._reader = settings.get_int(GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
-        this._position = settings.get_string(GMAILNOTIFY_SETTINGS_KEY_POSITION);
-        this._numbers = settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY);
-        this._notify = settings.get_int(GMAILNOTIFY_SETTINGS_KEY_NOTIFY);
-        this._vcheck = 0;
-        this._safemode = settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SAFEMODE);
-        this._btext = settings.get_string(GMAILNOTIFY_SETTINGS_KEY_BTEXT);
+    getTimeout(){
+        return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_TIMEOUT);
+    },
+    getReader(){
+        return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
+    },
+    getPosition(){
+        return this.settings.get_string(GMAILNOTIFY_SETTINGS_KEY_POSITION);
+    },
+    getNumbers(){
+        return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY);
+    },
+    getNotify(){
+        return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_NOTIFY);
+    },
+    getSafeMode(){
+        return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SAFEMODE);
+    },
+    getBText(){
+        return this.settings.get_string(GMAILNOTIFY_SETTINGS_KEY_BTEXT);
     },
     set_int: function (key, val) {
         return this._client.set_int(key, val)
@@ -109,7 +123,6 @@ GmailConf.prototype = {
         //this._client.remove_dir(GCONF_DIR);
         //this._client.disconnect(this.pid);
         //settings.disconnect(sigid);
-
     }
 
 };

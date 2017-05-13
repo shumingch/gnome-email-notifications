@@ -121,15 +121,26 @@ function createSwitchSetting(setting, value) {
 }
 
 function createSliderSetting(setting, value) {
-    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+    let hbox = new Gtk.Box({
+        orientation: Gtk.Orientation.HORIZONTAL
+    });
     let slider_label = new Gtk.Label({
         label: value.label,
         xalign: 0
     });
 
-    let setting_slider = Gtk.Scale.new_with_range(0, 60, 1800, 1);
-    setting_slider.expand = true;
+    let adjustment = new Gtk.Adjustment({
+        lower: 60,
+        upper: 1800,
+        step_increment: 1
+    });
+    let setting_slider = new Gtk.HScale({
+        digits:0,
+        adjustment: adjustment,
+        value_pos: Gtk.PositionType.RIGHT
+    });
     setting_slider.set_value(settings.get_int(setting));
+    slider_label.label = _("Check every {0} sec: ").replace('{0}', settings.get_int(setting));
     setting_slider.connect('value-changed', function (button) {
         try {
             let i = Math.round(button.get_value());
@@ -144,7 +155,7 @@ function createSliderSetting(setting, value) {
         slider_label.set_tooltip_text(value.help)
     }
     hbox.pack_start(slider_label, true, true, 0);
-    hbox.add(setting_slider);
+    hbox.pack_end(setting_slider, true, true, 0);
     return hbox;
 }
 

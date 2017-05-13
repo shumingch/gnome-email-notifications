@@ -123,12 +123,11 @@ GmailImap.prototype = {
     scanInbox: function (callback) {
 
         try {
-            if (_DEBUG) console.log('scanInbox: Imap mode');
             if (this.authenticated) {
                 this._doScanInbox(callback);
             }
             else {
-                if (_DEBUG) console.log('scanInbox: not authenticated');
+                if (_DEBUG) console.log('Not authenticated');
                 const _call = callback;
 
                 this.authenticate(this._conn._oAccount,

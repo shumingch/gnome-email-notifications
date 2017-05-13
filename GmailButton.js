@@ -134,7 +134,7 @@ GmailButton.prototype = {
         }
     },
     _onButtonPress: function (actor, event) {
-        if (_DEBUG) console.log("Button pres" + event.get_button().toString());
+        if (_DEBUG) console.log("Button press" + event.get_button().toString());
         if (event.get_button() === 1) {
             try {
                 if (!this.menu.isOpen) {
