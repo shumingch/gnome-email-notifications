@@ -28,6 +28,7 @@ const St = imports.gi.St;
 const PopupMenu = imports.ui.popupMenu;
 const Imap = Me.imports.imap;
 const Main = imports.ui.main;
+const Utils = imports.misc.util;
 const _DEBUG = true;
 const extension = Me.imports.extension;
 const MailboxMenuItem = Me.imports.MailboxMenuItem.MailboxMenuItem;

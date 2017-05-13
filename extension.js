@@ -26,6 +26,7 @@ const GLib = imports.gi.GLib;
 const St = imports.gi.St;
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const GConf = imports.gi.GConf;
 const Gmail = Me.imports.gmail;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const GmailButton = Me.imports.GmailButton.GmailButton;
@@ -280,7 +281,7 @@ function init(extensionMeta) {
 
 function libCheck() {
     try {
-        if (typeof(Goa) !== 'undefined' && typeof(Soup) !== 'undefined' && typeof(Gio) !== 'undefined' && typeof(Gonf) !== 'undefined') {
+        if (typeof(Goa) !== 'undefined' && typeof(Soup) !== 'undefined' && typeof(Gio) !== 'undefined' && typeof(GConf) !== 'undefined') {
             button.setContent();
             if (_DEBUG) console.log('init timeout' + config._timeout);
         }
