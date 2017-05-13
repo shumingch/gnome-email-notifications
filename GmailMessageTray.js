@@ -37,6 +37,8 @@ function GmailMessageTray(extensionPath) {
 
 GmailMessageTray.prototype = {
     _init: function () {
+        this.source = new GmailNotificationSource();
+        Main.messageTray.add(this.source);
     },
     _notify: function(from, date, subject){
         const content = {
@@ -44,11 +46,9 @@ GmailMessageTray.prototype = {
             date,
             subject
         };
-        const source = new GmailNotificationSource();
-        Main.messageTray.add(source);
-        const notification = new GmailNotification(source, content);
+        const notification = new GmailNotification(this.source, content);
         notification.setResident(true);
-        source.notify(notification);
+        this.source.pushNotification(notification);
     },
     _browseGn: function () {
         const config = extension.config;
@@ -71,18 +71,19 @@ GmailMessageTray.prototype = {
     },
     _showError: function (err) {
         const subject = _(err);
-        this._notify(undefined, new Date(), subject);
+        this._notify("", new Date(), subject);
     }
 };
 
 GmailMessageTray.prototype.setContent = function (content, mailbox, numMessages, numUnread) {
+    console.log("SET CONTENT");
     mailbox = mailbox === undefined ? '' : mailbox;
     try {
         if (content !== undefined) {
             if (content.length > 0) {
-                for (let k = 0; k < Math.min(content.length, 10); k++) {
-                    const msg = content[k];
+                for (let msg of content) {
                     this._notify(msg.from, msg.date, msg.subject);
+                    console.json(msg);
                 }
             }
             else {

@@ -49,11 +49,11 @@ GmailNotificationSource.prototype = {
             MessageTray.Source.prototype.notify.call(this, notification);
             this._nbNotifications += 1;
             // Display the source while there is at least one notification
-            notification.connect('destroy', () => {
-                this._nbNotifications -= 1;
-                if (this._nbNotifications === 0)
-                    this.destroy();
-            });
+            // notification.connect('destroy', () => {
+            //     this._nbNotifications -= 1;
+            //     if (this._nbNotifications === 0)
+            //         this.destroy();
+            // });
         }
         catch (err) {
             console.error(err);

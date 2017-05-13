@@ -22,48 +22,28 @@
  *
  */
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Lang = imports.lang;
 const console = Me.imports.console.console;
 const MessageTray = imports.ui.messageTray;
 const St = imports.gi.St;
+const GLib = imports.gi.GLib;
 
-function GmailNotification(source, content) {
-    this._init(source, content);
-}
-
-
-GmailNotification.prototype = {
-    __proto__: MessageTray.Notification.prototype,
+const GmailNotification = new Lang.Class({
+    Name: 'GmailNotification',
+    Extends: MessageTray.Notification,
 
     _init: function (source, content) {
         try {
-            let date = new Date(content.date);
-            let time = date.toLocaleString([], {
-                month: 'numeric',
-                day: 'numeric',
-                hour: '2-digit',
-                minute:'2-digit',
-            });
             const title = content.subject;
-            let message;
-            if (content.from !== undefined) {
-                message = `${time} ${content.from}`;
-            } else {
-                message = "";
-            }
-            MessageTray.Notification.prototype._init.call(this, source, title, message);
+            const unix_local = new Date(content.date).getTime() / 1000;
+            const glib_datetime = GLib.DateTime.new_from_unix_local(unix_local);
+            const params = {
+                datetime: glib_datetime
+            };
+           this.parent(source, title, content.from, params);
         }
         catch (err) {
             console.error(err);
         }
-    },
-
-    _canExpandContent: function () {
-        return true;
-    },
-
-    destroy: function () {
-        MessageTray.Notification.prototype.destroy.call(this);
     }
-
-
-};
+});

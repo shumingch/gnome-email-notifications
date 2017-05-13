@@ -28,9 +28,7 @@ const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const GConf = imports.gi.GConf;
 const Gmail = Me.imports.gmail;
-const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const GmailButton = Me.imports.GmailButton.GmailButton;
-const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
 const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const GmailConf = Me.imports.GmailConf.GmailConf;
 const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
@@ -74,7 +72,6 @@ catch (err) {
 
 let button, event, extensionPath, currentPos, config, onetime, goaAccounts, sM, sU, numGoogle,
     nVersion;
-let messageTray = new GmailMessageTray();
 
 
 function onTimer() {
@@ -112,15 +109,6 @@ function oneTime() {
 
 function _mailNotify(content) {
     try {
-        let source = new GmailNotificationSource();
-        Main.messageTray.add(source);
-
-        for (let i = 0; i < content.length; i++) {
-            let notification = new GmailNotification(source, content[i]);
-            notification.setTransient(false);
-            notification.setResident(true);
-            source.notify(notification);
-        }
     }
     catch (err) {
         console.error(err);
@@ -193,6 +181,7 @@ function _processData(oImap) {
         //button.setContent(oImap.folders[0].list, oImap._conn._oAccount.get_account().presentation_identity);
         const content = oImap.folders[0].list;
         const mailbox = oImap._conn._oAccount.get_account().presentation_identity;
+        let messageTray = new GmailMessageTray();
         messageTray.setContent(content, mailbox, sM, sU);
         oImap._conn._disconnect();
         numGoogle++;
