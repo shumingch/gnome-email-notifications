@@ -24,7 +24,7 @@ const GLib = imports.gi.GLib;
 const Gettext = imports.gettext;
 
 function getSettings(extension) {
-    let schemaName = 'org.gnome.shell.extensions.gmailnotify';
+    let schemaName = 'org.gnome.shell.extensions.gmailmessagetray';
     let schemaDir = extension.dir.get_child('schemas').get_path();
 
     // Extension installed in .local
@@ -38,7 +38,7 @@ function getSettings(extension) {
     }
     // Extension installed system-wide
     else {
-        if (Gio.Settings.list_schemas().indexOf(schemaName) == -1)
+        if (Gio.Settings.list_schemas().indexOf(schemaName) === -1)
             throw "Schema \"%s\" not found.".format(schemaName);
         return new Gio.Settings({ schema: schemaName });
     }
@@ -49,10 +49,10 @@ function initTranslations(extension) {
 
     // Extension installed in .local
     if (GLib.file_test(localeDir, GLib.FileTest.EXISTS)) {
-        Gettext.bindtextdomain('gmail_notify', localeDir);
+        Gettext.bindtextdomain('gmailmessagetray', localeDir);
     }
     // Extension installed system-wide
     else {
-        Gettext.bindtextdomain('gnome-shell-extensions-gmailnotify', extension.metadata.locale);
+        Gettext.bindtextdomain('gnome-shell-extensions-gmailmessagetray', extension.metadata.locale);
     }
 }

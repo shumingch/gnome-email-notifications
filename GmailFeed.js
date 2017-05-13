@@ -58,7 +58,6 @@ GmailFeed.prototype = {
             if (_DEBUG) console.log('auth req', oAuth.oAuth_auth);
             msg.request_headers.append('Authorization' + (sprovider === "GOOGLE" ? '' : ''), (sprovider === "GOOGLE" ? 'OAuth ' : 'Bearer ') + oAuth.acc_token[1]);
             if (_DEBUG) console.log((sprovider === "GOOGLE" ? 'OAuth ' : 'Bearer ') + oAuth.acc_token[1]);
-            if (_DEBUG) console.log('Queuing message:');
             Sess.queue_message(msg, Lang.bind(this, (sess, msg, callback) => {
                 if (_DEBUG) console.log('Message status:' + msg.status_code);
                 if (msg.status_code === 200) {
@@ -112,15 +111,10 @@ GmailFeed.prototype = {
                     if (_DEBUG) console.log('Message body:' + msg.response_body.data);
                     throw new Error('Google connection Status: ' + msg.status + ' ' + msg.message_body.data);
                 }
-
-
             }), callback);
-
         }
         catch (err) {
             console.error(err);
-            this.emit('inbox-fed', folder, err);
-            if (typeof(callback) !== 'undefined') callback.apply(this, [this, folder, err]);
         }
 
     }

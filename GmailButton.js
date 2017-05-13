@@ -72,6 +72,7 @@ GmailButton.prototype = {
 
     },
     _browseGn: function () {
+        const config = extension.config;
         if (config._browser === "") {
             console.log("gmail notify: no default browser")
         }

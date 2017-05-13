@@ -23,7 +23,7 @@ function Console() {
     this.extensionString = "[GMAIL MESSAGE TRAY]: ";
 }
 Console.prototype.log = function (...args) {
-    global.log(this.extensionString + args.join());
+    log(this.extensionString + args.join());
 };
 Console.prototype.error = function (err) {
     this.log(err.message, err.stack);

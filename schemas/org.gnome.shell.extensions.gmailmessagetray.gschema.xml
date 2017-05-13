@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="gnome-shell-extensions-gmailnotify">
-  <schema path="/org/gnome/shell/extensions/gmailnotify/" id="org.gnome.shell.extensions.gmailnotify">
+<schemalist gettext-domain="gnome-shell-extensions-gmailmessagetray">
+  <schema path="/org/gnome/shell/extensions/gmailmessagetray/" id="org.gnome.shell.extensions.gmailmessagetray">
+
     <key type="s" name="position">
         <default>"right"</default>
         <summary>Position of extension in the top bar</summary>
