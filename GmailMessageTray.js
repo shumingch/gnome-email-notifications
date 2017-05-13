@@ -75,21 +75,20 @@ GmailMessageTray.prototype = {
     }
 };
 
-GmailMessageTray.prototype.setContent = function (content, mailbox) {
+GmailMessageTray.prototype.setContent = function (content, mailbox, numMessages, numUnread) {
     mailbox = mailbox === undefined ? '' : mailbox;
     try {
         if (content !== undefined) {
             if (content.length > 0) {
                 for (let k = 0; k < Math.min(content.length, 10); k++) {
                     const msg = content[k];
-                    console.json(msg);
                     this._notify(msg.from, msg.date, msg.subject);
                 }
             }
             else {
                 this._showNoMessage(mailbox);
             }
-            const subject = "";
+            const subject = `${numMessages} messages (${numUnread} unread)`;
             this._notify(mailbox, new Date(), subject);
         }
         else {

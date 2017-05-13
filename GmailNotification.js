@@ -30,12 +30,19 @@ function GmailNotification(source, content) {
     this._init(source, content);
 }
 
+
 GmailNotification.prototype = {
     __proto__: MessageTray.Notification.prototype,
 
     _init: function (source, content) {
         try {
-            let time = new Date(content.date).toLocaleString();
+            let date = new Date(content.date);
+            let time = date.toLocaleString([], {
+                month: 'numeric',
+                day: 'numeric',
+                hour: '2-digit',
+                minute:'2-digit',
+            });
             const title = content.subject;
             let message;
             if (content.from !== undefined) {

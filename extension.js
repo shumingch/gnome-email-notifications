@@ -99,7 +99,6 @@ function oneTime() {
         sU = 0;
         numGoogle = 0;
         for (let i = 0; i < goaAccounts.length; i++) {
-            console.json(goaAccounts);
             if (_DEBUG) console.log("Running scan: " + i + " " + goaAccounts[i]._conn._oAccount.get_account().id);
             goaAccounts[i].scanInbox();
         }
@@ -192,7 +191,9 @@ function _processData(oImap) {
         }
 
         //button.setContent(oImap.folders[0].list, oImap._conn._oAccount.get_account().presentation_identity);
-        messageTray.setContent(oImap.folders[0].list, oImap._conn._oAccount.get_account().presentation_identity);
+        const content = oImap.folders[0].list;
+        const mailbox = oImap._conn._oAccount.get_account().presentation_identity;
+        messageTray.setContent(content, mailbox, sM, sU);
         oImap._conn._disconnect();
         numGoogle++;
         button.text.clutter_text.set_markup(config.getSafeMode() ? ('%s').format(sM.toString()) : bText.format(sM.toString(), sU.toString()));
