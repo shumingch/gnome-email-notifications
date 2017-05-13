@@ -46,7 +46,6 @@ GmailNotification.prototype = {
             let label1 = new St.Label({text: content.subject});
             layout.add(label1);
             blayout.add(layout);
-            this.addActor(blayout);
         }
         catch (err) {
             console.error(err);

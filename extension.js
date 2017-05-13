@@ -30,7 +30,6 @@ const Gmail = Me.imports.gmail;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const GmailButton = Me.imports.GmailButton.GmailButton;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
-const GmailMenuItem = Me.imports.GmailMenuItem.GmailMenuItem;
 const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const GmailConf = Me.imports.GmailConf.GmailConf;
 const Lang = imports.lang;
@@ -40,7 +39,6 @@ const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 const Utils = imports.misc.util;
 const MessageTray = imports.ui.messageTray;
-const Lib = Me.imports.lib;
 const console = Me.imports.console.console;
 
 const CHECK_TIMEOUT = 300;
@@ -75,9 +73,8 @@ catch (err) {
     console.error(err);
 }
 
-
 let text, button, event, extensionPath, currentPos, config, onetime, goaAccounts, sM, sU, numGoogle,
-    nVersion, bText, safemode;
+    nVersion, bText;
 
 
 function onTimer() {
@@ -121,7 +118,6 @@ function _mailNotify(content) {
 
         for (let i = 0; i < content.length; i++) {
             let notification = new GmailNotification(source, content[i]);
-            if (_DEBUG) console.log("After cretae notification ");
             notification.setTransient(true);
             source.notify(notification);
         }
@@ -242,8 +238,7 @@ function _initData() {
 
 
 // well run reader really
-function _showHello(object, event) {
-    console.log("show hello entry");
+function _showHello(object) {
     try {
         if (config._reader === 0) {
             if (config._browser === "") {

@@ -72,19 +72,18 @@ GmailImap.prototype = {
             console.error(err);
         }
     },
-    authenticate: function (account, service, callback) {
+    authenticate: function (account, callback) {
 
         try {
             if (this._conn.connected) {
-                this._doauthenticate(account, service, callback)
+                this._doauthenticate(account, callback)
             }
             else {
                 if (_DEBUG) console.log('Not Connected...');
                 const _acc = account;
-                const _svr = service;
                 const _call = callback;
                 this._conn._connect(Lang.bind(this, () => {
-                    this._doauthenticate(_acc, _svr, _call)
+                    this._doauthenticate(_acc, _call)
                 }));
             }
         }
@@ -92,9 +91,9 @@ GmailImap.prototype = {
             console.error(err);
         }
     },
-    _doauthenticate: function (account, service, callback) {
+    _doauthenticate: function (account, callback) {
         try {
-            let oAuth = new OAuth.OAuth(account, service);
+            let oAuth = new OAuth.OAuth(account);
             let auth_str = oAuth.oAuth_str;
 
             this._command("AUTHENTICATE XOAUTH2 " + auth_str + String.fromCharCode(13) + String.fromCharCode(10), false, Lang.bind(this, function (oGIMap, resp) {
@@ -133,8 +132,7 @@ GmailImap.prototype = {
                 if (_DEBUG) console.log('scanInbox: not authenticated');
                 const _call = callback;
 
-                this.authenticate(this._conn._oAccount, "https://mail.google.com/mail/b/" + this._conn._oMail.imap_user_name + "/imap/",
-
+                this.authenticate(this._conn._oAccount,
                     Lang.bind(this, () => {
                         this._doScanInbox(_call);
                     }))

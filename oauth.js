@@ -20,6 +20,7 @@
  * Shuming Chan <shuming0207@gmail.com>
  *
  */
+"use strict";
 const Signals = imports.signals;
 const GLib = imports.gi.GLib;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
@@ -30,12 +31,9 @@ const OAuth = function (account, method, service) {
     this._init(account, method, service);
 };
 OAuth.prototype = {
-    _init: function (account, service, method) {
+    _init: function (account) {
         try {
             if (_DEBUG) console.log('Account: ' + account);
-            this.account = account;
-            this.method = typeof(method) !== 'undefined' ? method : "GET";
-            this.service = service;
             this.oAuth = account.get_oauth2_based();
             if (_DEBUG) console.log('OAuth: ' + account.get_account().id);
             this.oAcc = account.get_account();

@@ -177,7 +177,6 @@ GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
     mailbox = typeof(mailbox) === 'undefined' ? '' : mailbox;
     provider = typeof(provider) === 'undefined' ? 'GOOGLE' : provider;
     try {
-        if (_DEBUG) console.log("Gmail set content: 1");
         if (add === 0) {
             Main.panel.menuManager.removeMenu(this.menu);
             this.menu.destroy();
@@ -190,15 +189,11 @@ GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
             this.msgs = [];
             this.boxes = [];
         }
-        if (_DEBUG) console.log("Gmail set content: 2");
         if (typeof(content) !== 'undefined') {
-            if (_DEBUG) console.log("Gmail set content: 3");
 
             if (content.length > 0) {
-
-                if (_DEBUG) console.log("Gmail set content: 4");
                 for (let k = 0; k < Math.min(content.length, 10); k++) {
-                    let msg = new extension.GmailMenuItem(content[k], {
+                    let msg = new GmailMenuItem(content[k], {
                         reactive: true
                     });
                     msg.connect('activate', extension._showHello);

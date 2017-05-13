@@ -46,7 +46,6 @@ GmailFeed.prototype = {
     },
     scanInbox: function (callback) {
         try {
-            if (_DEBUG) console.log('Entering scanInbox safe:');
             let sprovider = this._conn._oAccount.get_account().provider_name.toUpperCase();
             if (_DEBUG) console.log('feed provider:' + sprovider);
 
@@ -93,7 +92,6 @@ GmailFeed.prototype = {
                             }
                             i++;
                         }
-                        if (_DEBUG) console.log('Before push');
                         this.folders.push(new Object({
                             name: 'inbox',
                             encoded: 'inbox',
@@ -101,7 +99,6 @@ GmailFeed.prototype = {
                             unseen: cnt,
                             list: messages
                         }));
-                        if (_DEBUG) console.log('Before emit');
                         this.emit('inbox-fed', folder);
                         if (typeof(callback) !== 'undefined') callback.apply(this, [this, folder]);
                     }
