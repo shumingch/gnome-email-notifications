@@ -1,13 +1,12 @@
-"use strict";
 /*
  * Copyright (c) 2012 Adam Jabłoński
  *
- * Gmail Notify Extension is free software; you can redistribute it and/or modify
+ * Gmail Message Tray Extension is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * Gmail Notify Extension is distributed in the hope that it will be useful, but
+ * Gmail Message Tray Extension is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
@@ -21,6 +20,7 @@
  * Shuming Chan <shuming0207@gmail.com>
  *
  */
+"use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const PanelMenu = imports.ui.panelMenu;
 const Clutter = imports.gi.Clutter;
@@ -110,7 +110,7 @@ GmailButton.prototype = {
             let msg = new GmailMenuItem(note, {
                 reactive: true
             }, provider);
-            msg.connect('activate', extension._showHello);
+            msg.connect('activate', this._showHello);
             this.menu.addMenuItem(msg, 0);
             this.msgs.push(msg)
         } catch (err) {
@@ -174,6 +174,40 @@ GmailButton.prototype = {
     }
 };
 
+GmailButton.prototype._showHello = function(object) {
+// well run reader really
+    const config = extension.config;
+    try {
+        if (config.getReader() === 0) {
+            if (config._browser === "") {
+                console.log("gmail notify: no default browser")
+            }
+            else {
+                console.log("object link: " + object.link);
+                if (object.link !== '' && typeof(object.link) !== 'undefined') {
+                    Utils.trySpawnCommandLine(config._browser + " " + object.link);
+                }
+                else {
+                    Utils.trySpawnCommandLine(config._browser + " http://www.gmail.com");
+                }
+            }
+        } else {
+            if (config._mail === "") {
+                console.log("gmail notify: no default mail reader")
+            }
+            else {
+                Utils.trySpawnCommandLine(config._mail);
+            }
+        }
+
+    }
+    catch (err) {
+        console.error(err);
+        extension.button.text.text = err.message;
+    }
+};
+
+
 GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
     add = typeof(add) === 'undefined' ? 0 : add;
     mailbox = typeof(mailbox) === 'undefined' ? '' : mailbox;
@@ -198,7 +232,7 @@ GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
                     let msg = new GmailMenuItem(content[k], {
                         reactive: true
                     });
-                    msg.connect('activate', extension._showHello);
+                    msg.connect('activate', this._showHello);
                     this.menu.addMenuItem(msg, 0);
                     this.msgs.push(msg);
                 }
@@ -209,7 +243,7 @@ GmailButton.prototype.setContent = function (content, add, mailbox, provider) {
             }
             let mbox = new MailboxMenuItem(mailbox);
             mbox.setProvider(provider);
-            mbox.connect('activate', extension._showHello);
+            mbox.connect('activate', this._showHello);
             this.boxes.push(mbox);
             this.menu.addMenuItem(mbox, 0);
         }

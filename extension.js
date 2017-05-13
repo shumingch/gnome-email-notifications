@@ -33,11 +33,11 @@ const GmailButton = Me.imports.GmailButton.GmailButton;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
 const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const GmailConf = Me.imports.GmailConf.GmailConf;
+const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
 const Mainloop = imports.mainloop;
 const XML = Me.imports.rexml;
 const Gettext = imports.gettext.domain('gmailmessagetray');
 const _ = Gettext.gettext;
-const Utils = imports.misc.util;
 const console = Me.imports.console.console;
 
 const CHECK_TIMEOUT = 300;
@@ -74,6 +74,7 @@ catch (err) {
 
 let button, event, extensionPath, currentPos, config, onetime, goaAccounts, sM, sU, numGoogle,
     nVersion;
+let messageTray = new GmailMessageTray();
 
 
 function onTimer() {
@@ -190,7 +191,8 @@ function _processData(oImap) {
             console.log("Setting Content 1:" + oImap._conn._oAccount.get_account().identity);
         }
 
-        button.setContent(oImap.folders[0].list, numGoogle, oImap._conn._oAccount.get_account().presentation_identity, oImap._conn._oAccount.get_account().provider_name.toUpperCase());
+        //button.setContent(oImap.folders[0].list, oImap._conn._oAccount.get_account().presentation_identity);
+        messageTray.setContent(oImap.folders[0].list, oImap._conn._oAccount.get_account().presentation_identity);
         oImap._conn._disconnect();
         numGoogle++;
         button.text.clutter_text.set_markup(config.getSafeMode() ? ('%s').format(sM.toString()) : bText.format(sM.toString(), sU.toString()));
@@ -238,38 +240,6 @@ function _initData() {
 }
 
 
-// well run reader really
-function _showHello(object) {
-    try {
-        if (config.getReader() === 0) {
-            if (config._browser === "") {
-                console.log("gmail notify: no default browser")
-            }
-            else {
-                console.log("object link: " + object.link);
-                if (object.link !== '' && typeof(object.link) !== 'undefined') {
-                    Utils.trySpawnCommandLine(config._browser + " " + object.link);
-                }
-                else {
-                    Utils.trySpawnCommandLine(config._browser + " http://www.gmail.com");
-                }
-            }
-        } else {
-            if (config._mail === "") {
-                console.log("gmail notify: no default mail reader")
-            }
-            else {
-                Utils.trySpawnCommandLine(config._mail);
-            }
-        }
-
-    }
-    catch (err) {
-        console.error(err);
-        button.text.text = err.message;
-    }
-}
-
 
 
 function init(extensionMeta) {
@@ -306,9 +276,6 @@ function _checkVersion() {
             let xdoc = new REXML(oMes.response_body.data.replace('<?xml version="1.0" encoding="utf-8" ?>', ''));
             if (_DEBUG) console.log("Current Version: " + xdoc.version[0].number);
             nVersion = xdoc.rootElement.ChildElement('number').text;
-            if (nVersion > _version) {
-                //bText=' ! %s(<u>%s</u>)'
-            }
 
         });
     }

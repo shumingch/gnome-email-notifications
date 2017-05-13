@@ -35,17 +35,15 @@ GmailNotification.prototype = {
 
     _init: function (source, content) {
         try {
-            MessageTray.Notification.prototype._init.call(this, source,
-                _("New mail from %s").format(content.from), null);
-            this.expanded = true;
-            let blayout = new St.BoxLayout({vertical: false});
-            let layout = new St.BoxLayout({vertical: true});
-            let label = new St.Label({text: (new Date(content.date)).toLocaleString()});
-            label.set_style("font-size:10px;");
-            layout.add(label);
-            let label1 = new St.Label({text: content.subject});
-            layout.add(label1);
-            blayout.add(layout);
+            let time = new Date(content.date).toLocaleString();
+            const title = content.subject;
+            let message;
+            if (content.from !== undefined) {
+                message = `${time} ${content.from}`;
+            } else {
+                message = "";
+            }
+            MessageTray.Notification.prototype._init.call(this, source, title, message);
         }
         catch (err) {
             console.error(err);

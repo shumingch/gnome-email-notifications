@@ -24,7 +24,7 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const extension = Me.imports.extension;
 const MessageTray = imports.ui.messageTray;
-const Clutter = imports.gi.Clutter;
+const St = imports.gi.St;
 const console = Me.imports.console.console;
 
 function GmailNotificationSource() {
@@ -36,7 +36,7 @@ GmailNotificationSource.prototype = {
 
     _init: function () {
         try {
-            MessageTray.Source.prototype._init.call(this, _("New gmail message"), "");
+            MessageTray.Source.prototype._init.call(this, _("New gmail message"), "mail-unread");
             this._nbNotifications = 0;
         }
         catch (err) {
@@ -58,15 +58,5 @@ GmailNotificationSource.prototype = {
         catch (err) {
             console.error(err);
         }
-    },
-
-    createNotificationIcon: function () {
-        try {
-            return Clutter.Texture.new_from_file(extension.extensionPath + "/icons/gmail-icon48.png");
-        }
-        catch (err) {
-            console.error(err);
-        }
     }
-
 };
