@@ -26,10 +26,10 @@ const St = imports.gi.St;
 const Main = imports.ui.main;
 const Util = imports.misc.util;
 const Lang = imports.lang;
-const _DEBUG = true;
 const extension = Me.imports.extension;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
+const MessageTray = imports.ui.messageTray;
 const console = Me.imports.console.console;
 
 
@@ -40,47 +40,58 @@ const GmailMessageTray = new Lang.Class({
         this.numUnread = numUnread;
         this.mailbox = mailbox;
         this.emailSummaryNotification = null;
+        this.config = extension.config;
     },
-    _createNotification: function (content, iconName, popUp) {
+    _createNotification: function (content, iconName, popUp, permanent) {
         const source = new GmailNotificationSource();
         Main.messageTray.add(source);
         const notification = new GmailNotification(source, content, iconName);
-        if (popUp) {
-            notification.setResident(true);
-            source.notify(notification);
-        } else {
-            source.pushNotification(notification);
-        }
         notification.connect('activated', () => {
             if (notification === this.emailSummaryNotification) {
-                Main.panel.statusArea.dateMenu.menu.open();
-            } else {
+                const messageTray = Main.panel.statusArea.dateMenu.menu;
+                if (messageTray.isOpen) {
+                    this._openEmail("");
+                } else {
+                    messageTray.open();
+                }
+            } else if (this.emailSummaryNotification) {
                 this.numUnread--;
                 const emailSummary = this._createEmailSummary(this.mailbox);
                 this.emailSummaryNotification.update(emailSummary.subject, emailSummary.from);
                 this._openEmail(content.link);
             }
+            else {
+                this._openEmail("");
+            }
         });
+        if (permanent) {
+            notification.setResident(true);
+        }
+        if (popUp) {
+            notification.setUrgency(MessageTray.Urgency.HIGH);
+            source.notify(notification);
+        } else {
+            source.pushNotification(notification);
+        }
         return notification;
     },
     _browseGn: function () {
-        const config = extension.config;
-        if (config._browser === "") {
+        if (this.config._browser === "") {
             console.log("gmail notify: no default browser")
         }
         else {
-            Util.trySpawnCommandLine(config._browser + " http://gn.makrodata.org");
+            Util.trySpawnCommandLine(this.config._browser + " http://gn.makrodata.org");
         }
     },
 
-    _showNoMessage: function (from) {
+    _showNoMessage: function () {
         try {
             const content = {
-                from,
+                from: this.mailbox,
                 date: new Date(),
                 subject: _('No new messages')
             };
-            this._createNotification(content, "mail-read", false);
+            this._createNotification(content, "mail-read", false, true);
         } catch (err) {
             console.error(err);
         }
@@ -92,7 +103,7 @@ const GmailMessageTray = new Lang.Class({
             date: new Date(),
             subject
         };
-        this._createNotification(content, "mail-mark-important", true);
+        this._createNotification(content, "mail-mark-important", true, true);
     },
     _createEmailSummary(){
         return {
@@ -102,14 +113,14 @@ const GmailMessageTray = new Lang.Class({
         };
     },
     _showEmailSummaryNotification(){
-        return this._createNotification(this._createEmailSummary(), "mail-mark-important", true);
+        return this._createNotification(this._createEmailSummary(), "mail-mark-important", true, true);
     },
     setContent: function (content) {
         try {
             if (content !== undefined) {
                 if (content.length > 0) {
                     for (let msg of content) {
-                        this._createNotification(msg, "mail-unread", false);
+                        this._createNotification(msg, "mail-unread", false, false);
                     }
                     this.emailSummaryNotification = this._showEmailSummaryNotification();
                 }
@@ -126,43 +137,37 @@ const GmailMessageTray = new Lang.Class({
                     date: new Date(),
                     subject: _('There is newer version of this extension: %s - click to download').format(extension.nVersion)
                 };
-                this._createNotification(content, "mail-mark-important", true);
+                this._createNotification(content, "mail-mark-important", true, true);
             }
 
         } catch (err) {
             console.error(err);
         }
     },
-
-    _openEmail: function (link) {
-        const config = extension.config;
-        try {
-            if (config.getReader() === 0) {
-                if (config._browser === "") {
-                    console.log("no default browser")
-                }
-                else {
-                    console.log("link: " + link);
-                    if (link !== '' && link !== undefined) {
-                        Util.trySpawnCommandLine(config._browser + " " + link);
-                    }
-                    else {
-                        Util.trySpawnCommandLine(config._browser + " http://www.gmail.com");
-                    }
-                }
-            } else {
-                if (config._mail === "") {
-                    console.log("no default mail reader")
-                }
-                else {
-                    Util.trySpawnCommandLine(config._mail);
-                }
+    _openBrowser: function (link) {
+        if (this.config._browser === "") {
+            console.log("no default browser")
+        }
+        else {
+            console.log("link: " + link);
+            if (link === '' || link === undefined) {
+                link = 'https://www.gmail.com';
             }
+            Util.trySpawnCommandLine(`${this.config._browser} ${link}`);
+        }
+    },
+    _openEmail: function (link) {
+        if (this.config.getReader() === 0) {
+            this._openBrowser(link);
+        } else {
+            if (this.config._mail === "") {
+                console.log("no default mail reader")
+            }
+            else {
+                Util.trySpawnCommandLine(this.config._mail);
+            }
+        }
 
-        }
-        catch (err) {
-            console.error(err);
-        }
     }
 });
 
