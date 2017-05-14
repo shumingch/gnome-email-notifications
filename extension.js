@@ -69,8 +69,8 @@ catch (err) {
     console.error(err);
 }
 
-let button, checkMailTimeout, extensionPath, currentPos, config, onceTimeout, goaAccounts, sM, sU, numGoogle,
-    nVersion;
+let button, checkMailTimeout, extensionPath, currentPos, config, goaAccounts, sM, sU, numGoogle,
+    nVersion, messageTray;
 
 function checkMail(){
     try {
@@ -183,8 +183,7 @@ function _processData(oImap) {
         const content = oImap.folders[0].list;
         let mailbox = oImap._conn._oAccount.get_account().presentation_identity;
         mailbox = mailbox === undefined ? '' : mailbox;
-        let messageTray = new GmailMessageTray(sU, mailbox);
-        messageTray.setContent(content);
+        messageTray.updateContent(content, sU, mailbox);
         oImap._conn._disconnect();
         numGoogle++;
         //button.text.clutter_text.set_markup(config.getSafeMode() ? ('%s').format(sM.toString()) : bText.format(sM.toString(), sU.toString()));
@@ -316,6 +315,7 @@ function startTimeout(){
 function enable() {
     try {
         config = new GmailConf();
+        messageTray = new GmailMessageTray();
         console.log('Enabling Gmail Message Tray version ' + _version);
         //show();
         _initData();
@@ -350,6 +350,8 @@ function disable() {
     //hide();
     config._disconnectSignals();
     config = null;
+    messageTray.destroySources();
+    messageTray = null;
     stopTimeout();
     goaAccounts = null;
 }

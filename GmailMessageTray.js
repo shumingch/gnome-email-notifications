@@ -24,8 +24,7 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const St = imports.gi.St;
 const Main = imports.ui.main;
-const Util = imports.misc.util;
-const Lang = imports.lang;
+const Util = imports.misc.util; const Lang = imports.lang;
 const extension = Me.imports.extension;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
@@ -35,11 +34,10 @@ const console = Me.imports.console.console;
 
 const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
-    _init: function (numUnread, mailbox) {
-        this.numUnread = numUnread;
-        this.mailbox = mailbox;
+    _init: function () {
         this.emailSummaryNotification = null;
         this.config = extension.config;
+        this.sources = [];
     },
     _createNotification: function (content, iconName, popUp, permanent) {
         const source = new GmailNotificationSource();
@@ -50,9 +48,8 @@ const GmailMessageTray = new Lang.Class({
                 const messageTray = Main.panel.statusArea.dateMenu.menu;
                 if (messageTray.isOpen) {
                     this._openEmail("");
-                } else {
-                    messageTray.open();
                 }
+                Main.panel.toggleCalendar();
             } else if (this.emailSummaryNotification) {
                 this.numUnread--;
                 const emailSummary = this._createEmailSummary(this.mailbox);
@@ -72,6 +69,7 @@ const GmailMessageTray = new Lang.Class({
         } else {
             source.pushNotification(notification);
         }
+        this.sources.push(source);
         return notification;
     },
     _browseGn: function () {
@@ -112,36 +110,44 @@ const GmailMessageTray = new Lang.Class({
         };
     },
     _showEmailSummaryNotification(){
-        return this._createNotification(this._createEmailSummary(), "mail-mark-important", true, true);
+        const popUp = true;
+        return this._createNotification(this._createEmailSummary(), "mail-mark-important", popUp, true);
     },
-    setContent: function (content) {
-        try {
-            if (content !== undefined) {
-                if (content.length > 0) {
-                    for (let msg of content) {
-                        this._createNotification(msg, "mail-unread", false, false);
-                    }
-                    this.emailSummaryNotification = this._showEmailSummaryNotification();
+    destroySources(){
+        for (let source of this.sources) {
+            source.destroy();
+        }
+    },
+    _checkVersion(){
+        if (extension.nVersion > extension._version) {
+            const content = {
+                from: "Gmail Message Tray",
+                date: new Date(),
+                subject: _('There is newer version of this extension: %s - click to download').format(extension.nVersion)
+            };
+            this._createNotification(content, "mail-mark-important", true, true);
+        }
+    },
+    updateContent: function (content, numUnread, mailbox) {
+        this.numUnread = numUnread;
+        this.mailbox = mailbox;
+
+        this.destroySources();
+        if (content !== undefined) {
+            if (content.length > 0) {
+                for (let msg of content) {
+                    this._createNotification(msg, "mail-unread", false, false);
                 }
-                else {
-                    this._showNoMessage();
-                }
+                this.emailSummaryNotification = this._showEmailSummaryNotification();
             }
             else {
                 this._showNoMessage();
             }
-            if (extension.nVersion > extension._version) {
-                const content = {
-                    from: "Gmail Message Tray",
-                    date: new Date(),
-                    subject: _('There is newer version of this extension: %s - click to download').format(extension.nVersion)
-                };
-                this._createNotification(content, "mail-mark-important", true, true);
-            }
-
-        } catch (err) {
-            console.error(err);
         }
+        else {
+            this._showNoMessage();
+        }
+        this._checkVersion();
     },
     _openBrowser: function (link) {
         if (this.config._browser === "") {
