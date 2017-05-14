@@ -32,22 +32,10 @@ const Lib = Me.imports.lib;
 
 let settings;
 let settings_slider;
-let settings_combo;
 let settings_switch;
-let settings_text;
 function init() {
-    Lib.initTranslations(Me);
-    settings = Lib.getSettings(Me);
-    settings_combo = new Map([
-        ["position", {
-            label: _("Extension position"), help: _("Extension position")
-        }]
-    ]);
-    settings_text = new Map([
-        ["btext", {
-            label: _("Button template"), help: _("Button template")
-        }]
-    ]);
+    Lib.initTranslations();
+    settings = Lib.getSettings();
     settings_slider = new Map([
         ["timeout", {
             label: _("Check every {0} sec: "), help: _("Check every {0} sec: ")
@@ -58,40 +46,10 @@ function init() {
             label: _("Use default email client instead of browser"),
             help: _("Use default email client instead of browser")
         }],
-        ["notify", {
-            label: _("Notify about incoming mail"), help: _("Notify about incoming mail")
-        }],
-        ["showsummary", {
-            label: _("Show email summary"), help: _("Show email summary")
-        }],
         ["safemode", {
             label: _("Safe Mode"), help: _("Safe mode")
         }]
     ]);
-}
-
-function createComboSetting(setting, value) {
-
-    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-    let setting_label = new Gtk.Label({
-        label: value.label,
-        xalign: 0
-    });
-    let setting_combo = new Gtk.ComboBoxText({});
-    setting_combo.append("right", _("Right"));
-    setting_combo.append("left", _("Left"));
-    setting_combo.append("center", _("Center"));
-    setting_combo.set_active_id(settings.get_string(setting));
-    setting_combo.connect('changed', function (button) {
-        settings.set_string(setting, button.get_active_id());
-    });
-    if (value.help) {
-        setting_label.set_tooltip_text(value.help);
-        setting_combo.set_tooltip_text(value.help)
-    }
-    hbox.pack_start(setting_label, true, true, 0);
-    hbox.add(setting_combo);
-    return hbox;
 }
 
 function createSwitchSetting(setting, value) {
@@ -159,25 +117,6 @@ function createSliderSetting(setting, value) {
     return hbox;
 }
 
-function createTextSetting(setting, value) {
-
-    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-    let setting_label = new Gtk.Label({
-        label: value.label,
-        xalign: 0
-    });
-    let setting_text = new Gtk.Entry({});
-    setting_text.text = settings.get_string(setting);
-    setting_text.connect('changed', function (button) {
-        settings.set_string(setting, button.text);
-    });
-    if (value.help) {
-        setting_label.set_tooltip_text(value.help)
-    }
-    hbox.pack_start(setting_label, true, true, 0);
-    hbox.add(setting_text);
-    return hbox;
-}
 function buildPrefsWidget() {
     let frame = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
@@ -187,16 +126,8 @@ function buildPrefsWidget() {
         orientation: Gtk.Orientation.VERTICAL,
         margin: 20, margin_top: 10
     });
-    for (let [setting, value] of settings_combo) {
-        let hbox = createComboSetting(setting, value);
-        vbox.add(hbox);
-    }
     for (let [setting, value] of settings_switch) {
         let hbox = createSwitchSetting(setting, value);
-        vbox.add(hbox);
-    }
-    for (let [setting, value] of settings_text) {
-        let hbox = createTextSetting(setting, value);
         vbox.add(hbox);
     }
     for (let [setting, value] of settings_slider) {

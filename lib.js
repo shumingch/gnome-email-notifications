@@ -22,8 +22,9 @@
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const Gettext = imports.gettext;
+const extension = imports.misc.extensionUtils.getCurrentExtension();
 
-function getSettings(extension) {
+function getSettings() {
     let schemaName = 'org.gnome.shell.extensions.gmailmessagetray';
     let schemaDir = extension.dir.get_child('schemas').get_path();
 
@@ -44,7 +45,7 @@ function getSettings(extension) {
     }
 }
 
-function initTranslations(extension) {
+function initTranslations() {
     let localeDir = extension.dir.get_child('locale').get_path();
 
     // Extension installed in .local

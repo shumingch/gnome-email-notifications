@@ -1,4 +1,3 @@
-"use strict";
 /*
  * Copyright (c) 2012 Adam Jabłoński
  *
@@ -21,6 +20,7 @@
  * Shuming Chan <shuming0207@gmail.com>
  *
  */
+"use strict";
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 
@@ -73,7 +73,6 @@ const Extension = new Lang.Class({
         this.sM = 0;
         this.sU = 0;
         this.numGoogle = 0;
-        this.nVersion = '';
         this.goaAccounts = this._initData();
         this.startTimeout();
         this._libCheck();
@@ -178,16 +177,6 @@ const Extension = new Lang.Class({
         if (Goa === undefined || Soup === undefined || Gio === undefined || GConf === undefined) {
             this.messageTray.showLibError();
         }
-    },
-
-    _checkVersion: function () {
-        const sMes = Soup.Message.new('GET', 'http://gn.makrodata.org/index.php/current');
-        sSes.queue_message(sMes, (oSes, oMes) => {
-            if (_DEBUG) console.log(oMes.response_body.data);
-            let xdoc = new REXML(oMes.response_body.data.replace('<?xml version="1.0" encoding="utf-8" ?>', ''));
-            if (_DEBUG) console.log("Current Version: " + xdoc.version[0].number);
-            this.nVersion = xdoc.rootElement.ChildElement('number').text;
-        });
     },
     startTimeout: function () {
         this.checkMailTimeout = GLib.timeout_add_seconds(0, this.config.getTimeout(), () => {

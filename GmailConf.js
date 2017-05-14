@@ -29,10 +29,6 @@ const Lang = imports.lang;
 const Gio = imports.gi.Gio;
 
 const GMAILNOTIFY_SETTINGS_KEY_TIMEOUT = 'timeout';
-const GMAILNOTIFY_SETTINGS_KEY_BTEXT = 'btext';
-const GMAILNOTIFY_SETTINGS_KEY_POSITION = 'position';
-const GMAILNOTIFY_SETTINGS_KEY_NOTIFY = 'notify';
-const GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY = 'showsummary';
 const GMAILNOTIFY_SETTINGS_KEY_SAFEMODE = 'safemode';
 const GMAILNOTIFY_SETTINGS_KEY_USEMAIL = 'usemail';
 
@@ -60,13 +56,11 @@ const GmailConf = new Lang.Class({
             else {
                 this._mail = mailto.get_executable();
             }
-
         }
         catch (err) {
             console.error(err);
             this._mail = "";
         }
-
     },
 
     getTimeout(){
@@ -75,20 +69,8 @@ const GmailConf = new Lang.Class({
     getReader(){
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
     },
-    getPosition(){
-        return this.settings.get_string(GMAILNOTIFY_SETTINGS_KEY_POSITION);
-    },
-    getNumbers(){
-        return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY);
-    },
-    getNotify(){
-        return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_NOTIFY);
-    },
     getSafeMode(){
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SAFEMODE);
-    },
-    getBText(){
-        return this.settings.get_string(GMAILNOTIFY_SETTINGS_KEY_BTEXT);
     },
     set_int: function (key, val) {
         return this._client.set_int(key, val)
@@ -101,20 +83,5 @@ const GmailConf = new Lang.Class({
     },
     get_string: function (key) {
         return this._client.get_string(key)
-    },
-    _onNotify: function (client, object, p0) {
-        return true;
-    },
-    _onDestroy: function (client, object, p0) {
-        return true;
-    },
-    _onValueChanged: function (client, key, p0) {
-        return true;
-    },
-    _disconnectSignals: function () {
-        //this._client.notify_remove(this.np);
-        //this._client.remove_dir(GCONF_DIR);
-        //this._client.disconnect(this.pid);
-        //settings.disconnect(sigid);
     }
 });

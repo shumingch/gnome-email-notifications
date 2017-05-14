@@ -106,18 +106,6 @@ const GmailMessageTray = new Lang.Class({
             source.destroy();
         }
     },
-    _checkVersion(){
-        if (this.extension.nVersion > this.extension._version) {
-            const content = {
-                from: "Gmail Message Tray",
-                date: new Date(),
-                subject: _('There is newer version of this extension: %s - click to download').format(this.extension.nVersion)
-            };
-            const callback = ()=>{
-            };
-            this._createNotification(content, "mail-mark-important", true, true, callback);
-        }
-    },
     _createEMailNotification(msg){
         const callback = ()=>{
             this.numUnread--;
@@ -148,7 +136,6 @@ const GmailMessageTray = new Lang.Class({
         else {
             this._showNoMessage();
         }
-        this._checkVersion();
     },
     _openBrowser: function (link) {
         if (this.config._browser === "") {
