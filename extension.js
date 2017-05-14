@@ -24,11 +24,9 @@
 const GLib = imports.gi.GLib;
 
 const St = imports.gi.St;
-const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const GConf = imports.gi.GConf;
 const GmailImap = Me.imports.GmailImap.GmailImap;
-const GmailButton = Me.imports.GmailButton.GmailButton;
 const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const GmailConf = Me.imports.GmailConf.GmailConf;
 const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
@@ -43,36 +41,21 @@ const _DEBUG = false;
 const _version = "0.3.6";
 
 
-let Soup, sSes;
+let Soup, sSes, Gio, Goa;
 try {
     Soup = imports.gi.Soup;
+    Gio = imports.gi.Gio;
+    Goa = imports.gi.Goa;
     sSes = new Soup.SessionAsync();
     Soup.Session.prototype.add_feature.call(sSes, new Soup.ProxyResolverDefault());
 }
 catch (err) {
     console.error(err);
 }
+let button, checkMailTimeout, extensionPath, config, goaAccounts, sM, sU, numGoogle,
+    nVersion, messageTray, initialCheckMail;
 
-let Gio;
-try {
-    Gio = imports.gi.Gio;
-}
-catch (err) {
-    console.error(err);
-}
-
-let Goa;
-try {
-    Goa = imports.gi.Goa;
-}
-catch (err) {
-    console.error(err);
-}
-
-let button, checkMailTimeout, extensionPath, currentPos, config, goaAccounts, sM, sU, numGoogle,
-    nVersion, messageTray;
-
-function checkMail(){
+function checkMail() {
     try {
         sM = 0;
         sU = 0;
@@ -88,30 +71,9 @@ function checkMail(){
     }
 }
 
-function onTimer() {
-    return true;
-}
-function oneTime() {
-    try {
-        sM = 0;
-        sU = 0;
-        numGoogle = 0;
-        for (let i = 0; i < goaAccounts.length; i++) {
-            if (_DEBUG) console.log("Running scan: " + i + " " + goaAccounts[i]._conn._oAccount.get_account().id);
-            goaAccounts[i].scanInbox();
-        }
-        if (_DEBUG) console.log("Post oneTime " + goaAccounts.length);
-    }
-    catch (err) {
-        console.error(err);
-    }
-    return false;
-}
-
 function _processData(oImap) {
     try {
         if (_DEBUG) console.log("Process Data " + oImap._conn._oAccount.get_account().id);
-        const bText = config.getBText();
         let maxId = 0;
         let maxSafeId = '';
         for (let i = 0; i < oImap.folders.length; i++) {
@@ -166,15 +128,12 @@ function _processData(oImap) {
             console.log("Setting Content 1:" + oImap._conn._oAccount.get_account().identity);
         }
 
-        //button.setContent(oImap.folders[0].list, oImap._conn._oAccount.get_account().presentation_identity);
         const content = oImap.folders[0].list;
         let mailbox = oImap._conn._oAccount.get_account().presentation_identity;
         mailbox = mailbox === undefined ? '' : mailbox;
         messageTray.updateContent(content, sU, mailbox);
         oImap._conn._disconnect();
         numGoogle++;
-        //button.text.clutter_text.set_markup(config.getSafeMode() ? ('%s').format(sM.toString()) : bText.format(sM.toString(), sU.toString()));
-        //button.setIcon(sU);
     }
     catch (err) {
         console.error(err);
@@ -217,8 +176,6 @@ function _initData() {
 }
 
 
-
-
 function init(extensionMeta) {
     console.log('Init Gmail notify version ' + _version);
     extensionPath = extensionMeta.path;
@@ -227,19 +184,10 @@ function init(extensionMeta) {
 }
 
 function libCheck() {
-    try {
-        if (typeof(Goa) !== 'undefined' && typeof(Soup) !== 'undefined' && typeof(Gio) !== 'undefined' && typeof(GConf) !== 'undefined') {
-            //button.setContent();
-            if (_DEBUG) console.log('init timeout' + config.getTimeout());
-        }
-        else {
-            //button._showError(_('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'));
-            //button.setIcon(1);
-            //Main.panel.menuManager.addMenu(button.menu);
-        }
+    if (Goa === undefined && Soup === undefined && Gio === undefined && GConf === undefined) {
     }
-    catch (err) {
-        console.error(err);
+    else {
+        messageTray._showError(_('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'));
     }
 }
 
@@ -261,37 +209,8 @@ function _checkVersion() {
     }
 }
 
-function show() {
-    try {
-        button = new GmailButton(extensionPath);
-        button.showNumbers(config.getNumbers());
-        button.setIcon(0);
-        const position = config.getPosition();
-        //const position = config.get_string("position");
-        const statusName = 'gmail-message-tray';
-        switch (position) {
-            case 'right':
-                Main.panel.addToStatusArea(statusName, button, 0, 'right');
-                break;
-            case 'center':
-                Main.panel.addToStatusArea(statusName, button, 0, 'center');
-                break;
-            case 'left':
-                Main.panel.addToStatusArea(statusName, button, 0, 'left');
-                break;
-            default:
-                Main.panel.addToStatusArea(statusName, button, 0, 'right');
-                break;
-        }
-        currentPos = position;
-    }
-    catch (err) {
-        console.error(err);
-    }
-
-}
-function startTimeout(){
-    checkMailTimeout = GLib.timeout_add_seconds(0, config.getTimeout(), ()=>{
+function startTimeout() {
+    checkMailTimeout = GLib.timeout_add_seconds(0, config.getTimeout(), () => {
         checkMail();
         return true;
     });
@@ -303,12 +222,11 @@ function enable() {
         config = new GmailConf();
         messageTray = new GmailMessageTray();
         console.log('Enabling Gmail Message Tray version ' + _version);
-        //show();
         _initData();
         nVersion = '';
 
-        GLib.timeout_add_seconds(0, 5, ()=>{
-            checkMail();
+        checkMail();
+        initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
             return false;
         });
         startTimeout();
@@ -328,12 +246,12 @@ function hide() {
     }
 }
 
-function stopTimeout(){
+function stopTimeout() {
     Mainloop.source_remove(checkMailTimeout);
+    Mainloop.source_remove(initialCheckMail);
 }
 
 function disable() {
-    //hide();
     config._disconnectSignals();
     config = null;
     messageTray.destroySources();
