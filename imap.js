@@ -19,53 +19,11 @@
  *
  */
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-try {
-    const Gio = imports.gi.Gio;
-}
-catch (err) {
-    global.log("Soup import error:" + err.message);
-}
-const Signals = imports.signals;
+const ImapMessage = Me.imports.ImapMessage.ImapMessage;
 const Unicode = Me.imports.unicode;
 const BigInteger = Me.imports.biginteger;
 const Lang = imports.lang;
 const _DEBUG = false;
-function ImapMessage() {
-    this._init();
-}
-ImapMessage.prototype = {
-    _init: function () {
-        this.from = "";
-        this.subject = "";
-        this.date = "";
-        this.id = 0;
-        this.link = "";
-        this.safeid = "";
-        this.icontype = "gmail-icon32.png"
-    },
-    set: function (prop, value) {
-        switch (prop.toLowerCase()) {
-            case "from":
-                this.from = value;
-                break;
-            case "link":
-                this.link = value;
-                break;
-            case "id":
-                this.id = value;
-                break;
-            case "subject":
-                this.subject = value;
-                break;
-            case "safeid":
-                this.safeid = value;
-                break;
-            case "date":
-                this.date = value;
-                break;
-        }
-    }
-};
 const Imap = new Lang.Class({
     Name: 'Imap',
     _init: function (conn) {
@@ -399,4 +357,3 @@ const Imap = new Lang.Class({
     },
 
 });
-Signals.addSignalMethods(Imap.prototype);

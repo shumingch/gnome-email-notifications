@@ -72,9 +72,4 @@ OAuth.prototype = {
     }
 };
 
-try {
-    Signals.addSignalMethods(OAuth.prototype);
-}
-catch (err) {
-    console.error(err);
-}
+Signals.addSignalMethods(OAuth.prototype);

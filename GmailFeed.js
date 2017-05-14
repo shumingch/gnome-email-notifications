@@ -25,7 +25,7 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const OAuth = Me.imports.oauth;
 const GmailHttps = Me.imports.GmailHttps.GmailHttps;
 const XML = Me.imports.rexml;
-const Imap = Me.imports.imap;
+const ImapMessage = Me.imports.ImapMessage.ImapMessage;
 const Soup = imports.gi.Soup;
 const extension = Me.imports.extension;
 const Signals = imports.signals;
@@ -73,7 +73,7 @@ GmailFeed.prototype = {
                         if (_DEBUG) console.log('child name:' + oxml.rootElement.childElements[i].name);
                         if (oxml.rootElement.childElements[i].name === 'entry') {
                             let entry = oxml.rootElement.childElements[i];
-                            let em = new Imap.ImapMessage();
+                            let em = new ImapMessage();
                             em.from = entry.childElement('author').childElement('name').text + ' <' + entry.childElement('author').childElement('email').text + '>';
                             if (_DEBUG) console.log('From::' + em.from);
                             em.id = i;

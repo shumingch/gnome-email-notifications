@@ -27,7 +27,7 @@ const St = imports.gi.St;
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const GConf = imports.gi.GConf;
-const Gmail = Me.imports.gmail;
+const GmailImap = Me.imports.GmailImap.GmailImap;
 const GmailButton = Me.imports.GmailButton.GmailButton;
 const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const GmailConf = Me.imports.GmailConf.GmailConf;
@@ -211,7 +211,7 @@ function _initData() {
             if (_DEBUG) console.log("sprovider:" + sprovider);
             if (sprovider === "GOOGLE" || (sprovider === "MICROSOFT ACCOUNT" && config.getSafeMode() === 0)) {
                 if (_DEBUG) console.log("Post oneTime adding");
-                let len = goaAccounts.push(config.getSafeMode() === 1 ? new GmailFeed(accounts[i]) : new Gmail.GmailImap(accounts[i]));
+                let len = goaAccounts.push(config.getSafeMode() === 1 ? new GmailFeed(accounts[i]) : new GmailImap(accounts[i]));
                 goaAccounts[len - 1].connect('inbox-scanned', _processData);
                 goaAccounts[len - 1].connect('inbox-fed', _processData);
                 if (_DEBUG) console.log("Post oneTime added:" + goaAccounts[i]._conn._oAccount.get_account().id);
