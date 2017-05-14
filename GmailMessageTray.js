@@ -52,10 +52,14 @@ const GmailMessageTray = new Lang.Class({
             source.pushNotification(notification);
         }
         notification.connect('activated', () => {
-            this._openEmail(content.link);
-            this.numUnread--;
-            const emailSummary = this._createEmailSummary(this.mailbox);
-            this.emailSummaryNotification.update(emailSummary.subject, emailSummary.from);
+            if (notification === this.emailSummaryNotification) {
+                Main.panel.statusArea.dateMenu.menu.open();
+            } else {
+                this.numUnread--;
+                const emailSummary = this._createEmailSummary(this.mailbox);
+                this.emailSummaryNotification.update(emailSummary.subject, emailSummary.from);
+                this._openEmail(content.link);
+            }
         });
         return notification;
     },
