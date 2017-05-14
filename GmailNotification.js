@@ -27,6 +27,7 @@ const console = Me.imports.console.console;
 const MessageTray = imports.ui.messageTray;
 const St = imports.gi.St;
 const GLib = imports.gi.GLib;
+const Gio = imports.gi.Gio;
 
 const GmailNotification = new Lang.Class({
     Name: 'GmailNotification',
@@ -35,16 +36,17 @@ const GmailNotification = new Lang.Class({
     _init: function (source, content, iconName) {
         try {
             const title = content.subject;
+            const banner = content.from;
+
             const unix_local = new Date(content.date).getTime() / 1000;
             const datetime = GLib.DateTime.new_from_unix_local(unix_local);
+            const gicon= new Gio.ThemedIcon({ name: iconName });
 
-            const Gio = imports.gi.Gio;
-            let gicon= new Gio.ThemedIcon({ name: iconName });
             const params = {
                 datetime,
                 gicon
             };
-            this.parent(source, title, content.from, params);
+            this.parent(source, title, banner, params);
         }
         catch (err) {
             console.error(err);

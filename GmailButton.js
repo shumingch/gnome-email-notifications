@@ -28,7 +28,7 @@ const St = imports.gi.St;
 const PopupMenu = imports.ui.popupMenu;
 const Imap = Me.imports.imap;
 const Main = imports.ui.main;
-const Utils = imports.misc.util;
+const Util = imports.misc.util;
 const _DEBUG = true;
 const extension = Me.imports.extension;
 const MailboxMenuItem = Me.imports.MailboxMenuItem.MailboxMenuItem;
@@ -78,7 +78,7 @@ GmailButton.prototype = {
             console.log("gmail notify: no default browser")
         }
         else {
-            Utils.trySpawnCommandLine(config._browser + " http://gn.makrodata.org");
+            Util.trySpawnCommandLine(config._browser + " http://gn.makrodata.org");
         }
     },
 
@@ -185,10 +185,10 @@ GmailButton.prototype._showHello = function(object) {
             else {
                 console.log("object link: " + object.link);
                 if (object.link !== '' && typeof(object.link) !== 'undefined') {
-                    Utils.trySpawnCommandLine(config._browser + " " + object.link);
+                    Util.trySpawnCommandLine(config._browser + " " + object.link);
                 }
                 else {
-                    Utils.trySpawnCommandLine(config._browser + " http://www.gmail.com");
+                    Util.trySpawnCommandLine(config._browser + " http://www.gmail.com");
                 }
             }
         } else {
@@ -196,7 +196,7 @@ GmailButton.prototype._showHello = function(object) {
                 console.log("gmail notify: no default mail reader")
             }
             else {
-                Utils.trySpawnCommandLine(config._mail);
+                Util.trySpawnCommandLine(config._mail);
             }
         }
 

@@ -35,18 +35,29 @@ const console = Me.imports.console.console;
 
 const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
-    _init: function () {
+    _init: function (numMessages, numUnread, mailbox) {
+        this.numMessages = numMessages;
+        this.numUnread = numUnread;
+        this.mailbox = mailbox;
+        this.emailSummaryNotification = null;
     },
-    _notify: function (content, iconName, popUp) {
+    _createNotification: function (content, iconName, popUp) {
         const source = new GmailNotificationSource();
         Main.messageTray.add(source);
         const notification = new GmailNotification(source, content, iconName);
-        notification.setResident(true);
         if (popUp) {
+            notification.setResident(true);
             source.notify(notification);
         } else {
             source.pushNotification(notification);
         }
+        notification.connect('activated', () => {
+            this._openEmail(content.link);
+            this.numUnread--;
+            const emailSummary = this._createEmailSummary(this.mailbox);
+            this.emailSummaryNotification.update(emailSummary.subject, emailSummary.from);
+        });
+        return notification;
     },
     _browseGn: function () {
         const config = extension.config;
@@ -65,7 +76,7 @@ const GmailMessageTray = new Lang.Class({
                 date: new Date(),
                 subject: _('No new messages')
             };
-            this._notify(content, "mail-read", false);
+            this._createNotification(content, "mail-read", false);
         } catch (err) {
             console.error(err);
         }
@@ -77,32 +88,33 @@ const GmailMessageTray = new Lang.Class({
             date: new Date(),
             subject
         };
-        this._notify(content, "mail-mark-important", true);
+        this._createNotification(content, "mail-mark-important", true);
     },
-    _showUnread(mailbox, numMessages, numUnread){
-        const notify_content = {
-            from: mailbox,
+    _createEmailSummary(){
+        return {
+            from: this.mailbox,
             date: new Date(),
-            subject: `${numMessages} messages (${numUnread} unread)`
+            subject: `${this.numMessages} messages (${this.numUnread} unread)`
         };
-        this._notify(notify_content, "mail-mark-important", true);
     },
-    setContent: function (content, mailbox, numMessages, numUnread) {
-        mailbox = mailbox === undefined ? '' : mailbox;
+    _showEmailSummaryNotification(){
+        return this._createNotification(this._createEmailSummary(), "mail-mark-important", true);
+    },
+    setContent: function (content) {
         try {
             if (content !== undefined) {
                 if (content.length > 0) {
                     for (let msg of content) {
-                        this._notify(msg, "mail-unread", false);
+                        this._createNotification(msg, "mail-unread", false);
                     }
-                    this._showUnread(mailbox, numMessages, numUnread);
+                    this.emailSummaryNotification = this._showEmailSummaryNotification();
                 }
                 else {
-                    this._showNoMessage(mailbox);
+                    this._showNoMessage();
                 }
             }
             else {
-                this._showNoMessage(mailbox);
+                this._showNoMessage();
             }
             if (extension.nVersion > extension._version) {
                 const content = {
@@ -110,10 +122,41 @@ const GmailMessageTray = new Lang.Class({
                     date: new Date(),
                     subject: _('There is newer version of this extension: %s - click to download').format(extension.nVersion)
                 };
-                this._notify(content, "mail-mark-important", true);
+                this._createNotification(content, "mail-mark-important", true);
             }
 
         } catch (err) {
+            console.error(err);
+        }
+    },
+
+    _openEmail: function (link) {
+        const config = extension.config;
+        try {
+            if (config.getReader() === 0) {
+                if (config._browser === "") {
+                    console.log("no default browser")
+                }
+                else {
+                    console.log("link: " + link);
+                    if (link !== '' && link !== undefined) {
+                        Util.trySpawnCommandLine(config._browser + " " + link);
+                    }
+                    else {
+                        Util.trySpawnCommandLine(config._browser + " http://www.gmail.com");
+                    }
+                }
+            } else {
+                if (config._mail === "") {
+                    console.log("no default mail reader")
+                }
+                else {
+                    Util.trySpawnCommandLine(config._mail);
+                }
+            }
+
+        }
+        catch (err) {
             console.error(err);
         }
     }

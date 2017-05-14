@@ -180,9 +180,10 @@ function _processData(oImap) {
 
         //button.setContent(oImap.folders[0].list, oImap._conn._oAccount.get_account().presentation_identity);
         const content = oImap.folders[0].list;
-        const mailbox = oImap._conn._oAccount.get_account().presentation_identity;
-        let messageTray = new GmailMessageTray();
-        messageTray.setContent(content, mailbox, sM, sU);
+        let mailbox = oImap._conn._oAccount.get_account().presentation_identity;
+        mailbox = mailbox === undefined ? '' : mailbox;
+        let messageTray = new GmailMessageTray(sM,sU, mailbox);
+        messageTray.setContent(content);
         oImap._conn._disconnect();
         numGoogle++;
         button.text.clutter_text.set_markup(config.getSafeMode() ? ('%s').format(sM.toString()) : bText.format(sM.toString(), sU.toString()));
