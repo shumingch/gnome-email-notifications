@@ -39,7 +39,7 @@ const _ = Gettext.gettext;
 const console = Me.imports.console.console;
 
 const GCONF_ACC_KEY = "/apps/gmail_notify/accounts";
-const _DEBUG = true;
+const _DEBUG = false;
 const _version = "0.3.6";
 
 
@@ -108,16 +108,6 @@ function oneTime() {
     return false;
 }
 
-function _mailNotify(content) {
-    try {
-    }
-    catch (err) {
-        console.error(err);
-        //button.text.text = err.message;
-    }
-
-}
-
 function _processData(oImap) {
     try {
         if (_DEBUG) console.log("Process Data " + oImap._conn._oAccount.get_account().id);
@@ -160,9 +150,6 @@ function _processData(oImap) {
                     }
                 }
                 if (_DEBUG) console.log("Notes length:" + notes.length);
-                if (notes.length > 0 && config.getNotify()) {
-                    _mailNotify(notes);
-                }
 
             }
             if (config.getSafeMode() === 1) {
@@ -191,7 +178,6 @@ function _processData(oImap) {
     }
     catch (err) {
         console.error(err);
-        //button.text.text = err.message;
     }
     if (_DEBUG) console.log("Post Process Data " + oImap._conn._oAccount.get_account().id);
 }
@@ -225,7 +211,7 @@ function _initData() {
         if (_DEBUG) console.log("Post Init data l:" + goaAccounts.length);
     }
     catch (err) {
-        if (_DEBUG) console.error(err);
+        console.error(err);
     }
 
 }

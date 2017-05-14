@@ -35,6 +35,7 @@ const console = Me.imports.console.console;
 const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
     _init: function () {
+        this.numUnread = 0;
         this.emailSummaryNotification = null;
         this.config = extension.config;
         this.sources = [];
@@ -44,20 +45,23 @@ const GmailMessageTray = new Lang.Class({
         Main.messageTray.add(source);
         const notification = new GmailNotification(source, content, iconName);
         notification.connect('activated', () => {
+            const messageTray = Main.panel.statusArea.dateMenu.menu;
             if (notification === this.emailSummaryNotification) {
-                const messageTray = Main.panel.statusArea.dateMenu.menu;
                 if (messageTray.isOpen) {
                     this._openEmail("");
+                    messageTray.close();
                 }
-                Main.panel.toggleCalendar();
+                messageTray.open();
             } else if (this.emailSummaryNotification) {
                 this.numUnread--;
                 const emailSummary = this._createEmailSummary(this.mailbox);
                 this.emailSummaryNotification.update(emailSummary.subject, emailSummary.from);
                 this._openEmail(content.link);
+                messageTray.close();
             }
             else {
                 this._openEmail("");
+                messageTray.close();
             }
         });
         if (permanent) {
@@ -109,8 +113,7 @@ const GmailMessageTray = new Lang.Class({
             subject: _('%s unread messages').format(this.numUnread)
         };
     },
-    _showEmailSummaryNotification(){
-        const popUp = true;
+    _showEmailSummaryNotification(popUp){
         return this._createNotification(this._createEmailSummary(), "mail-mark-important", popUp, true);
     },
     destroySources(){
@@ -129,6 +132,7 @@ const GmailMessageTray = new Lang.Class({
         }
     },
     updateContent: function (content, numUnread, mailbox) {
+        const popUp = numUnread > this.numUnread;
         this.numUnread = numUnread;
         this.mailbox = mailbox;
 
@@ -138,7 +142,7 @@ const GmailMessageTray = new Lang.Class({
                 for (let msg of content) {
                     this._createNotification(msg, "mail-unread", false, false);
                 }
-                this.emailSummaryNotification = this._showEmailSummaryNotification();
+                this.emailSummaryNotification = this._showEmailSummaryNotification(popUp);
             }
             else {
                 this._showNoMessage();
