@@ -26,40 +26,24 @@ const Imap = Me.imports.imap;
 const OAuth = Me.imports.oauth;
 const GLib = imports.gi.GLib;
 const Signals = imports.signals;
-const Soup = imports.gi.Soup;
 const XML = Me.imports.rexml;
-const sess = new Soup.SessionAsync();
 const GmailConnection = Me.imports.GmailConnection.GmailConnection;
 const console = Me.imports.console.console;
-
-Soup.Session.prototype.add_feature.call(sess, new Soup.ProxyResolverDefault());
-
-
-try {
-    const Goa = imports.gi.Goa;
-}
-catch (err) {
-    console.error(err);
-}
-
+const Lang = imports.lang;
 const _DEBUG = true;
 
-
-function GmailImap() {
-    //dummy class to emulate imap;
-    this._init.apply(this, arguments);
-}
-GmailImap.prototype = {
-    __proto__: Imap.Imap.prototype,
+const GmailImap = new Lang.Class({
+    Name: 'GmailImap',
+    Extends: Imap.Imap,
     _init: function (conn) {
         try {
             if (conn instanceof GmailConnection) {
-                Imap.Imap.prototype._init.call(this, conn);
+                this.parent(conn);
             }
             // must be goa object (account)
             else {
                 let oconn = new GmailConnection(conn);
-                Imap.Imap.prototype._init.call(this, oconn);
+                this.parent(oconn);
                 if (_DEBUG) console.log("Imap created: .." + this._conn._oAccount.get_account().id);
             }
             this.authenticated = false;
@@ -167,6 +151,6 @@ GmailImap.prototype = {
             console.error(err);
         }
     }
-};
+});
 
 Signals.addSignalMethods(GmailImap.prototype);

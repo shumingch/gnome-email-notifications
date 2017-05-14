@@ -35,8 +35,7 @@ const console = Me.imports.console.console;
 
 const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
-    _init: function (numMessages, numUnread, mailbox) {
-        this.numMessages = numMessages;
+    _init: function (numUnread, mailbox) {
         this.numUnread = numUnread;
         this.mailbox = mailbox;
         this.emailSummaryNotification = null;
@@ -109,7 +108,7 @@ const GmailMessageTray = new Lang.Class({
         return {
             from: this.mailbox,
             date: new Date(),
-            subject: `${this.numMessages} messages (${this.numUnread} unread)`
+            subject: _('%s unread messages').format(this.numUnread)
         };
     },
     _showEmailSummaryNotification(){

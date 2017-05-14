@@ -38,7 +38,6 @@ const Gettext = imports.gettext.domain('gmailmessagetray');
 const _ = Gettext.gettext;
 const console = Me.imports.console.console;
 
-const CHECK_TIMEOUT = 300;
 const GCONF_ACC_KEY = "/apps/gmail_notify/accounts";
 const _DEBUG = true;
 const _version = "0.3.6";
@@ -70,11 +69,10 @@ catch (err) {
     console.error(err);
 }
 
-let button, event, extensionPath, currentPos, config, onetime, goaAccounts, sM, sU, numGoogle,
+let button, checkMailTimeout, extensionPath, currentPos, config, onceTimeout, goaAccounts, sM, sU, numGoogle,
     nVersion;
 
-
-function onTimer() {
+function checkMail(){
     try {
         sM = 0;
         sU = 0;
@@ -86,8 +84,11 @@ function onTimer() {
         if (_DEBUG) console.log("Post oTimer: " + goaAccounts.length);
     }
     catch (err) {
-         console.error(err);
+        console.error(err);
     }
+}
+
+function onTimer() {
     return true;
 }
 function oneTime() {
@@ -112,7 +113,7 @@ function _mailNotify(content) {
     }
     catch (err) {
         console.error(err);
-        button.text.text = err.message;
+        //button.text.text = err.message;
     }
 
 }
@@ -182,16 +183,16 @@ function _processData(oImap) {
         const content = oImap.folders[0].list;
         let mailbox = oImap._conn._oAccount.get_account().presentation_identity;
         mailbox = mailbox === undefined ? '' : mailbox;
-        let messageTray = new GmailMessageTray(sM,sU, mailbox);
+        let messageTray = new GmailMessageTray(sU, mailbox);
         messageTray.setContent(content);
         oImap._conn._disconnect();
         numGoogle++;
-        button.text.clutter_text.set_markup(config.getSafeMode() ? ('%s').format(sM.toString()) : bText.format(sM.toString(), sU.toString()));
-        button.setIcon(sU);
+        //button.text.clutter_text.set_markup(config.getSafeMode() ? ('%s').format(sM.toString()) : bText.format(sM.toString(), sU.toString()));
+        //button.setIcon(sU);
     }
     catch (err) {
         console.error(err);
-        button.text.text = err.message;
+        //button.text.text = err.message;
     }
     if (_DEBUG) console.log("Post Process Data " + oImap._conn._oAccount.get_account().id);
 }
@@ -243,13 +244,13 @@ function init(extensionMeta) {
 function libCheck() {
     try {
         if (typeof(Goa) !== 'undefined' && typeof(Soup) !== 'undefined' && typeof(Gio) !== 'undefined' && typeof(GConf) !== 'undefined') {
-            button.setContent();
+            //button.setContent();
             if (_DEBUG) console.log('init timeout' + config.getTimeout());
         }
         else {
-            button._showError(_('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'));
-            button.setIcon(1);
-            Main.panel.menuManager.addMenu(button.menu);
+            //button._showError(_('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'));
+            //button.setIcon(1);
+            //Main.panel.menuManager.addMenu(button.menu);
         }
     }
     catch (err) {
@@ -304,18 +305,27 @@ function show() {
     }
 
 }
+function startTimeout(){
+    checkMailTimeout = GLib.timeout_add_seconds(0, config.getTimeout(), ()=>{
+        checkMail();
+        return true;
+    });
+}
+
 
 function enable() {
     try {
         config = new GmailConf();
         console.log('Enabling Gmail Message Tray version ' + _version);
-        show();
+        //show();
         _initData();
         nVersion = '';
 
-        onetime = GLib.timeout_add_seconds(0, 5, oneTime);
-        event = GLib.timeout_add_seconds(0, config.getTimeout(), onTimer);
-        if (_DEBUG) console.log('Event created: ' + event);
+        GLib.timeout_add_seconds(0, 5, ()=>{
+            checkMail();
+            return false;
+        });
+        startTimeout();
         libCheck();
     }
     catch (err) {
@@ -332,13 +342,14 @@ function hide() {
     }
 }
 
+function stopTimeout(){
+    Mainloop.source_remove(checkMailTimeout);
+}
+
 function disable() {
-    hide();
-
-    //config._disconnectSignals();
+    //hide();
+    config._disconnectSignals();
     config = null;
-    Mainloop.source_remove(onetime);
-    Mainloop.source_remove(event);
+    stopTimeout();
     goaAccounts = null;
-
 }

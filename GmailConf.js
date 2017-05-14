@@ -26,6 +26,7 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const extension = Me.imports.extension;
 const console = Me.imports.console.console;
 const Lib = Me.imports.lib;
+const Lang = imports.lang;
 
 const GMAILNOTIFY_SETTINGS_KEY_TIMEOUT = 'timeout';
 const GMAILNOTIFY_SETTINGS_KEY_BTEXT = 'btext';
@@ -35,43 +36,36 @@ const GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY = 'showsummary';
 const GMAILNOTIFY_SETTINGS_KEY_SAFEMODE = 'safemode';
 const GMAILNOTIFY_SETTINGS_KEY_USEMAIL = 'usemail';
 
-const GmailConf = function () {
-    this._init();
-};
-GmailConf.prototype = {
+const GmailConf = new Lang.Class({
+    Name: 'GmailConf',
     _init: function () {
         this.settings = Lib.getSettings(Me);
         this.settings.connect("change-event", ()=>{
-            extension.hide();
-            extension.show();
+            extension.stopTimeout();
+            extension.startTimeout();
         });
         const Gio = extension.Gio;
+        this._client = GConf.Client.get_default();
         try {
-            this._client = GConf.Client.get_default();
-            try {
-                this._browser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
-            }
-            catch (err) {
-                this._browser = "firefox";
-                console.error(err);
-            }
-            try {
-                const mailto = Gio.app_info_get_default_for_uri_scheme("mailto");
-                if (mailto === null){
-                    this._mail = "";
-                }
-                else{
-                    this._mail = mailto.get_executable();
-                }
-
-            }
-            catch (err) {
-                console.error(err);
+            this._browser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
+        }
+        catch (err) {
+            this._browser = "firefox";
+            console.error(err);
+        }
+        try {
+            const mailto = Gio.app_info_get_default_for_uri_scheme("mailto");
+            if (mailto === null) {
                 this._mail = "";
             }
+            else {
+                this._mail = mailto.get_executable();
+            }
+
         }
         catch (err) {
             console.error(err);
+            this._mail = "";
         }
 
     },
@@ -124,5 +118,4 @@ GmailConf.prototype = {
         //this._client.disconnect(this.pid);
         //settings.disconnect(sigid);
     }
-
-};
+});

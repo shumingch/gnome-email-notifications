@@ -28,6 +28,7 @@ catch (err) {
 const Signals = imports.signals;
 const Unicode = Me.imports.unicode;
 const BigInteger = Me.imports.biginteger;
+const Lang = imports.lang;
 const _DEBUG = false;
 function ImapMessage() {
     this._init();
@@ -65,10 +66,8 @@ ImapMessage.prototype = {
         }
     }
 };
-const Imap = function () {
-    this._init.apply(this, arguments);
-};
-Imap.prototype = {
+const Imap = new Lang.Class({
+    Name: 'Imap',
     _init: function (conn) {
         this._conn = conn;
         this.authenticated = false;
@@ -399,5 +398,5 @@ Imap.prototype = {
         return [false, "Not authenticaed or connected"];
     },
 
-};
+});
 Signals.addSignalMethods(Imap.prototype);

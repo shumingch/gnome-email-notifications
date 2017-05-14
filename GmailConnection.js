@@ -33,22 +33,17 @@ const GmailConnection = function () {
 GmailConnection.prototype = {
     __proto__: TlsConn.TlsConnection.prototype,
     _init: function (account) {
-        try {
-            let sprovider = account.get_account().provider_name.toUpperCase();
-            if (sprovider !== "GOOGLE" && sprovider !== "MICROSOFT ACCOUNT") {
-                throw new Error('This is not Google/Windows Account')
-            }
-            this._oAccount = account;
-            if (_DEBUG) console.log("Creating gmail conn .." + this._oAccount.get_account().id);
-            if (_DEBUG) console.log("Creating gmail conn .." + this._oAccount.get_account().identity);
-            this._oMail = this._oAccount.get_mail();
-            if (_DEBUG) console.log("Omailuse tls: " + this._oMail.imap_use_tls);
-            if (_DEBUG) console.log("Omailuse host: " + this._oMail.imap_host);
-            TlsConn.TlsConnection.prototype._init.call(this, this._oMail.imap_host, 993, this._oMail.imap_use_tls)
+        let sprovider = account.get_account().provider_name.toUpperCase();
+        if (sprovider !== "GOOGLE" && sprovider !== "MICROSOFT ACCOUNT") {
+            throw new Error('This is not Google/Windows Account')
         }
-        catch (err) {
-            console.log(err);
-        }
+        this._oAccount = account;
+        if (_DEBUG) console.log("Creating gmail conn .." + this._oAccount.get_account().id);
+        if (_DEBUG) console.log("Creating gmail conn .." + this._oAccount.get_account().identity);
+        this._oMail = this._oAccount.get_mail();
+        if (_DEBUG) console.log("Omailuse tls: " + this._oMail.imap_use_tls);
+        if (_DEBUG) console.log("Omailuse host: " + this._oMail.imap_host);
+        TlsConn.TlsConnection.prototype._init.call(this, this._oMail.imap_host, 993, this._oMail.imap_use_tls)
     }
 
 };
