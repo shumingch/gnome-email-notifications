@@ -32,13 +32,17 @@ const GmailNotification = new Lang.Class({
     Name: 'GmailNotification',
     Extends: MessageTray.Notification,
 
-    _init: function (source, content) {
+    _init: function (source, content, iconName) {
         try {
             const title = content.subject;
             const unix_local = new Date(content.date).getTime() / 1000;
             const glib_datetime = GLib.DateTime.new_from_unix_local(unix_local);
+
+            const Gio = imports.gi.Gio;
+            let gicon=Gio.icon_new_for_string(iconName);
             const params = {
-                datetime: glib_datetime
+                datetime: glib_datetime,
+                gicon
             };
            this.parent(source, title, content.from, params);
         }

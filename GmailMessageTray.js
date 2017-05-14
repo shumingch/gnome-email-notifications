@@ -40,13 +40,13 @@ GmailMessageTray.prototype = {
         this.source = new GmailNotificationSource();
         Main.messageTray.add(this.source);
     },
-    _notify: function(from, date, subject){
+    _notify: function(from, date, subject, iconName){
         const content = {
             from,
             date,
             subject
         };
-        const notification = new GmailNotification(this.source, content);
+        const notification = new GmailNotification(this.source, content, iconName);
         notification.setResident(true);
         this.source.pushNotification(notification);
     },
@@ -64,14 +64,14 @@ GmailMessageTray.prototype = {
         try {
             const date = new Date();
             const subject = _('No new messages');
-            this._notify(from, date, subject);
+            this._notify(from, date, subject, "mail-read");
         } catch (err) {
             console.error(err);
         }
     },
     _showError: function (err) {
         const subject = _(err);
-        this._notify("", new Date(), subject);
+        this._notify("", new Date(), subject, "mail-mark-important");
     }
 };
 
@@ -82,7 +82,7 @@ GmailMessageTray.prototype.setContent = function (content, mailbox, numMessages,
         if (content !== undefined) {
             if (content.length > 0) {
                 for (let msg of content) {
-                    this._notify(msg.from, msg.date, msg.subject);
+                    this._notify(msg.from, msg.date, msg.subject, "mail-unread");
                     console.json(msg);
                 }
             }
@@ -90,7 +90,7 @@ GmailMessageTray.prototype.setContent = function (content, mailbox, numMessages,
                 this._showNoMessage(mailbox);
             }
             const subject = `${numMessages} messages (${numUnread} unread)`;
-            this._notify(mailbox, new Date(), subject);
+            this._notify(mailbox, new Date(), subject, "network-server");
         }
         else {
             this._showNoMessage(mailbox);
@@ -98,7 +98,7 @@ GmailMessageTray.prototype.setContent = function (content, mailbox, numMessages,
         if (extension.nVersion > extension._version) {
             const from = "Gmail Notify";
             const subject = _('There is newer version of this extension: %s - click to download').format(extension.nVersion);
-            this._notify(from, new Date(), subject);
+            this._notify(from, new Date(), subject, "mail-mark-important");
         }
 
     } catch (err) {
