@@ -23,10 +23,10 @@
 "use strict";
 const GConf = imports.gi.GConf;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const extension = Me.imports.extension;
 const console = Me.imports.console.console;
 const Lib = Me.imports.lib;
 const Lang = imports.lang;
+const Gio = imports.gi.Gio;
 
 const GMAILNOTIFY_SETTINGS_KEY_TIMEOUT = 'timeout';
 const GMAILNOTIFY_SETTINGS_KEY_BTEXT = 'btext';
@@ -38,13 +38,12 @@ const GMAILNOTIFY_SETTINGS_KEY_USEMAIL = 'usemail';
 
 const GmailConf = new Lang.Class({
     Name: 'GmailConf',
-    _init: function () {
+    _init: function (extension) {
         this.settings = Lib.getSettings(Me);
         this.settings.connect("change-event", ()=>{
             extension.stopTimeout();
             extension.startTimeout();
         });
-        const Gio = extension.Gio;
         this._client = GConf.Client.get_default();
         try {
             this._browser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();

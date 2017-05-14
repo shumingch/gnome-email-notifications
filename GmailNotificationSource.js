@@ -1,4 +1,3 @@
-"use strict";
 /*
  * Copyright (c) 2012 Adam Jabłoński
  *
@@ -21,10 +20,8 @@
  * Shuming Chan <shuming0207@gmail.com>
  *
  */
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const extension = Me.imports.extension;
+"use strict";
 const MessageTray = imports.ui.messageTray;
-const St = imports.gi.St;
 const Lang = imports.lang;
 
 const GmailNotificationSource = new Lang.Class({

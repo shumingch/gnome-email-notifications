@@ -25,7 +25,6 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Lang = imports.lang;
 const console = Me.imports.console.console;
 const MessageTray = imports.ui.messageTray;
-const St = imports.gi.St;
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 

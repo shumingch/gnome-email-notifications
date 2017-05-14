@@ -27,7 +27,6 @@ const GmailHttps = Me.imports.GmailHttps.GmailHttps;
 const XML = Me.imports.rexml;
 const ImapMessage = Me.imports.ImapMessage.ImapMessage;
 const Soup = imports.gi.Soup;
-const extension = Me.imports.extension;
 const Signals = imports.signals;
 const Sess = new Soup.SessionAsync();
 const console = Me.imports.console.console;

@@ -24,87 +24,64 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const St = imports.gi.St;
 const Main = imports.ui.main;
-const Util = imports.misc.util; const Lang = imports.lang;
-const extension = Me.imports.extension;
+const Util = imports.misc.util;
+const Lang = imports.lang;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
-const MessageTray = imports.ui.messageTray;
 const console = Me.imports.console.console;
 
 
 const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
-    _init: function () {
+    _init: function (extension) {
         this.numUnread = 0;
         this.emailSummaryNotification = null;
+        this.extension = extension;
         this.config = extension.config;
         this.sources = [];
+        this.messageTray = Main.panel.statusArea.dateMenu.menu;
     },
-    _createNotification: function (content, iconName, popUp, permanent) {
+    _createNotification: function (content, iconName, popUp, permanent, cb) {
         const source = new GmailNotificationSource();
         Main.messageTray.add(source);
         const notification = new GmailNotification(source, content, iconName);
-        notification.connect('activated', () => {
-            const messageTray = Main.panel.statusArea.dateMenu.menu;
-            if (notification === this.emailSummaryNotification) {
-                if (messageTray.isOpen) {
-                    this._openEmail("");
-                    messageTray.close();
-                }
-                messageTray.open();
-            } else if (this.emailSummaryNotification) {
-                this.numUnread--;
-                const emailSummary = this._createEmailSummary(this.mailbox);
-                this.emailSummaryNotification.update(emailSummary.subject, emailSummary.from);
-                this._openEmail(content.link);
-                messageTray.close();
-            }
-            else {
-                this._openEmail("");
-                messageTray.close();
-            }
-        });
+        notification.connect('activated', cb);
+
         if (permanent) {
             notification.setResident(true);
         }
         if (popUp) {
-            notification.setUrgency(MessageTray.Urgency.HIGH);
             source.notify(notification);
         } else {
             source.pushNotification(notification);
         }
+
         this.sources.push(source);
         return notification;
     },
-    _browseGn: function () {
-        if (this.config._browser === "") {
-            console.log("gmail notify: no default browser")
-        }
-        else {
-            Util.trySpawnCommandLine(this.config._browser + " http://gn.makrodata.org");
-        }
-    },
 
     _showNoMessage: function () {
-        try {
-            const content = {
-                from: this.mailbox,
-                date: new Date(),
-                subject: _('No new messages')
-            };
-            this._createNotification(content, "mail-read", false, true);
-        } catch (err) {
-            console.error(err);
-        }
+        const content = {
+            from: this.mailbox,
+            date: new Date(),
+            subject: _('No new messages')
+        };
+        const callback = ()=>{
+            this._openEmail("");
+            this.messageTray.close();
+        };
+        this._createNotification(content, "mail-read", false, true, callback);
     },
-    _showError: function (err) {
-        const subject = _(err);
+    showLibError: function () {
         const content = {
             from: "",
             date: new Date(),
-            subject
+            subject: _('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install')
         };
-        this._createNotification(content, "mail-mark-important", true, true);
+        const callback = ()=>{
+            this._openEmail("http://gn.makrodata.org");
+        };
+        this._createNotification(content, "mail-mark-important", true, true, callback);
     },
     _createEmailSummary(){
         return {
@@ -114,7 +91,15 @@ const GmailMessageTray = new Lang.Class({
         };
     },
     _showEmailSummaryNotification(popUp){
-        return this._createNotification(this._createEmailSummary(), "mail-mark-important", popUp, true);
+        const callback = () => {
+            if (this.messageTray.isOpen) {
+                this._openEmail("");
+                this.messageTray.close();
+            }
+            this.messageTray.open();
+        };
+        const summary = this._createEmailSummary();
+        return this._createNotification(summary, "mail-mark-important", popUp, true, callback);
     },
     destroySources(){
         for (let source of this.sources) {
@@ -122,14 +107,26 @@ const GmailMessageTray = new Lang.Class({
         }
     },
     _checkVersion(){
-        if (extension.nVersion > extension._version) {
+        if (this.extension.nVersion > this.extension._version) {
             const content = {
                 from: "Gmail Message Tray",
                 date: new Date(),
-                subject: _('There is newer version of this extension: %s - click to download').format(extension.nVersion)
+                subject: _('There is newer version of this extension: %s - click to download').format(this.extension.nVersion)
             };
-            this._createNotification(content, "mail-mark-important", true, true);
+            const callback = ()=>{
+            };
+            this._createNotification(content, "mail-mark-important", true, true, callback);
         }
+    },
+    _createEMailNotification(msg){
+        const callback = ()=>{
+            this.numUnread--;
+            const emailSummary = this._createEmailSummary(this.mailbox);
+            this.emailSummaryNotification.update(emailSummary.subject, emailSummary.from);
+            this._openEmail(msg.link);
+            this.messageTray.close();
+        };
+        this._createNotification(msg, "mail-unread", false, false, callback);
     },
     updateContent: function (content, numUnread, mailbox) {
         const popUp = numUnread > this.numUnread;
@@ -140,7 +137,7 @@ const GmailMessageTray = new Lang.Class({
         if (content !== undefined) {
             if (content.length > 0) {
                 for (let msg of content) {
-                    this._createNotification(msg, "mail-unread", false, false);
+                    this._createEMailNotification(msg)
                 }
                 this.emailSummaryNotification = this._showEmailSummaryNotification(popUp);
             }
