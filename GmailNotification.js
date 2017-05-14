@@ -36,15 +36,15 @@ const GmailNotification = new Lang.Class({
         try {
             const title = content.subject;
             const unix_local = new Date(content.date).getTime() / 1000;
-            const glib_datetime = GLib.DateTime.new_from_unix_local(unix_local);
+            const datetime = GLib.DateTime.new_from_unix_local(unix_local);
 
             const Gio = imports.gi.Gio;
-            let gicon=Gio.icon_new_for_string(iconName);
+            let gicon= new Gio.ThemedIcon({ name: iconName });
             const params = {
-                datetime: glib_datetime,
+                datetime,
                 gicon
             };
-           this.parent(source, title, content.from, params);
+            this.parent(source, title, content.from, params);
         }
         catch (err) {
             console.error(err);

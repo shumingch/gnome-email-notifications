@@ -25,30 +25,17 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const extension = Me.imports.extension;
 const MessageTray = imports.ui.messageTray;
 const St = imports.gi.St;
-const console = Me.imports.console.console;
+const Lang = imports.lang;
 
-function GmailNotificationSource() {
-    this._init();
-}
-
-GmailNotificationSource.prototype = {
-    __proto__: MessageTray.Source.prototype,
+const GmailNotificationSource = new Lang.Class({
+    Name: 'GmailNotificationSource',
+    Extends: MessageTray.Source,
 
     _init: function () {
-        try {
-            MessageTray.Source.prototype._init.call(this, "Gmail Message Tray", "mail-read");
-        }
-        catch (err) {
-            console.error(err);
-        }
+        this.parent("Gmail Message Tray", "mail-read");
     },
 
     notify: function (notification) {
-        try {
-            MessageTray.Source.prototype.notify.call(this, notification);
-        }
-        catch (err) {
-            console.error(err);
-        }
+        this.parent(notification);
     }
-};
+});

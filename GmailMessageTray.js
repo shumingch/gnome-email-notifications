@@ -24,31 +24,29 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const St = imports.gi.St;
 const Main = imports.ui.main;
-const Utils = imports.misc.util;
+const Util = imports.misc.util;
+const Lang = imports.lang;
 const _DEBUG = true;
 const extension = Me.imports.extension;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
 const console = Me.imports.console.console;
 
-function GmailMessageTray(extensionPath) {
-    this._init(extensionPath);
-}
 
-GmailMessageTray.prototype = {
+const GmailMessageTray = new Lang.Class({
+    Name: 'GmailMessageTray',
     _init: function () {
-        this.source = new GmailNotificationSource();
-        Main.messageTray.add(this.source);
     },
-    _notify: function(from, date, subject, iconName){
-        const content = {
-            from,
-            date,
-            subject
-        };
-        const notification = new GmailNotification(this.source, content, iconName);
+    _notify: function (content, iconName, popUp) {
+        const source = new GmailNotificationSource();
+        Main.messageTray.add(source);
+        const notification = new GmailNotification(source, content, iconName);
         notification.setResident(true);
-        this.source.pushNotification(notification);
+        if (popUp) {
+            source.notify(notification);
+        } else {
+            source.pushNotification(notification);
+        }
     },
     _browseGn: function () {
         const config = extension.config;
@@ -56,52 +54,68 @@ GmailMessageTray.prototype = {
             console.log("gmail notify: no default browser")
         }
         else {
-            Utils.trySpawnCommandLine(config._browser + " http://gn.makrodata.org");
+            Util.trySpawnCommandLine(config._browser + " http://gn.makrodata.org");
         }
     },
 
     _showNoMessage: function (from) {
         try {
-            const date = new Date();
-            const subject = _('No new messages');
-            this._notify(from, date, subject, "mail-read");
+            const content = {
+                from,
+                date: new Date(),
+                subject: _('No new messages')
+            };
+            this._notify(content, "mail-read", false);
         } catch (err) {
             console.error(err);
         }
     },
     _showError: function (err) {
         const subject = _(err);
-        this._notify("", new Date(), subject, "mail-mark-important");
-    }
-};
-
-GmailMessageTray.prototype.setContent = function (content, mailbox, numMessages, numUnread) {
-    console.log("SET CONTENT");
-    mailbox = mailbox === undefined ? '' : mailbox;
-    try {
-        if (content !== undefined) {
-            if (content.length > 0) {
-                for (let msg of content) {
-                    this._notify(msg.from, msg.date, msg.subject, "mail-unread");
-                    console.json(msg);
+        const content = {
+            from: "",
+            date: new Date(),
+            subject
+        };
+        this._notify(content, "mail-mark-important", true);
+    },
+    _showUnread(mailbox, numMessages, numUnread){
+        const notify_content = {
+            from: mailbox,
+            date: new Date(),
+            subject: `${numMessages} messages (${numUnread} unread)`
+        };
+        this._notify(notify_content, "mail-mark-important", true);
+    },
+    setContent: function (content, mailbox, numMessages, numUnread) {
+        mailbox = mailbox === undefined ? '' : mailbox;
+        try {
+            if (content !== undefined) {
+                if (content.length > 0) {
+                    for (let msg of content) {
+                        this._notify(msg, "mail-unread", false);
+                    }
+                    this._showUnread(mailbox, numMessages, numUnread);
+                }
+                else {
+                    this._showNoMessage(mailbox);
                 }
             }
             else {
                 this._showNoMessage(mailbox);
             }
-            const subject = `${numMessages} messages (${numUnread} unread)`;
-            this._notify(mailbox, new Date(), subject, "network-server");
-        }
-        else {
-            this._showNoMessage(mailbox);
-        }
-        if (extension.nVersion > extension._version) {
-            const from = "Gmail Notify";
-            const subject = _('There is newer version of this extension: %s - click to download').format(extension.nVersion);
-            this._notify(from, new Date(), subject, "mail-mark-important");
-        }
+            if (extension.nVersion > extension._version) {
+                const content = {
+                    from: "Gmail Message Tray",
+                    date: new Date(),
+                    subject: _('There is newer version of this extension: %s - click to download').format(extension.nVersion)
+                };
+                this._notify(content, "mail-mark-important", true);
+            }
 
-    } catch (err) {
-        console.error(err);
+        } catch (err) {
+            console.error(err);
+        }
     }
-};
+});
+
