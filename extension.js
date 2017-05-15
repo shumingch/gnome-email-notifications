@@ -33,7 +33,7 @@ const Mainloop = imports.mainloop;
 const console = Me.imports.console.console;
 
 const _DEBUG = false;
-const _version = "0.3.6";
+const _version = "0.1";
 
 let extension;
 let Soup, sSes, Gio, Goa;

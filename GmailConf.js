@@ -67,17 +67,5 @@ const GmailConf = new Lang.Class({
     },
     getReader(){
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
-    },
-    set_int: function (key, val) {
-        return this._client.set_int(key, val)
-    },
-    get_int: function (key) {
-        return this._client.get_int(key)
-    },
-    set_string: function (key, val) {
-        return this._client.set_string(key, val)
-    },
-    get_string: function (key) {
-        return this._client.get_string(key)
     }
 });
