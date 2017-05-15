@@ -29,7 +29,6 @@ const Lang = imports.lang;
 const Gio = imports.gi.Gio;
 
 const GMAILNOTIFY_SETTINGS_KEY_TIMEOUT = 'timeout';
-const GMAILNOTIFY_SETTINGS_KEY_SAFEMODE = 'safemode';
 const GMAILNOTIFY_SETTINGS_KEY_USEMAIL = 'usemail';
 
 const GmailConf = new Lang.Class({
@@ -68,9 +67,6 @@ const GmailConf = new Lang.Class({
     },
     getReader(){
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
-    },
-    getSafeMode(){
-        return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SAFEMODE);
     },
     set_int: function (key, val) {
         return this._client.set_int(key, val)

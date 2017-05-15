@@ -27,7 +27,6 @@ const Lang = imports.lang;
 const St = imports.gi.St;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const GConf = imports.gi.GConf;
-const GmailImap = Me.imports.GmailImap.GmailImap;
 const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const GmailConf = Me.imports.GmailConf.GmailConf;
 const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
@@ -124,13 +123,8 @@ const Extension = new Lang.Class({
             console.log("maxid= " + maxId);
             console.log("entry= " + entry);
         }
-        if (config.getSafeMode() === 1 ? maxSafeId > safeEntry : maxId > entry) {
-            if (config.getSafeMode() === 1) {
-                config.set_string(GCONF_ACC_KEY + "/" + oImap._conn._oAccount.get_account().id + '_safe', maxSafeId);
-            }
-            else {
-                config.set_int(GCONF_ACC_KEY + "/" + oImap._conn._oAccount.get_account().id, maxId);
-            }
+        if (maxSafeId > safeEntry) {
+            config.set_string(GCONF_ACC_KEY + "/" + oImap._conn._oAccount.get_account().id + '_safe', maxSafeId);
         }
         //todo:get not only from inbox
         if (_DEBUG) {
@@ -158,8 +152,8 @@ const Extension = new Lang.Class({
                 console.log(sprovider);
                 console.log(accounts[i].get_account().id);
             }
-            if (sprovider === "GOOGLE" || (sprovider === "MICROSOFT ACCOUNT" && this.config.getSafeMode() === 0)) {
-                let len = goaAccounts.push(this.config.getSafeMode() === 1 ? new GmailFeed(accounts[i]) : new GmailImap(accounts[i]));
+            if (sprovider === "GOOGLE") {
+                let len = goaAccounts.push(new GmailFeed(accounts[i]));
                 goaAccounts[len - 1].connect('inbox-scanned', Lang.bind(this, this._processData));
                 goaAccounts[len - 1].connect('inbox-fed', Lang.bind(this, this._processData));
             }
@@ -192,7 +186,6 @@ const Extension = new Lang.Class({
     destroy: function () {
         this.stopTimeout();
         this.goaAccounts = null;
-        this.config._disconnectSignals();
         this.messageTray.destroySources();
     }
 });

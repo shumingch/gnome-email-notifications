@@ -45,9 +45,6 @@ function init() {
         ["usemail", {
             label: _("Use default email client instead of browser"),
             help: _("Use default email client instead of browser")
-        }],
-        ["safemode", {
-            label: _("Safe Mode"), help: _("Safe mode")
         }]
     ]);
 }
