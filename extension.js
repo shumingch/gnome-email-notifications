@@ -32,7 +32,6 @@ const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
 const Mainloop = imports.mainloop;
 const console = Me.imports.console.console;
 
-const GCONF_ACC_KEY = "/apps/gmailmessagetray/accounts";
 const _DEBUG = false;
 const _version = "0.3.6";
 
@@ -75,10 +74,8 @@ const Extension = new Lang.Class({
         try {
             console.log("Checking mail");
             for (let i = 0; i < this.goaAccounts.length; i++) {
-                if (_DEBUG) console.log("Running scan: " + i + " " + this.goaAccounts[i]._conn.get_account().id);
                 this.goaAccounts[i].scanInbox(Lang.bind(this, this._processData));
             }
-            if (_DEBUG) console.log("Post oTimer: " + this.goaAccounts.length);
         }
         catch (err) {
             console.error(err);
@@ -86,45 +83,14 @@ const Extension = new Lang.Class({
     },
 
     _processData: function (oImap) {
-        const config = this.config;
-        let maxId = 0;
-        let maxSafeId = '';
         let sU = 0;
         for (let i = 0; i < oImap.folders.length; i++) {
             sU += oImap.folders[i].unseen;
-            for (let j = 0; j < oImap.folders[i].list.length; j++) {
-                if (oImap.folders[i].list[j].id > maxId) maxId = oImap.folders[i].list[j].id;
-                if (oImap.folders[i].list[j].safeid > maxSafeId) maxSafeId = oImap.folders[i].list[j].safeid;
-            }
         }
-        if (_DEBUG) {
-            console.log("maxSafeId= " + maxSafeId);
-            console.log("unseen= " + sU);
-            console.log("Getting entry for  " + oImap._conn.get_account().id);
-        }
-        let entry = config.get_int(GCONF_ACC_KEY + "/" + oImap._conn.get_account().id);
-        let safeEntry = config.get_string(GCONF_ACC_KEY + "/" + oImap._conn.get_account().id + '_safe');
-        entry = typeof(entry) !== 'undefined' && entry !== null ? entry : 0;
-        safeEntry = typeof(safeEntry) !== 'undefined' && safeEntry !== null ? safeEntry : '';
-        if (_DEBUG) {
-            console.log("safeentry= " + safeEntry);
-            console.log("maxid= " + maxId);
-            console.log("entry= " + entry);
-        }
-        if (maxSafeId > safeEntry) {
-            config.set_string(GCONF_ACC_KEY + "/" + oImap._conn.get_account().id + '_safe', maxSafeId);
-        }
-        //todo:get not only from inbox
-        if (_DEBUG) {
-            console.log("Setting Content 0:" + oImap.folders[0].list.length);
-            console.log("Setting Content 1:" + oImap._conn.get_account().identity);
-        }
-
         const content = oImap.folders[0].list;
         let mailbox = oImap._conn.get_account().presentation_identity;
         mailbox = mailbox === undefined ? '' : mailbox;
         this.messageTray.updateContent(content, sU, mailbox);
-        if (_DEBUG) console.log("Post Process Data " + oImap._conn.get_account().id);
     },
     _initData: function () {
         const goaAccounts = [];
@@ -140,13 +106,6 @@ const Extension = new Lang.Class({
             if (sprovider === "GOOGLE") {
                 goaAccounts.push(new GmailFeed(accounts[i]));
             }
-        }
-
-        if (_DEBUG) {
-            for (let i = 0; i < goaAccounts.length; i++) {
-                console.log("Checking Accounts" + goaAccounts[i]._conn.get_account().id);
-            }
-            console.log("Post Init data l:" + goaAccounts.length);
         }
         return goaAccounts;
     },
