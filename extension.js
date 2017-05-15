@@ -24,7 +24,6 @@
 const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 
-const St = imports.gi.St;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const GConf = imports.gi.GConf;
 const GmailFeed = Me.imports.GmailFeed.GmailFeed;
@@ -81,8 +80,8 @@ const Extension = new Lang.Class({
             console.log("Checking mail");
             this.numGoogle = 0;
             for (let i = 0; i < this.goaAccounts.length; i++) {
-                if (_DEBUG) console.log("Running scan: " + i + " " + this.goaAccounts[i]._conn._oAccount.get_account().id);
-                this.goaAccounts[i].scanInbox();
+                if (_DEBUG) console.log("Running scan: " + i + " " + this.goaAccounts[i]._conn.get_account().id);
+                this.goaAccounts[i].scanInbox(Lang.bind(this, this._processData));
             }
             if (_DEBUG) console.log("Post oTimer: " + this.goaAccounts.length);
         }
@@ -105,11 +104,11 @@ const Extension = new Lang.Class({
         }
         if (_DEBUG) {
             console.log("maxSafeId= " + maxSafeId);
-            console.log("unseen= " + this.sU);
-            console.log("Getting entry for  " + oImap._conn._oAccount.get_account().id);
+            console.log("unseen= " + sU);
+            console.log("Getting entry for  " + oImap._conn.get_account().id);
         }
-        let entry = config.get_int(GCONF_ACC_KEY + "/" + oImap._conn._oAccount.get_account().id);
-        let safeEntry = config.get_string(GCONF_ACC_KEY + "/" + oImap._conn._oAccount.get_account().id + '_safe');
+        let entry = config.get_int(GCONF_ACC_KEY + "/" + oImap._conn.get_account().id);
+        let safeEntry = config.get_string(GCONF_ACC_KEY + "/" + oImap._conn.get_account().id + '_safe');
         entry = typeof(entry) !== 'undefined' && entry !== null ? entry : 0;
         safeEntry = typeof(safeEntry) !== 'undefined' && safeEntry !== null ? safeEntry : '';
         if (_DEBUG) {
@@ -118,22 +117,21 @@ const Extension = new Lang.Class({
             console.log("entry= " + entry);
         }
         if (maxSafeId > safeEntry) {
-            config.set_string(GCONF_ACC_KEY + "/" + oImap._conn._oAccount.get_account().id + '_safe', maxSafeId);
+            config.set_string(GCONF_ACC_KEY + "/" + oImap._conn.get_account().id + '_safe', maxSafeId);
         }
         //todo:get not only from inbox
         if (_DEBUG) {
-            console.log("Num google:" + numGoogle);
+            console.log("Num google:" + this.numGoogle);
             console.log("Setting Content 0:" + oImap.folders[0].list.length);
-            console.log("Setting Content 1:" + oImap._conn._oAccount.get_account().identity);
+            console.log("Setting Content 1:" + oImap._conn.get_account().identity);
         }
 
         const content = oImap.folders[0].list;
-        let mailbox = oImap._conn._oAccount.get_account().presentation_identity;
+        let mailbox = oImap._conn.get_account().presentation_identity;
         mailbox = mailbox === undefined ? '' : mailbox;
         this.messageTray.updateContent(content, sU, mailbox);
-        oImap._conn._disconnect();
         this.numGoogle++;
-        if (_DEBUG) console.log("Post Process Data " + oImap._conn._oAccount.get_account().id);
+        if (_DEBUG) console.log("Post Process Data " + oImap._conn.get_account().id);
     },
     _initData: function () {
         const goaAccounts = [];
@@ -147,15 +145,13 @@ const Extension = new Lang.Class({
                 console.log(accounts[i].get_account().id);
             }
             if (sprovider === "GOOGLE") {
-                let len = goaAccounts.push(new GmailFeed(accounts[i]));
-                goaAccounts[len - 1].connect('inbox-scanned', Lang.bind(this, this._processData));
-                goaAccounts[len - 1].connect('inbox-fed', Lang.bind(this, this._processData));
+                goaAccounts.push(new GmailFeed(accounts[i]));
             }
         }
 
         if (_DEBUG) {
             for (let i = 0; i < goaAccounts.length; i++) {
-                console.log("Checking Accounts" + goaAccounts[i]._conn._oAccount.get_account().id);
+                console.log("Checking Accounts" + goaAccounts[i]._conn.get_account().id);
             }
             console.log("Post Init data l:" + goaAccounts.length);
         }

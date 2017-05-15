@@ -21,8 +21,6 @@
  *
  */
 "use strict";
-const Signals = imports.signals;
-const GLib = imports.gi.GLib;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const console = Me.imports.console.console;
 const _DEBUG = false;
@@ -38,7 +36,6 @@ OAuth.prototype = {
         this.oAcc = account.get_account();
         this.acc_token = this.oAuth.call_get_access_token_sync(null);
         this.oAuth_auth = "";
-        this.error = null;
         this._makeStrings();
     },
     _setNonce: function () {
@@ -48,28 +45,13 @@ OAuth.prototype = {
         this.timestamp = (dt.getTime() / 1000).toFixed(0).toString();
     },
     _makeStrings: function () {
-
         //https://mail.google.com/mail/b/"+_email+"/imap/
-        try {
-            this._setNonce();
-            let anames = ["oauth_consumer_key", "oauth_nonce", "oauth_signature_method", "oauth_timestamp", "oauth_token", "oauth_version"];
-            let avalues1 = [this.oAuth.consumer_key, this.nonce, "HMAC-SHA1", this.timestamp, this.acc_token[1], "1.0"]
-            for (let i = 0; i < anames.length; i++) {
-                this.oAuth_auth += anames[i] + "=\"" + avalues1[i] + "\",";
-            }
-
-            if (_DEBUG) console.log('user=' + this.oAcc.presentation_identity + String.fromCharCode(1) + 'auth=Bearer ' + this.acc_token[1] + ' ' + String.fromCharCode(1) + String.fromCharCode(1));
-
-            this.oAuth_str = GLib.base64_encode('user=' + this.oAcc.presentation_identity + String.fromCharCode(1) + 'auth=Bearer ' + this.acc_token[1] + ' ' + String.fromCharCode(1) + String.fromCharCode(1));
-            this.error = null;
+        this._setNonce();
+        let anames = ["oauth_consumer_key", "oauth_nonce", "oauth_signature_method", "oauth_timestamp", "oauth_token", "oauth_version"];
+        let avalues1 = [this.oAuth.consumer_key, this.nonce, "HMAC-SHA1", this.timestamp, this.acc_token[1], "1.0"];
+        for (let i = 0; i < anames.length; i++) {
+            this.oAuth_auth += anames[i] + "=\"" + avalues1[i] + "\",";
         }
-
-        catch (err) {
-            console.error(err);
-            this.emit('error', err);
-            this.error = err;
-        }
+        if (_DEBUG) console.log('user=' + this.oAcc.presentation_identity + String.fromCharCode(1) + 'auth=Bearer ' + this.acc_token[1] + ' ' + String.fromCharCode(1) + String.fromCharCode(1));
     }
 };
-
-Signals.addSignalMethods(OAuth.prototype);
