@@ -40,25 +40,24 @@ GmailFeed.prototype = {
         this.folders = [];
     },
     scanInbox: function (callback) {
-        let sprovider = this._conn.get_account().provider_name.toUpperCase();
-        if (_DEBUG) console.log('feed provider:' + sprovider);
-
-        let folder = (sprovider === "GOOGLE" ? 'inbox' : 'messages');
-        let host = (sprovider === "GOOGLE" ? 'mail.google.com' : 'outlook.office.com');
-        let service = (sprovider === "GOOGLE" ? 'https://' + host + "/mail/feed/atom/" + folder : 'https://' + host + "/api/beta/me/" + folder );
-        let oAuth = new OAuth.OAuth(this._conn, service);
-        if (_DEBUG) console.log('service:' + service);
-        let msg = Soup.Message.new("GET", service);
+        const sprovider = this._conn.get_account().provider_name.toUpperCase();
+        if (sprovider !== "GOOGLE") {
+            if (_DEBUG) console.log('feed provider:' + sprovider);
+            return;
+        }
+        const service = "https://mail.google.com/mail/feed/atom/inbox";
+        const oAuth = new OAuth.OAuth(this._conn, service);
         if (_DEBUG) console.log('auth req', oAuth.oAuth_auth);
-        msg.request_headers.append('Authorization' + (sprovider === "GOOGLE" ? '' : ''), (sprovider === "GOOGLE" ? 'OAuth ' : 'Bearer ') + oAuth.acc_token[1]);
-        if (_DEBUG) console.log((sprovider === "GOOGLE" ? 'OAuth ' : 'Bearer ') + oAuth.acc_token[1]);
+        if (_DEBUG) console.log('OAuth ' + oAuth.acc_token[1]);
+        const msg = Soup.Message.new("GET", service);
+        msg.request_headers.append('Authorization', 'OAuth ' + oAuth.acc_token[1]);
         Sess.queue_message(msg, (sess, msg) => {
             if (_DEBUG) console.log('Message status:' + msg.status_code);
             if (msg.status_code === 200) {
                 this.folders = [];
-                let messages = [];
-                let xmltx = msg.response_body.data.substr(msg.response_body.data.indexOf('>') + 1).replace('xmlns="http://purl.org/atom/ns#"', '');
-                let oxml = new XML.REXML(xmltx);
+                const messages = [];
+                const xmltx = msg.response_body.data.substr(msg.response_body.data.indexOf('>') + 1).replace('xmlns="http://purl.org/atom/ns#"', '');
+                const oxml = new XML.REXML(xmltx);
 
                 if (_DEBUG) console.log('xml name:' + oxml.rootElement.name);
                 let i = 0;
