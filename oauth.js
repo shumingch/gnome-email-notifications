@@ -25,7 +25,7 @@ const Signals = imports.signals;
 const GLib = imports.gi.GLib;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const console = Me.imports.console.console;
-const _DEBUG = true;
+const _DEBUG = false;
 
 const OAuth = function (account, method, service) {
     this._init(account, method, service);

@@ -41,7 +41,6 @@ const _DEBUG = false;
 const _version = "0.3.6";
 
 let extension;
-let extensionPath;
 let Soup, sSes, Gio, Goa;
 try {
     Soup = imports.gi.Soup;
@@ -56,21 +55,18 @@ catch (err) {
 
 function init(extensionMeta) {
     console.log('Init Gmail Message Tray version ' + _version);
-    extensionPath = extensionMeta.path;
+    const extensionPath = extensionMeta.path;
     let userExtensionLocalePath = extensionPath + '/locale';
     imports.gettext.bindtextdomain('gmailmessagetray', userExtensionLocalePath);
 }
 
 const Extension = new Lang.Class({
     Name: "Extension",
-    _init: function (extensionPath) {
+    _init: function () {
         console.log('Enabling Gmail Message Tray version ' + _version);
         this.config = new GmailConf(this);
         this.messageTray = new GmailMessageTray(this);
         this.checkMailTimeout = null;
-        this.extensionPath = extensionPath;
-        this.sM = 0;
-        this.sU = 0;
         this.numGoogle = 0;
         this.goaAccounts = this._initData();
         this.startTimeout();
@@ -82,8 +78,7 @@ const Extension = new Lang.Class({
     },
     checkMail: function () {
         try {
-            this.sM = 0;
-            this.sU = 0;
+            console.log("Checking mail");
             this.numGoogle = 0;
             for (let i = 0; i < this.goaAccounts.length; i++) {
                 if (_DEBUG) console.log("Running scan: " + i + " " + this.goaAccounts[i]._conn._oAccount.get_account().id);
@@ -100,9 +95,9 @@ const Extension = new Lang.Class({
         const config = this.config;
         let maxId = 0;
         let maxSafeId = '';
+        let sU = 0;
         for (let i = 0; i < oImap.folders.length; i++) {
-            this.sU += oImap.folders[i].unseen;
-            this.sM += oImap.folders[i].messages;
+            sU += oImap.folders[i].unseen;
             for (let j = 0; j < oImap.folders[i].list.length; j++) {
                 if (oImap.folders[i].list[j].id > maxId) maxId = oImap.folders[i].list[j].id;
                 if (oImap.folders[i].list[j].safeid > maxSafeId) maxSafeId = oImap.folders[i].list[j].safeid;
@@ -110,7 +105,6 @@ const Extension = new Lang.Class({
         }
         if (_DEBUG) {
             console.log("maxSafeId= " + maxSafeId);
-            console.log("total= " + this.sM);
             console.log("unseen= " + this.sU);
             console.log("Getting entry for  " + oImap._conn._oAccount.get_account().id);
         }
@@ -136,7 +130,7 @@ const Extension = new Lang.Class({
         const content = oImap.folders[0].list;
         let mailbox = oImap._conn._oAccount.get_account().presentation_identity;
         mailbox = mailbox === undefined ? '' : mailbox;
-        this.messageTray.updateContent(content, this.sU, mailbox);
+        this.messageTray.updateContent(content, sU, mailbox);
         oImap._conn._disconnect();
         this.numGoogle++;
         if (_DEBUG) console.log("Post Process Data " + oImap._conn._oAccount.get_account().id);
@@ -181,7 +175,10 @@ const Extension = new Lang.Class({
 
     stopTimeout: function () {
         Mainloop.source_remove(this.checkMailTimeout);
-        Mainloop.source_remove(this.initialCheckMail);
+        if(this.initialCheckMail !== null){
+            Mainloop.source_remove(this.initialCheckMail);
+            this.initialCheckMail = null;
+        }
     },
     destroy: function () {
         this.stopTimeout();
