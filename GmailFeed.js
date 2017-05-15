@@ -25,7 +25,6 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const OAuth = Me.imports.oauth;
 const GmailHttps = Me.imports.GmailHttps.GmailHttps;
 const XML = Me.imports.rexml;
-const ImapMessage = Me.imports.ImapMessage.ImapMessage;
 const Soup = imports.gi.Soup;
 const Signals = imports.signals;
 const Sess = new Soup.SessionAsync();
@@ -39,7 +38,6 @@ function GmailFeed() {
 
 GmailFeed.prototype = {
     _init: function (conn) {
-        this.authenticated = true;
         this._conn = new GmailHttps(conn);
         this.folders = [];
     },
@@ -72,18 +70,14 @@ GmailFeed.prototype = {
                         if (_DEBUG) console.log('child name:' + oxml.rootElement.childElements[i].name);
                         if (oxml.rootElement.childElements[i].name === 'entry') {
                             let entry = oxml.rootElement.childElements[i];
-                            let em = new ImapMessage();
-                            em.from = entry.childElement('author').childElement('name').text + ' <' + entry.childElement('author').childElement('email').text + '>';
-                            if (_DEBUG) console.log('From::' + em.from);
-                            em.id = i;
-                            em.subject = entry.childElement('title').text;
-                            if (_DEBUG) console.log('N Title:' + entry.childElement('title').text);
-                            if (_DEBUG) console.log('Message found:' + em.subject);
-                            em.date = entry.childElement('modified').text;
-                            if (_DEBUG) console.log('date created:' + em.date.toString());
-                            //todo
-                            em.link = entry.childElement('link').attribute('href').replace(/&amp;/g, '&');
-                            em.safeid = entry.childElement('id').text;
+                            let em = {
+                                from: `${entry.childElement('author').childElement('name').text} <${entry.childElement('author').childElement('email').text}>`,
+                                id: i,
+                                subject: entry.childElement('title').text,
+                                date: entry.childElement('modified').text,
+                                link: entry.childElement('link').attribute('href').replace(/&amp;/g, '&'),
+                                safeid: entry.childElement('id').text,
+                            };
                             messages.push(em);
                             cnt++;
                         }
