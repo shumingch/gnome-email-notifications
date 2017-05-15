@@ -32,7 +32,6 @@ const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
 const Mainloop = imports.mainloop;
 const console = Me.imports.console.console;
 
-const _DEBUG = false;
 const _version = "0.1";
 
 let extension;
@@ -82,13 +81,13 @@ const Extension = new Lang.Class({
         }
     },
 
-    _processData: function (oImap) {
+    _processData: function (folders, _conn) {
         let sU = 0;
-        for (let i = 0; i < oImap.folders.length; i++) {
-            sU += oImap.folders[i].unseen;
+        for (let i = 0; i < folders.length; i++) {
+            sU += folders[i].unseen;
         }
-        const content = oImap.folders[0].list;
-        let mailbox = oImap._conn.get_account().presentation_identity;
+        const content = folders[0].list;
+        let mailbox = _conn.get_account().presentation_identity;
         mailbox = mailbox === undefined ? '' : mailbox;
         this.messageTray.updateContent(content, sU, mailbox);
     },
@@ -99,10 +98,6 @@ const Extension = new Lang.Class({
 
         for (let i = 0; i < accounts.length; i++) {
             let sprovider = accounts[i].get_account().provider_name.toUpperCase();
-            if (_DEBUG){
-                console.log(sprovider);
-                console.log(accounts[i].get_account().id);
-            }
             if (sprovider === "GOOGLE") {
                 goaAccounts.push(new GmailFeed(accounts[i]));
             }

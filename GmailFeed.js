@@ -21,6 +21,7 @@
  *
  */
 "use strict";
+const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const OAuth = Me.imports.oauth;
 const XML = Me.imports.rexml;
@@ -30,31 +31,22 @@ const console = Me.imports.console.console;
 const _DEBUG = false;
 
 
-function GmailFeed() {
-    this._init.apply(this, arguments);
-}
-
-GmailFeed.prototype = {
+const GmailFeed = new Lang.Class({
+    Name: 'GmailFeed',
     _init: function (conn) {
         this._conn = conn;
-        this.folders = [];
     },
     scanInbox: function (callback) {
-        const sprovider = this._conn.get_account().provider_name.toUpperCase();
-        if (sprovider !== "GOOGLE") {
-            if (_DEBUG) console.log('feed provider:' + sprovider);
-            return;
-        }
-        const service = "https://mail.google.com/mail/feed/atom/inbox";
-        const oAuth = new OAuth.OAuth(this._conn, service);
+        const folders = [];
+        const oAuth = new OAuth.OAuth(this._conn);
         if (_DEBUG) console.log('auth req', oAuth.oAuth_auth);
         if (_DEBUG) console.log('OAuth ' + oAuth.acc_token[1]);
+        const service = "https://mail.google.com/mail/feed/atom/inbox";
         const msg = Soup.Message.new("GET", service);
         msg.request_headers.append('Authorization', 'OAuth ' + oAuth.acc_token[1]);
         Sess.queue_message(msg, (sess, msg) => {
             if (_DEBUG) console.log('Message status:' + msg.status_code);
             if (msg.status_code === 200) {
-                this.folders = [];
                 const messages = [];
                 const xmltx = msg.response_body.data.substr(msg.response_body.data.indexOf('>') + 1).replace('xmlns="http://purl.org/atom/ns#"', '');
                 const oxml = new XML.REXML(xmltx);
@@ -79,14 +71,14 @@ GmailFeed.prototype = {
                     }
                     i++;
                 }
-                this.folders.push({
+                folders.push({
                     name: 'inbox',
                     encoded: 'inbox',
                     messages: cnt,
                     unseen: cnt,
                     list: messages
                 });
-                callback(this);
+                callback(folders, this._conn);
             }
             else {
                 if (_DEBUG) console.log('Message body:' + msg.response_body.data);
@@ -94,4 +86,4 @@ GmailFeed.prototype = {
             }
         });
     }
-};
+});

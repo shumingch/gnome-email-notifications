@@ -6,7 +6,7 @@ your incoming email
 
 Installation:
 
-run `sudo apt-get install gir1.2-soup gir1.2-goa gir1.2-glib`
+run `sudo apt-get install gir1.2-soup gir1.2-goa gir1.2-glib gir1.2-gconf`
 
 Authors:
 Adam Jabłoński <jablona123@gmail.com>

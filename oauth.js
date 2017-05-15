@@ -21,14 +21,13 @@
  *
  */
 "use strict";
+const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const console = Me.imports.console.console;
 const _DEBUG = false;
 
-const OAuth = function (account, method, service) {
-    this._init(account, method, service);
-};
-OAuth.prototype = {
+const OAuth = new Lang.Class({
+    Name: 'OAuth',
     _init: function (account) {
         if (_DEBUG) console.log('Account: ' + account);
         this.oAuth = account.get_oauth2_based();
@@ -54,4 +53,4 @@ OAuth.prototype = {
         }
         if (_DEBUG) console.log('user=' + this.oAcc.presentation_identity + String.fromCharCode(1) + 'auth=Bearer ' + this.acc_token[1] + ' ' + String.fromCharCode(1) + String.fromCharCode(1));
     }
-};
+});
