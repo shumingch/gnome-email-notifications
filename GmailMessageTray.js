@@ -22,7 +22,6 @@
  */
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const St = imports.gi.St;
 const Main = imports.ui.main;
 const Util = imports.misc.util;
 const Lang = imports.lang;
@@ -94,9 +93,8 @@ const GmailMessageTray = new Lang.Class({
         const callback = () => {
             if (this.messageTray.isOpen) {
                 this._openEmail("");
-                this.messageTray.close();
             }
-            this.messageTray.open();
+            this.messageTray.toggle();
         };
         const summary = this._createEmailSummary();
         return this._createNotification(summary, "mail-mark-important", popUp, true, callback);

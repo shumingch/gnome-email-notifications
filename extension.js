@@ -30,9 +30,6 @@ const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const GmailConf = Me.imports.GmailConf.GmailConf;
 const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
 const Mainloop = imports.mainloop;
-const XML = Me.imports.rexml;
-const Gettext = imports.gettext.domain('gmailmessagetray');
-const _ = Gettext.gettext;
 const console = Me.imports.console.console;
 
 const GCONF_ACC_KEY = "/apps/gmailmessagetray/accounts";
@@ -66,7 +63,6 @@ const Extension = new Lang.Class({
         this.config = new GmailConf(this);
         this.messageTray = new GmailMessageTray(this);
         this.checkMailTimeout = null;
-        this.numGoogle = 0;
         this.goaAccounts = this._initData();
         this.startTimeout();
         this._libCheck();
@@ -78,7 +74,6 @@ const Extension = new Lang.Class({
     checkMail: function () {
         try {
             console.log("Checking mail");
-            this.numGoogle = 0;
             for (let i = 0; i < this.goaAccounts.length; i++) {
                 if (_DEBUG) console.log("Running scan: " + i + " " + this.goaAccounts[i]._conn.get_account().id);
                 this.goaAccounts[i].scanInbox(Lang.bind(this, this._processData));
@@ -121,7 +116,6 @@ const Extension = new Lang.Class({
         }
         //todo:get not only from inbox
         if (_DEBUG) {
-            console.log("Num google:" + this.numGoogle);
             console.log("Setting Content 0:" + oImap.folders[0].list.length);
             console.log("Setting Content 1:" + oImap._conn.get_account().identity);
         }
@@ -130,7 +124,6 @@ const Extension = new Lang.Class({
         let mailbox = oImap._conn.get_account().presentation_identity;
         mailbox = mailbox === undefined ? '' : mailbox;
         this.messageTray.updateContent(content, sU, mailbox);
-        this.numGoogle++;
         if (_DEBUG) console.log("Post Process Data " + oImap._conn.get_account().id);
     },
     _initData: function () {
@@ -196,7 +189,7 @@ function enable() {
 function disable() {
     try{
         extension.destroy();
-        this.extension = null;
+        extension = null;
     }
     catch (err) {
         console.error(err);
