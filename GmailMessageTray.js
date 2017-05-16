@@ -34,7 +34,6 @@ const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
     _init: function (extension) {
         this.numUnread = 0;
-        this.emailSummaryNotification = null;
         this.extension = extension;
         this.config = extension.config;
         this.sources = [];
@@ -52,6 +51,7 @@ const GmailMessageTray = new Lang.Class({
         if (popUp) {
             source.notify(notification);
         } else {
+            notification.acknowledged = true;
             source.pushNotification(notification);
         }
 
@@ -106,9 +106,6 @@ const GmailMessageTray = new Lang.Class({
     },
     _createEMailNotification(msg){
         const callback = ()=>{
-            this.numUnread--;
-            const emailSummary = this._createEmailSummary(this.mailbox);
-            this.emailSummaryNotification.update(emailSummary.subject, emailSummary.from);
             this._openEmail(msg.link);
             this.messageTray.close();
         };
@@ -125,7 +122,7 @@ const GmailMessageTray = new Lang.Class({
                 for (let msg of content) {
                     this._createEMailNotification(msg)
                 }
-                this.emailSummaryNotification = this._showEmailSummaryNotification(popUp);
+                this._showEmailSummaryNotification(popUp);
             }
             else {
                 this._showNoMessage();
