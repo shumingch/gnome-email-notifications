@@ -26,7 +26,7 @@ const Main = imports.ui.main;
 const Util = imports.misc.util;
 const Lang = imports.lang;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
-const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
+const Source = imports.ui.messageTray.Source;
 const console = Me.imports.console.console;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
@@ -44,7 +44,7 @@ const GmailMessageTray = new Lang.Class({
         this.messageTray = Main.panel.statusArea.dateMenu.menu;
     },
     _createNotification(content, iconName, popUp, permanent, cb) {
-        const source = new GmailNotificationSource();
+        const source = new Source(EXTENSION_NAME, 'mail-read');
         Main.messageTray.add(source);
         const notification = new GmailNotification(source, content, iconName);
         notification.connect('activated', cb);
