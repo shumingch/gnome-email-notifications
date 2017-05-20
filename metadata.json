@@ -2,7 +2,9 @@
   "name": "Gmail Message Tray",
   "description": "Shows Gmail notifications in Gnome Message Tray",
   "shell-version": [
-    "3.24.1"
+    "3.24"
   ],
-  "uuid": "GmailMessageTray@shuming0207.gmail.com"
+  "url": "https://github.com/shumingch/GmailMessageTray",
+  "uuid": "GmailMessageTray@shuming0207.gmail.com",
+  "version": 1
 }
