@@ -22,7 +22,6 @@
  */
 "use strict";
 const GConf = imports.gi.GConf;
-const GLib = imports.gi.GLib;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const console = Me.imports.console.console;
 const Lang = imports.lang;
@@ -69,16 +68,14 @@ const GmailConf = new Lang.Class({
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
     }
 });
-const getSettings = function() {
+const getSettings = function () {
     let schemaName = 'org.gnome.shell.extensions.gmailmessagetray';
     let schemaDir = Me.dir.get_child('schemas').get_path();
 
-    if (GLib.file_test(schemaDir + '/gschemas.compiled', GLib.FileTest.EXISTS)) {
-        let schemaSource = Gio.SettingsSchemaSource.new_from_directory(schemaDir,
-            Gio.SettingsSchemaSource.get_default(),
-            false);
-        let schema = schemaSource.lookup(schemaName, false);
+    let schemaSource = Gio.SettingsSchemaSource.new_from_directory(schemaDir,
+        Gio.SettingsSchemaSource.get_default(),
+        false);
+    let schema = schemaSource.lookup(schemaName, false);
 
-        return new Gio.Settings({settings_schema: schema});
-    }
+    return new Gio.Settings({settings_schema: schema});
 };

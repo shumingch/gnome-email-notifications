@@ -22,7 +22,6 @@
  */
 "use strict";
 const Gtk = imports.gi.Gtk;
-const GLib = imports.gi.GLib;
 
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
@@ -140,8 +139,5 @@ function buildPrefsWidget() {
 function initTranslations() {
     const Gettext = imports.gettext;
     let localeDir = Me.dir.get_child('locale').get_path();
-
-    if (GLib.file_test(localeDir, GLib.FileTest.EXISTS)) {
-        Gettext.bindtextdomain('gmail_notify', localeDir);
-    }
+    Gettext.bindtextdomain('gmail_notify', localeDir);
 }
