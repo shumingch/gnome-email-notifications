@@ -101,8 +101,8 @@ const Extension = new Lang.Class({
         const accounts = aClient.get_accounts();
 
         for (let i = 0; i < accounts.length; i++) {
-            let sprovider = accounts[i].get_account().provider_name.toUpperCase();
-            if (sprovider === "GOOGLE") {
+            let sprovider = accounts[i].get_account().provider_type;
+            if (sprovider === "google") {
                 goaAccounts.push(new GmailFeed(accounts[i]));
             }
         }

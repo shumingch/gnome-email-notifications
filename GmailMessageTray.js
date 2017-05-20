@@ -28,6 +28,9 @@ const Lang = imports.lang;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
 const console = Me.imports.console.console;
+const Gettext = imports.gettext.domain('gmail_notify');
+const _ = Gettext.gettext;
+
 const EXTENSION_NAME = "Gmail Message Tray";
 
 
