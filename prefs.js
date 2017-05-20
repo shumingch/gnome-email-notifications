@@ -22,20 +22,21 @@
  */
 "use strict";
 const Gtk = imports.gi.Gtk;
+const GLib = imports.gi.GLib;
 
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const console = Me.imports.console.console;
-const Lib = Me.imports.lib;
+const GmailConf = Me.imports.GmailConf;
 
 let settings;
 let settings_slider;
 let settings_switch;
 function init() {
-    Lib.initTranslations();
-    settings = Lib.getSettings();
+    initTranslations();
+    settings = GmailConf.getSettings();
     settings_slider = new Map([
         ["timeout", {
             label: _("Check every {0} sec: "), help: _("Check every {0} sec: ")
@@ -134,4 +135,13 @@ function buildPrefsWidget() {
     frame.add(vbox);
     frame.show_all();
     return frame;
+}
+
+function initTranslations() {
+    const Gettext = imports.gettext;
+    let localeDir = Me.dir.get_child('locale').get_path();
+
+    if (GLib.file_test(localeDir, GLib.FileTest.EXISTS)) {
+        Gettext.bindtextdomain('gmail_notify', localeDir);
+    }
 }
