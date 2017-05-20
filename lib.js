@@ -50,7 +50,7 @@ function initTranslations() {
 
     // Extension installed in .local
     if (GLib.file_test(localeDir, GLib.FileTest.EXISTS)) {
-        Gettext.bindtextdomain('gmailmessagetray', localeDir);
+        Gettext.bindtextdomain('gmail_notify', localeDir);
     }
     // Extension installed system-wide
     else {

@@ -51,7 +51,7 @@ function init(extensionMeta) {
     console.log('Init Gmail Message Tray version ' + _version);
     const extensionPath = extensionMeta.path;
     let userExtensionLocalePath = extensionPath + '/locale';
-    imports.gettext.bindtextdomain('gmailmessagetray', userExtensionLocalePath);
+    imports.gettext.bindtextdomain('gmail_notify', userExtensionLocalePath);
 }
 
 const Extension = new Lang.Class({
@@ -78,10 +78,14 @@ const Extension = new Lang.Class({
         }
         catch (err) {
             console.error(err);
+            this.messageTray.showError(err.message);
         }
     },
 
-    _processData: function (folders, _conn) {
+    _processData: function (err, folders, _conn) {
+        if(err){
+            throw err;
+        }
         let sU = 0;
         for (let i = 0; i < folders.length; i++) {
             sU += folders[i].unseen;

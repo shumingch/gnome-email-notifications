@@ -23,7 +23,7 @@
 "use strict";
 const Gtk = imports.gi.Gtk;
 
-const Gettext = imports.gettext.domain('GmailMessageTray');
+const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();

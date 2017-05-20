@@ -78,11 +78,12 @@ const GmailFeed = new Lang.Class({
                     unseen: cnt,
                     list: messages
                 });
-                callback(folders, this._conn);
+                callback(null, folders, this._conn);
             }
             else {
                 if (_DEBUG) console.log('Message body:' + msg.response_body.data);
-                throw new Error('Google connection Status: ' + msg.status + ' ' + msg.message_body.data);
+                const err = new Error('Google connection Status: ' + msg.status + ' ' + msg.message_body.data);
+                callback(err);
             }
         });
     }

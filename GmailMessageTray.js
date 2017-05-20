@@ -28,18 +28,19 @@ const Lang = imports.lang;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const GmailNotificationSource = Me.imports.GmailNotificationSource.GmailNotificationSource;
 const console = Me.imports.console.console;
+const EXTENSION_NAME = "Gmail Message Tray";
 
 
 const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
-    _init: function (extension) {
+    _init(extension) {
         this.numUnread = 0;
         this.extension = extension;
         this.config = extension.config;
         this.sources = [];
         this.messageTray = Main.panel.statusArea.dateMenu.menu;
     },
-    _createNotification: function (content, iconName, popUp, permanent, cb) {
+    _createNotification(content, iconName, popUp, permanent, cb) {
         const source = new GmailNotificationSource();
         Main.messageTray.add(source);
         const notification = new GmailNotification(source, content, iconName);
@@ -59,7 +60,7 @@ const GmailMessageTray = new Lang.Class({
         return notification;
     },
 
-    _showNoMessage: function () {
+    _showNoMessage() {
         const content = {
             from: this.mailbox,
             date: new Date(),
@@ -71,16 +72,24 @@ const GmailMessageTray = new Lang.Class({
         };
         this._createNotification(content, "mail-read", false, true, callback);
     },
-    showLibError: function () {
+    showError(error){
         const content = {
-            from: "",
+            from: error,
             date: new Date(),
-            subject: _('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install')
+            subject: EXTENSION_NAME
+        };
+        this._createNotification(content, "dialog-error", true, true, ()=>{});
+    },
+    showLibError() {
+        const content = {
+            from: _('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'),
+            date: new Date(),
+            subject:  EXTENSION_NAME
         };
         const callback = ()=>{
             this._openEmail("http://gn.makrodata.org");
         };
-        this._createNotification(content, "mail-mark-important", true, true, callback);
+        this._createNotification(content, "dialog-error", true, true, callback);
     },
     _createEmailSummary(){
         return {
@@ -111,7 +120,7 @@ const GmailMessageTray = new Lang.Class({
         };
         this._createNotification(msg, "mail-unread", false, false, callback);
     },
-    updateContent: function (content, numUnread, mailbox) {
+    updateContent(content, numUnread, mailbox) {
         const popUp = numUnread > this.numUnread;
         this.numUnread = numUnread;
         this.mailbox = mailbox;
@@ -132,7 +141,7 @@ const GmailMessageTray = new Lang.Class({
             this._showNoMessage();
         }
     },
-    _openBrowser: function (link) {
+    _openBrowser(link) {
         if (this.config._browser === "") {
             console.log("no default browser")
         }
@@ -144,7 +153,7 @@ const GmailMessageTray = new Lang.Class({
             Util.trySpawnCommandLine(`${this.config._browser} ${link}`);
         }
     },
-    _openEmail: function (link) {
+    _openEmail(link) {
         if (this.config.getReader() === 0) {
             this._openBrowser(link);
         } else {
