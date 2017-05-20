@@ -65,11 +65,11 @@ const Extension = new Lang.Class({
         this.startTimeout();
         this._libCheck();
         this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
-            this.checkMail();
+            this._checkMail();
             return false;
         });
     },
-    checkMail: function () {
+    _checkMail: function () {
         try {
             console.log("Checking mail");
             for (let i = 0; i < this.goaAccounts.length; i++) {
@@ -115,7 +115,7 @@ const Extension = new Lang.Class({
     },
     startTimeout: function () {
         this.checkMailTimeout = GLib.timeout_add_seconds(0, this.config.getTimeout(), () => {
-            this.checkMail();
+            this._checkMail();
             return true;
         });
     },

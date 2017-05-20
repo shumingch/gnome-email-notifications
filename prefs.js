@@ -34,7 +34,7 @@ let settings;
 let settings_slider;
 let settings_switch;
 function init() {
-    initTranslations();
+    _initTranslations();
     settings = GmailConf.getSettings();
     settings_slider = new Map([
         ["timeout", {
@@ -49,7 +49,7 @@ function init() {
     ]);
 }
 
-function createSwitchSetting(setting, value) {
+function _createSwitchSetting(setting, value) {
 
     let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
     let setting_label = new Gtk.Label({
@@ -75,7 +75,7 @@ function createSwitchSetting(setting, value) {
     return hbox;
 }
 
-function createSliderSetting(setting, value) {
+function _createSliderSetting(setting, value) {
     let hbox = new Gtk.Box({
         orientation: Gtk.Orientation.HORIZONTAL
     });
@@ -124,11 +124,11 @@ function buildPrefsWidget() {
         margin: 20, margin_top: 10
     });
     for (let [setting, value] of settings_switch) {
-        let hbox = createSwitchSetting(setting, value);
+        let hbox = _createSwitchSetting(setting, value);
         vbox.add(hbox);
     }
     for (let [setting, value] of settings_slider) {
-        let hbox = createSliderSetting(setting, value);
+        let hbox = _createSliderSetting(setting, value);
         vbox.add(hbox);
     }
     frame.add(vbox);
@@ -136,7 +136,7 @@ function buildPrefsWidget() {
     return frame;
 }
 
-function initTranslations() {
+function _initTranslations() {
     const Gettext = imports.gettext;
     let localeDir = Me.dir.get_child('locale').get_path();
     Gettext.bindtextdomain('gmail_notify', localeDir);
