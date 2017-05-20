@@ -23,7 +23,6 @@
 "use strict";
 const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const OAuth = Me.imports.oauth;
 const XML = Me.imports.rexml;
 const Soup = imports.gi.Soup;
 const Sess = new Soup.SessionAsync();
@@ -38,12 +37,10 @@ const GmailFeed = new Lang.Class({
     },
     scanInbox: function (callback) {
         const folders = [];
-        const oAuth = new OAuth.OAuth(this._conn);
-        if (_DEBUG) console.log('auth req', oAuth.oAuth_auth);
-        if (_DEBUG) console.log('OAuth ' + oAuth.acc_token[1]);
+        const acc_token = this._conn.get_oauth2_based().call_get_access_token_sync(null)[1];
         const service = "https://mail.google.com/mail/feed/atom/inbox";
         const msg = Soup.Message.new("GET", service);
-        msg.request_headers.append('Authorization', 'OAuth ' + oAuth.acc_token[1]);
+        msg.request_headers.append('Authorization', 'OAuth ' + acc_token);
         Sess.queue_message(msg, (sess, msg) => {
             if (_DEBUG) console.log('Message status:' + msg.status_code);
             if (msg.status_code === 200) {
