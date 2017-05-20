@@ -69,7 +69,7 @@ const GmailMessageTray = new Lang.Class({
             date: new Date(),
             subject: _('No new messages')
         };
-        const callback = ()=>{
+        const callback = () => {
             this._openEmail("");
             this.messageTray.close();
         };
@@ -81,16 +81,17 @@ const GmailMessageTray = new Lang.Class({
             date: new Date(),
             subject: EXTENSION_NAME
         };
-        this._createNotification(content, "dialog-error", true, true, ()=>{});
+        this._createNotification(content, "dialog-error", true, true, () => {
+        });
     },
     showLibError() {
         const content = {
             from: _('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'),
             date: new Date(),
-            subject:  EXTENSION_NAME
+            subject: EXTENSION_NAME
         };
-        const callback = ()=>{
-            this._openEmail("http://gn.makrodata.org");
+        const callback = () => {
+            this._openBrowser("https://github.com/shumingch/GmailMessageTray");
         };
         this._createNotification(content, "dialog-error", true, true, callback);
     },
@@ -117,7 +118,7 @@ const GmailMessageTray = new Lang.Class({
         }
     },
     _createEMailNotification(msg){
-        const callback = ()=>{
+        const callback = () => {
             this._openEmail(msg.link);
             this.messageTray.close();
         };
