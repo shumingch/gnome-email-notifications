@@ -61,9 +61,9 @@ const Extension = new Lang.Class({
         this.config = new GmailConf(this);
         this.messageTray = new GmailMessageTray(this);
         this.checkMailTimeout = null;
+        this._libCheck();
         this.goaAccounts = this._initData();
         this.startTimeout();
-        this._libCheck();
         this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
             this._checkMail();
             return false;

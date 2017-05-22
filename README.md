@@ -8,7 +8,7 @@ Utilizes Gnome Online Accounts to login to Gmail and check your incoming email
 
 Install gnome-shell version 3.24 or later. 
 
-1. run `sudo apt-get install gir1.2-soup gir1.2-goa gir1.2-glib gir1.2-gconf` or equivalent
+1. run `sudo apt-get install gir1.2-goa gir1.2-gconf` or equivalent
 
 2. Either install from https://extensions.gnome.org/extension/1230/gmail-message-tray/
 OR
