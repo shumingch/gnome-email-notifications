@@ -21,7 +21,6 @@
  *
  */
 "use strict";
-const GConf = imports.gi.GConf;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const console = Me.imports.console.console;
 const Lang = imports.lang;
@@ -38,7 +37,6 @@ const GmailConf = new Lang.Class({
             extension.stopTimeout();
             extension.startTimeout();
         });
-        this._client = GConf.Client.get_default();
         try {
             this._browser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
         }

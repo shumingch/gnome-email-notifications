@@ -25,7 +25,6 @@ const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const GConf = imports.gi.GConf;
 const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const GmailConf = Me.imports.GmailConf.GmailConf;
 const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
@@ -109,7 +108,7 @@ const Extension = new Lang.Class({
         return goaAccounts;
     },
     _libCheck: function () {
-        if (Goa === undefined || Soup === undefined || Gio === undefined || GConf === undefined) {
+        if (Goa === undefined || Soup === undefined || Gio === undefined) {
             this.messageTray.showLibError();
         }
     },
