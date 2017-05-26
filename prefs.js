@@ -27,7 +27,6 @@ const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const console = Me.imports.console.console;
 const GmailConf = Me.imports.GmailConf;
 
 let settings;
@@ -41,10 +40,16 @@ function init() {
             label: _("Check every {0} sec: "), help: _("Check every {0} sec: ")
         }]
     ]);
+    const usemail = _("Use default email client instead of browser");
+    const shownomail = `Show "${_("No new messages")}" notification`;
     settings_switch = new Map([
         ["usemail", {
-            label: _("Use default email client instead of browser"),
-            help: _("Use default email client instead of browser")
+            label: usemail,
+            help: usemail
+        }],
+        ["shownomail", {
+            label: shownomail,
+            help: shownomail
         }]
     ]);
 }
@@ -59,12 +64,7 @@ function _createSwitchSetting(setting, value) {
     let setting_switch = new Gtk.CheckButton({});
     setting_switch.active = settings.get_int(setting) === 1;
     setting_switch.connect('toggled', function (button) {
-        try {
-            settings.set_int(setting, (button.active) ? 1 : 0);
-        }
-        catch (err) {
-            console.log(err);
-        }
+        settings.set_int(setting, (button.active) ? 1 : 0);
     });
     if (value.help) {
         setting_label.set_tooltip_text(value.help)
@@ -90,21 +90,16 @@ function _createSliderSetting(setting, value) {
         step_increment: 1
     });
     let setting_slider = new Gtk.HScale({
-        digits:0,
+        digits: 0,
         adjustment: adjustment,
         value_pos: Gtk.PositionType.RIGHT
     });
     setting_slider.set_value(settings.get_int(setting));
     slider_label.label = _("Check every {0} sec: ").replace('{0}', settings.get_int(setting));
     setting_slider.connect('value-changed', function (button) {
-        try {
-            let i = Math.round(button.get_value());
-            slider_label.label = _("Check every {0} sec: ").replace('{0}', i.toString());
-            settings.set_int(setting, i);
-        }
-        catch (err) {
-            console.log(err);
-        }
+        let i = Math.round(button.get_value());
+        slider_label.label = _("Check every {0} sec: ").replace('{0}', i.toString());
+        settings.set_int(setting, i);
     });
     if (value.help) {
         slider_label.set_tooltip_text(value.help)

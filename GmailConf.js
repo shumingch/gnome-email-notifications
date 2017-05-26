@@ -28,6 +28,7 @@ const Gio = imports.gi.Gio;
 
 const GMAILNOTIFY_SETTINGS_KEY_TIMEOUT = 'timeout';
 const GMAILNOTIFY_SETTINGS_KEY_USEMAIL = 'usemail';
+const GMAILNOTIFY_SETTINGS_KEY_SHOWNOMAIL = 'shownomail';
 
 const GmailConf = new Lang.Class({
     Name: 'GmailConf',
@@ -64,6 +65,9 @@ const GmailConf = new Lang.Class({
     },
     getReader(){
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
+    },
+    getNoMail(){
+        return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SHOWNOMAIL);
     }
 });
 const getSettings = function () {

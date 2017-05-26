@@ -38,7 +38,6 @@ const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
     _init(extension) {
         this.numUnread = 0;
-        this.extension = extension;
         this.config = extension.config;
         this.sources = [];
         this.messageTray = Main.panel.statusArea.dateMenu.menu;
@@ -64,6 +63,9 @@ const GmailMessageTray = new Lang.Class({
     },
 
     _showNoMessage() {
+        if(!this.config.getNoMail()){
+            return;
+        }
         const content = {
             from: this.mailbox,
             date: new Date(),
