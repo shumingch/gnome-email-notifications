@@ -6,7 +6,7 @@ Utilizes Gnome Online Accounts to login to Gmail and check your incoming email
 
 ## Installation
 
-1. Install gnome-shell version 3.24 or later. 
+1. Install gnome-shell version 3.22 or later.
 
 2. Sign in with your Google account in Gnome Online Accounts settings.
 

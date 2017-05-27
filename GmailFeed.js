@@ -56,9 +56,8 @@ const GmailFeed = new Lang.Class({
                     if (oxml.rootElement.childElements[i].name === 'entry') {
                         let entry = oxml.rootElement.childElements[i];
                         let em = {
-                            from: `${entry.childElement('author').childElement('name').text} <${entry.childElement('author').childElement('email').text}>`,
-                            id: i,
-                            subject: entry.childElement('title').text,
+                            from: entry.childElement('author').childElement('name').text + " <" + entry.childElement('author').childElement('email').text + ">",
+                            id: i, subject: entry.childElement('title').text,
                             date: entry.childElement('modified').text,
                             link: entry.childElement('link').attribute('href').replace(/&amp;/g, '&'),
                             safeid: entry.childElement('id').text,

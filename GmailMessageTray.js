@@ -36,13 +36,13 @@ const EXTENSION_NAME = "Gmail Message Tray";
 
 const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
-    _init(extension) {
+    _init: function (extension) {
         this.numUnread = 0;
         this.config = extension.config;
         this.sources = [];
         this.messageTray = Main.panel.statusArea.dateMenu.menu;
     },
-    _createNotification(content, iconName, popUp, permanent, cb) {
+    _createNotification: function (content, iconName, popUp, permanent, cb) {
         const source = new Source(EXTENSION_NAME, 'mail-read');
         Main.messageTray.add(source);
         const notification = new GmailNotification(source, content, iconName);
@@ -62,8 +62,8 @@ const GmailMessageTray = new Lang.Class({
         return notification;
     },
 
-    _showNoMessage() {
-        if(!this.config.getNoMail()){
+    _showNoMessage: function () {
+        if (!this.config.getNoMail()) {
             return;
         }
         const content = {
@@ -77,7 +77,7 @@ const GmailMessageTray = new Lang.Class({
         };
         this._createNotification(content, "mail-read", false, true, callback);
     },
-    showError(error){
+    showError: function (error) {
         const content = {
             from: error,
             date: new Date(),
@@ -86,7 +86,7 @@ const GmailMessageTray = new Lang.Class({
         this._createNotification(content, "dialog-error", true, true, () => {
         });
     },
-    showLibError() {
+    showLibError: function () {
         const content = {
             from: _('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'),
             date: new Date(),
@@ -97,14 +97,14 @@ const GmailMessageTray = new Lang.Class({
         };
         this._createNotification(content, "dialog-error", true, true, callback);
     },
-    _createEmailSummary(){
+    _createEmailSummary: function () {
         return {
             from: this.mailbox,
             date: new Date(),
             subject: _('%s unread messages').format(this.numUnread)
         };
     },
-    _showEmailSummaryNotification(popUp){
+    _showEmailSummaryNotification: function (popUp) {
         const callback = () => {
             if (this.messageTray.isOpen) {
                 this._openEmail("");
@@ -114,19 +114,19 @@ const GmailMessageTray = new Lang.Class({
         const summary = this._createEmailSummary();
         return this._createNotification(summary, "mail-mark-important", popUp, true, callback);
     },
-    destroySources(){
+    destroySources: function () {
         for (let source of this.sources) {
             source.destroy();
         }
     },
-    _createEMailNotification(msg){
+    _createEMailNotification: function (msg) {
         const callback = () => {
             this._openEmail(msg.link);
             this.messageTray.close();
         };
         this._createNotification(msg, "mail-unread", false, false, callback);
     },
-    updateContent(content, numUnread, mailbox) {
+    updateContent: function (content, numUnread, mailbox) {
         const popUp = numUnread > this.numUnread;
         this.numUnread = numUnread;
         this.mailbox = mailbox;
@@ -147,7 +147,7 @@ const GmailMessageTray = new Lang.Class({
             this._showNoMessage();
         }
     },
-    _openBrowser(link) {
+    _openBrowser: function (link) {
         if (this.config._browser === "") {
             console.log("no default browser")
         }
@@ -156,10 +156,10 @@ const GmailMessageTray = new Lang.Class({
             if (link === '' || link === undefined) {
                 link = 'https://www.gmail.com';
             }
-            Util.trySpawnCommandLine(`${this.config._browser} ${link}`);
+            Util.trySpawnCommandLine(this.config._browser + " " + link);
         }
     },
-    _openEmail(link) {
+    _openEmail: function (link) {
         if (this.config.getReader() === 0) {
             this._openBrowser(link);
         } else {

@@ -27,6 +27,7 @@ const console = Me.imports.console.console;
 const MessageTray = imports.ui.messageTray;
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
+const Config = imports.misc.config;
 
 const GmailNotification = new Lang.Class({
     Name: 'GmailNotification',
@@ -34,21 +35,34 @@ const GmailNotification = new Lang.Class({
 
     _init: function (source, content, iconName) {
         try {
+            const date = new Date(content.date);
             const title = content.subject;
-            const banner = content.from;
-
-            const unix_local = new Date(content.date).getTime() / 1000;
-            const datetime = GLib.DateTime.new_from_unix_local(unix_local);
-            const gicon= new Gio.ThemedIcon({ name: iconName });
-
+            const gicon = new Gio.ThemedIcon({name: iconName});
+            let banner = content.from;
             const params = {
-                datetime,
-                gicon
+                gicon: gicon
             };
+
+            if (Config.PACKAGE_VERSION.startsWith("3.22")) {
+                banner = this._addDateTimeToBanner(date, banner);
+            }
+            else {
+                this._addDateTimeToParams(date, params);
+            }
+
             this.parent(source, title, banner, params);
         }
         catch (err) {
             console.error(err);
         }
+    },
+    _addDateTimeToBanner: function(date, banner){
+        const locale_date = date.toLocaleFormat("%b %d %H:%M %p");
+        return locale_date + " " + banner;
+    },
+    _addDateTimeToParams: function(date, params){
+        const unix_local = date.getTime() / 1000;
+        params.datetime = GLib.DateTime.new_from_unix_local(unix_local);
     }
+
 });

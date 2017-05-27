@@ -60,13 +60,13 @@ const GmailConf = new Lang.Class({
         }
     },
 
-    getTimeout(){
+    getTimeout: function(){
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_TIMEOUT);
     },
-    getReader(){
+    getReader: function(){
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
     },
-    getNoMail(){
+    getNoMail: function(){
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SHOWNOMAIL);
     }
 });

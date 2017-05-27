@@ -41,7 +41,7 @@ function init() {
         }]
     ]);
     const usemail = _("Use default email client instead of browser");
-    const shownomail = `Show "${_("No new messages")}" notification`;
+    const shownomail = "Show \"" + _("No new messages") + "\" notification";
     settings_switch = new Map([
         ["usemail", {
             label: usemail,
