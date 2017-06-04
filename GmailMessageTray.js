@@ -32,6 +32,10 @@ const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 
 const EXTENSION_NAME = "Gmail Message Tray";
+const DIALOG_ERROR = 'dialog-error';
+const MAIL_READ = 'mail-read';
+const MAIL_UNREAD = 'mail-unread';
+const MAIL_MARK_IMPORTANT = 'mail-mark-important';
 
 
 const GmailMessageTray = new Lang.Class({
@@ -41,12 +45,25 @@ const GmailMessageTray = new Lang.Class({
         this.config = extension.config;
         this.sources = [];
         this.messageTray = Main.panel.statusArea.dateMenu.menu;
+        this.errorSource = this._newErrorSource();
+    },
+    _newErrorSource: function(){
+        return new Source(EXTENSION_NAME, DIALOG_ERROR);
     },
     _createNotification: function (content, iconName, popUp, permanent, cb) {
-        const source = new Source(EXTENSION_NAME, 'mail-read');
+        const source = new Source(EXTENSION_NAME, MAIL_READ);
+        return this._createNotificationWithSource(source, content, iconName, popUp, permanent, cb);
+    },
+    _createNotificationWithSource: function (source, content, iconName, popUp, permanent, cb) {
         Main.messageTray.add(source);
         const notification = new GmailNotification(source, content, iconName);
-        notification.connect('activated', cb);
+        notification.connect('activated', () => {
+            try {
+                cb();
+            } catch (err) {
+                console.error(err);
+            }
+        });
 
         if (permanent) {
             notification.setResident(true);
@@ -75,27 +92,20 @@ const GmailMessageTray = new Lang.Class({
             this._openEmail("");
             this.messageTray.close();
         };
-        this._createNotification(content, "mail-read", false, true, callback);
+        this._createNotification(content, MAIL_READ, false, true, callback);
     },
     showError: function (error) {
+        const popup = this.errorSource.count === 0;
+        this.errorSource.destroy();
+        this.errorSource = this._newErrorSource();
         const content = {
             from: error,
             date: new Date(),
             subject: EXTENSION_NAME
         };
-        this._createNotification(content, "dialog-error", true, true, () => {
-        });
-    },
-    showLibError: function () {
-        const content = {
-            from: _('Extension requires Goa,Soup,Gio,Gconf typelibs - click for instructions how to install'),
-            date: new Date(),
-            subject: EXTENSION_NAME
-        };
-        const callback = () => {
+        this._createNotificationWithSource(this.errorSource, content, DIALOG_ERROR, popup, true, () => {
             this._openBrowser("https://github.com/shumingch/GmailMessageTray");
-        };
-        this._createNotification(content, "dialog-error", true, true, callback);
+        });
     },
     _createEmailSummary: function () {
         return {
@@ -112,19 +122,19 @@ const GmailMessageTray = new Lang.Class({
             this.messageTray.toggle();
         };
         const summary = this._createEmailSummary();
-        return this._createNotification(summary, "mail-mark-important", popUp, true, callback);
+        return this._createNotification(summary, MAIL_MARK_IMPORTANT, popUp, true, callback);
     },
     destroySources: function () {
         for (let source of this.sources) {
             source.destroy();
         }
     },
-    _createEMailNotification: function (msg) {
+    _createEmailNotification: function (msg) {
         const callback = () => {
             this._openEmail(msg.link);
             this.messageTray.close();
         };
-        this._createNotification(msg, "mail-unread", false, false, callback);
+        this._createNotification(msg, MAIL_UNREAD, false, false, callback);
     },
     updateContent: function (content, numUnread, mailbox) {
         const popUp = numUnread > this.numUnread;
@@ -135,7 +145,7 @@ const GmailMessageTray = new Lang.Class({
         if (content !== undefined) {
             if (content.length > 0) {
                 for (let msg of content) {
-                    this._createEMailNotification(msg)
+                    this._createEmailNotification(msg)
                 }
                 this._showEmailSummaryNotification(popUp);
             }
@@ -148,29 +158,35 @@ const GmailMessageTray = new Lang.Class({
         }
     },
     _openBrowser: function (link) {
-        if (this.config._browser === "") {
-            console.log("no default browser")
+        if (link === '' || link === undefined) {
+            link = 'https://www.gmail.com';
         }
-        else {
-            console.log("link: " + link);
-            if (link === '' || link === undefined) {
-                link = 'https://www.gmail.com';
-            }
-            Util.trySpawnCommandLine(this.config._browser + " " + link);
+        try {
+            Util.trySpawnCommandLine("xdg-open " + link);
+        } catch (err) {
+            this._showXdgError(err);
         }
     },
     _openEmail: function (link) {
         if (this.config.getReader() === 0) {
             this._openBrowser(link);
         } else {
-            if (this.config._mail === "") {
-                console.log("no default mail reader")
-            }
-            else {
-                Util.trySpawnCommandLine(this.config._mail);
+            try {
+                Util.trySpawnCommandLine("xdg-email");
+            } catch (err) {
+                this._showXdgError(err);
             }
         }
-
+    },
+    _showXdgError: function (err) {
+        console.error(err);
+        const content = {
+            from: _('Please install xdg-utils'),
+            date: new Date(),
+            subject: EXTENSION_NAME
+        };
+        this._createNotification(content, DIALOG_ERROR, true, true, () => {
+        });
     }
 });
 

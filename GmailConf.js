@@ -22,7 +22,6 @@
  */
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const console = Me.imports.console.console;
 const Lang = imports.lang;
 const Gio = imports.gi.Gio;
 
@@ -38,26 +37,6 @@ const GmailConf = new Lang.Class({
             extension.stopTimeout();
             extension.startTimeout();
         });
-        try {
-            this._browser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
-        }
-        catch (err) {
-            this._browser = "firefox";
-            console.error(err);
-        }
-        try {
-            const mailto = Gio.app_info_get_default_for_uri_scheme("mailto");
-            if (mailto === null) {
-                this._mail = "";
-            }
-            else {
-                this._mail = mailto.get_executable();
-            }
-        }
-        catch (err) {
-            console.error(err);
-            this._mail = "";
-        }
     },
 
     getTimeout: function(){

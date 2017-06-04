@@ -108,8 +108,9 @@ const Extension = new Lang.Class({
         return goaAccounts;
     },
     _libCheck: function () {
-        if (Goa === undefined || Soup === undefined || Gio === undefined) {
-            this.messageTray.showLibError();
+        if (Goa === undefined) {
+            this.messageTray.showError(_("Install gir1.2-goa"));
+            throw new Error("No Goa found");
         }
     },
     startTimeout: function () {
@@ -128,7 +129,6 @@ const Extension = new Lang.Class({
     },
     destroy: function () {
         this.stopTimeout();
-        this.goaAccounts = null;
         this.messageTray.destroySources();
     }
 });
