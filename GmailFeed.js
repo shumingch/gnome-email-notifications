@@ -78,7 +78,7 @@ const GmailFeed = new Lang.Class({
             }
             else {
                 if (_DEBUG) console.log('Message body:' + msg.response_body.data);
-                const err = new Error('Google connection Status: ' + msg.status + ' ' + msg.message_body.data);
+                const err = new Error('Error scanning inbox: code ' + msg.status_code);
                 callback(err);
             }
         });

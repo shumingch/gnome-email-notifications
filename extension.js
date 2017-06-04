@@ -31,7 +31,7 @@ const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
 const Mainloop = imports.mainloop;
 const console = Me.imports.console.console;
 
-const _version = "3";
+const _version = "4";
 
 let extension;
 let Soup, sSes, Gio, Goa;
@@ -83,6 +83,7 @@ const Extension = new Lang.Class({
 
     _processData: function (err, folders, _conn) {
         if(err){
+            this.messageTray.showError(err.message);
             throw err;
         }
         let sU = 0;
