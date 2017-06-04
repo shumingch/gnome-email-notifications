@@ -29,6 +29,15 @@ const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 const Config = imports.misc.config;
 
+const escaped_one_to_xml_special_map = {
+    '&amp;': '&',
+    '&#39;': "'",
+    '&quot;': '"',
+    '&lt;': '<',
+    '&gt;': '>'
+};
+const unescape_regex = /(&quot;|&#39;|&lt;|&gt;|&amp;)/g;
+
 const GmailNotification = new Lang.Class({
     Name: 'GmailNotification',
     Extends: MessageTray.Notification,
@@ -36,9 +45,9 @@ const GmailNotification = new Lang.Class({
     _init: function (source, content, iconName) {
         try {
             const date = new Date(content.date);
-            const title = content.subject;
+            const title = this._unescapeXML(content.subject);
             const gicon = new Gio.ThemedIcon({name: iconName});
-            let banner = content.from;
+            let banner = this._unescapeXML(content.from);
             const params = {
                 gicon: gicon
             };
@@ -56,11 +65,15 @@ const GmailNotification = new Lang.Class({
             console.error(err);
         }
     },
-    _addDateTimeToBanner: function(date, banner){
+    _unescapeXML: function (string) {
+        return string.replace(unescape_regex,
+            (str, item) => escaped_one_to_xml_special_map[item]);
+    },
+    _addDateTimeToBanner: function (date, banner) {
         const locale_date = date.toLocaleFormat("%b %d %H:%M %p");
         return locale_date + " " + banner;
     },
-    _addDateTimeToParams: function(date, params){
+    _addDateTimeToParams: function (date, params) {
         const unix_local = date.getTime() / 1000;
         params.datetime = GLib.DateTime.new_from_unix_local(unix_local);
     }
