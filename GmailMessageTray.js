@@ -37,6 +37,16 @@ const MAIL_READ = 'mail-read';
 const MAIL_UNREAD = 'mail-unread';
 const MAIL_MARK_IMPORTANT = 'mail-mark-important';
 
+function simplehash(toHash) {
+  var hash = 0, i, chr;
+  if (toHash.length === 0) return hash;
+  for (i = 0; i < toHash.length; i++) {
+    chr   = toHash.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
 
 const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
@@ -46,6 +56,7 @@ const GmailMessageTray = new Lang.Class({
         this.sources = [];
         this.messageTray = Main.panel.statusArea.dateMenu.menu;
         this.errorSource = this._newErrorSource();
+        this.messagesShown = [];
     },
     _newErrorSource: function(){
         return new Source(EXTENSION_NAME, DIALOG_ERROR);
@@ -142,18 +153,25 @@ const GmailMessageTray = new Lang.Class({
         this.mailbox = mailbox;
 
         this.destroySources();
+        let newMessages = 0
         if (content !== undefined) {
             if (content.length > 0) {
                 for (let msg of content) {
-                    this._createEmailNotification(msg)
+                    let msgHash = simplehash(msg.link)
+                    let unseen = this.messagesShown.find((h) => h == msgHash) == undefined
+                    if (unseen)
+                    {
+                        this.messagesShown.push(msgHash)
+                        this._createEmailNotification(msg)
+                        newMessages++
+                    }
                 }
-                this._showEmailSummaryNotification(popUp);
-            }
-            else {
-                this._showNoMessage();
+                if (newMessages) {
+                    this._showEmailSummaryNotification(popUp);
+                }
             }
         }
-        else {
+        if (!newMessages) {
             this._showNoMessage();
         }
     },
