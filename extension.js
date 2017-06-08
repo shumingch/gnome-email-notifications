@@ -74,6 +74,10 @@ const Extension = new Lang.Class({
             for (let i = 0; i < this.goaAccounts.length; i++) {
                 this.goaAccounts[i].scanInbox(Lang.bind(this, this._processData));
             }
+            if(this.goaAccounts.length === 0){
+                //noinspection ExceptionCaughtLocallyJS
+                throw new Error("No Google accounts found");
+            }
         }
         catch (err) {
             console.error(err);
