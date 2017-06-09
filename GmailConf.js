@@ -28,6 +28,9 @@ const Gio = imports.gi.Gio;
 const GMAILNOTIFY_SETTINGS_KEY_TIMEOUT = 'timeout';
 const GMAILNOTIFY_SETTINGS_KEY_USEMAIL = 'usemail';
 const GMAILNOTIFY_SETTINGS_KEY_SHOWNOMAIL = 'shownomail';
+const GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY = 'showsummary';
+const SHOWSUMMARY_YES = 'yes';
+const SHOWSUMMARY_NO = 'no';
 
 const GmailConf = new Lang.Class({
     Name: 'GmailConf',
@@ -39,14 +42,17 @@ const GmailConf = new Lang.Class({
         });
     },
 
-    getTimeout: function(){
+    getTimeout: function () {
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_TIMEOUT);
     },
-    getReader: function(){
+    getReader: function () {
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
     },
-    getNoMail: function(){
+    getNoMail: function () {
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_SHOWNOMAIL);
+    },
+    getShowSummary: function () {
+        return this.settings.get_string(GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY);
     }
 });
 const getSettings = function () {
