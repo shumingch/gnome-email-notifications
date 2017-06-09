@@ -16,5 +16,10 @@
             <summary>Shows "No new emails" notification</summary>
             <description>Shows "No new emails" notification</description>
         </key>
+        <key type="s" name="showsummary">
+            <default>"yes"</default>
+            <summary>Show email summary</summary>
+            <description>If email summary not shown, individual emails are shown</description>
+        </key>
     </schema>
 </schemalist>

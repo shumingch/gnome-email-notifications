@@ -30,6 +30,7 @@ const Source = imports.ui.messageTray.Source;
 const console = Me.imports.console.console;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
+const GmailConf = Me.imports.GmailConf;
 
 const EXTENSION_NAME = "Gmail Message Tray";
 const DIALOG_ERROR = 'dialog-error';
@@ -41,14 +42,28 @@ const MAIL_MARK_IMPORTANT = 'mail-mark-important';
 const GmailMessageTray = new Lang.Class({
     Name: 'GmailMessageTray',
     _init: function (extension) {
-        this.numUnread = 0;
         this.config = extension.config;
         this.sources = [];
-        this.messageTray = Main.panel.statusArea.dateMenu.menu;
+        this.dateMenu = Main.panel.statusArea.dateMenu.menu;
         this.errorSource = this._newErrorSource();
+        this.summarySource = this._newSummarySource();
+        this.messagesShown = [];
     },
-    _newErrorSource: function(){
+    _simplehash: function (toHash) {
+        let hash = 0, i, chr;
+        if (toHash.length === 0) return hash;
+        for (i = 0; i < toHash.length; i++) {
+            chr = toHash.charCodeAt(i);
+            hash = ((hash << 5) - hash) + chr;
+            hash |= 0; // Convert to 32bit integer
+        }
+        return hash;
+    },
+    _newErrorSource: function () {
         return new Source(EXTENSION_NAME, DIALOG_ERROR);
+    },
+    _newSummarySource: function () {
+        return new Source(MAIL_MARK_IMPORTANT, DIALOG_ERROR);
     },
     _createNotification: function (content, iconName, popUp, permanent, cb) {
         const source = new Source(EXTENSION_NAME, MAIL_READ);
@@ -83,6 +98,7 @@ const GmailMessageTray = new Lang.Class({
         if (!this.config.getNoMail()) {
             return;
         }
+        this.summarySource.destroy();
         const content = {
             from: this.mailbox,
             date: new Date(),
@@ -90,9 +106,9 @@ const GmailMessageTray = new Lang.Class({
         };
         const callback = () => {
             this._openEmail("");
-            this.messageTray.close();
+            this.dateMenu.close();
         };
-        this._createNotification(content, MAIL_READ, false, true, callback);
+        return this._createNotificationWithSource(this.summarySource, content, MAIL_READ, false, true, callback);
     },
     showError: function (error) {
         const popup = this.errorSource.count === 0;
@@ -114,15 +130,16 @@ const GmailMessageTray = new Lang.Class({
             subject: _('%s unread messages').format(this.numUnread)
         };
     },
-    _showEmailSummaryNotification: function (popUp) {
+    _showEmailSummaryNotification: function () {
+        if (this.config.getShowSummary() === GmailConf.SHOWSUMMARY_NO) {
+            return
+        }
+        this.summarySource.destroy();
         const callback = () => {
-            if (this.messageTray.isOpen) {
-                this._openEmail("");
-            }
-            this.messageTray.toggle();
+            this._openEmail("");
         };
         const summary = this._createEmailSummary();
-        return this._createNotification(summary, MAIL_MARK_IMPORTANT, popUp, true, callback);
+        return this._createNotificationWithSource(this.summarySource, summary, MAIL_MARK_IMPORTANT, true, false, callback);
     },
     destroySources: function () {
         for (let source of this.sources) {
@@ -130,30 +147,46 @@ const GmailMessageTray = new Lang.Class({
         }
     },
     _createEmailNotification: function (msg) {
+        if (this.config.getShowSummary() === GmailConf.SHOWSUMMARY_YES) {
+            return
+        }
+        this.summarySource.destroy();
         const callback = () => {
             this._openEmail(msg.link);
-            this.messageTray.close();
+            this.dateMenu.close();
         };
-        this._createNotification(msg, MAIL_UNREAD, false, false, callback);
+        this._createNotification(msg, MAIL_UNREAD, true, false, callback);
     },
-    updateContent: function (content, numUnread, mailbox) {
-        const popUp = numUnread > this.numUnread;
-        this.numUnread = numUnread;
-        this.mailbox = mailbox;
-
-        this.destroySources();
-        if (content !== undefined) {
-            if (content.length > 0) {
-                for (let msg of content) {
-                    this._createEmailNotification(msg)
-                }
-                this._showEmailSummaryNotification(popUp);
-            }
-            else {
-                this._showNoMessage();
+    _displayUnreadMessages: function (content) {
+        let newMessages = 0;
+        for (let msg of content) {
+            const msgHash = this._simplehash(msg.link);
+            const unseen = this.messagesShown.filter(h => h === msgHash).length === 0;
+            if (unseen) {
+                this.messagesShown.push(msgHash);
+                newMessages++;
+                this._createEmailNotification(msg);
             }
         }
-        else {
+        return newMessages;
+    },
+    _nonEmptySources: function () {
+        return this.sources.filter(source => source.count > 0);
+    },
+    updateContent: function (content, numUnread, mailbox) {
+        content.reverse();
+        this.sources = this._nonEmptySources();
+        this.mailbox = mailbox;
+
+        if (content !== undefined && content.length > 0) {
+            this.numUnread = this._displayUnreadMessages(content);
+            if (this.numUnread > 0) {
+                this._showEmailSummaryNotification();
+            }
+        } else {
+            this.numUnread = 0;
+        }
+        if (this.numUnread === 0 && this.sources.length === 0) {
             this._showNoMessage();
         }
     },

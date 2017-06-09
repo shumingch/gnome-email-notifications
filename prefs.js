@@ -32,6 +32,12 @@ const GmailConf = Me.imports.GmailConf;
 let settings;
 let settings_slider;
 let settings_switch;
+let settings_radio;
+const modes = new Map([
+    [GmailConf.SHOWSUMMARY_YES, _("Show email summary")],
+    [GmailConf.SHOWSUMMARY_NO, _("Show individual emails")],
+]);
+
 function init() {
     _initTranslations();
     settings = GmailConf.getSettings();
@@ -52,6 +58,46 @@ function init() {
             help: shownomail
         }]
     ]);
+
+    settings_radio = new Map([
+        [GmailConf.GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY, {
+            label: _("Show email summary"), help: _("Show email summary")
+        }]
+    ]);
+}
+
+function _createRadioSetting(setting, value) {
+    const hbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
+    const align = new Gtk.Alignment({left_padding: 12});
+    const grid = new Gtk.Grid({
+        orientation: Gtk.Orientation.VERTICAL,
+        row_spacing: 6,
+        column_spacing: 6
+    });
+    const setting_label = '<b>' + value.label + '</b>';
+    hbox.add(new Gtk.Label({
+        label: setting_label, use_markup: true,
+        halign: Gtk.Align.START
+    }));
+    let radio = null;
+    let currentMode = settings.get_string(setting);
+    for (let [mode, label] of modes) {
+        const _mode = mode;
+        radio = new Gtk.RadioButton({group: radio, label: label, valign: Gtk.Align.START});
+        radio.connect('toggled', widget => {
+            if (widget.active) {
+                settings.set_string(setting, _mode);
+            }
+        });
+        grid.add(radio);
+        if (mode === currentMode) {
+            radio.active = true;
+        }
+    }
+    radio.set_tooltip_text(value.help);
+    align.add(grid);
+    hbox.add(align);
+    return hbox;
 }
 
 function _createSwitchSetting(setting, value) {
@@ -124,6 +170,10 @@ function buildPrefsWidget() {
     }
     for (let [setting, value] of settings_slider) {
         let hbox = _createSliderSetting(setting, value);
+        vbox.add(hbox);
+    }
+    for (let [setting, value] of settings_radio) {
+        let hbox = _createRadioSetting(setting, value);
         vbox.add(hbox);
     }
     frame.add(vbox);

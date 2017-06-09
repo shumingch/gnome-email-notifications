@@ -20,9 +20,6 @@ run `git clone --depth 1 https://github.com/shumingch/GmailMessageTray ~/.local/
 
 ## Troubleshooting
 
-If you are getting the message "Extension requires Goa,Soup,Gio,Gconf..."
-you need to run `sudo apt-get install gir1.2-goa` or equivalent
-
 If you are getting "GDBus.Error:org.gnome.OnlineAccounts.Error.notAuth" after logging in and out of gnome, try rebooting or signing back in to Google.
 
 ## Authors
