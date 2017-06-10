@@ -111,7 +111,6 @@ const GmailMessageTray = new Lang.Class({
         return this._createNotificationWithSource(this.summarySource, content, MAIL_READ, false, true, callback);
     },
     showError: function (error) {
-        const popup = this.errorSource.count === 0;
         this.errorSource.destroy();
         this.errorSource = this._newErrorSource();
         const content = {
@@ -119,7 +118,7 @@ const GmailMessageTray = new Lang.Class({
             date: new Date(),
             subject: EXTENSION_NAME
         };
-        this._createNotificationWithSource(this.errorSource, content, DIALOG_ERROR, popup, true, () => {
+        this._createNotificationWithSource(this.errorSource, content, DIALOG_ERROR, false, true, () => {
             this._openBrowser("https://github.com/shumingch/GmailMessageTray");
         });
     },
