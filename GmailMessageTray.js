@@ -47,7 +47,6 @@ const GmailMessageTray = new Lang.Class({
         this.dateMenu = Main.panel.statusArea.dateMenu.menu;
         this.errorSource = this._newErrorSource();
         this.summarySource = this._newSummarySource();
-        this.messagesShown = [];
     },
     _simplehash: function (toHash) {
         let hash = 0, i, chr;
@@ -158,15 +157,17 @@ const GmailMessageTray = new Lang.Class({
     },
     _displayUnreadMessages: function (content) {
         let newMessages = 0;
+        const messagesShown = Array.from(this.config.getMessagesShown());
         for (let msg of content) {
             const msgHash = this._simplehash(msg.link);
-            const unseen = this.messagesShown.filter(h => h === msgHash).length === 0;
+            const unseen = messagesShown.filter(h => h === msgHash).length === 0;
             if (unseen) {
-                this.messagesShown.push(msgHash);
+                messagesShown.push(msgHash);
                 newMessages++;
                 this._createEmailNotification(msg);
             }
         }
+        this.config.setMessagesShown(messagesShown);
         return newMessages;
     },
     _nonEmptySources: function () {

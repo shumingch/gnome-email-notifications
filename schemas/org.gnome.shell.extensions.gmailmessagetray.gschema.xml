@@ -21,5 +21,10 @@
             <summary>Show email summary</summary>
             <description>If email summary not shown, individual emails are shown</description>
         </key>
+        <key type="ai" name="messagesshown">
+            <default>[]</default>
+            <summary>Stores hashes of all messages shown</summary>
+            <description>Stores int32 hashes of all messages shown so they don't get shown again</description>
+        </key>
     </schema>
 </schemalist>

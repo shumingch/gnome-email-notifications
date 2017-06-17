@@ -24,13 +24,16 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Lang = imports.lang;
 const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
 
 const GMAILNOTIFY_SETTINGS_KEY_TIMEOUT = 'timeout';
 const GMAILNOTIFY_SETTINGS_KEY_USEMAIL = 'usemail';
 const GMAILNOTIFY_SETTINGS_KEY_SHOWNOMAIL = 'shownomail';
 const GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY = 'showsummary';
+const GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN = 'messagesshown';
 const SHOWSUMMARY_YES = 'yes';
 const SHOWSUMMARY_NO = 'no';
+const MESSAGES_SHOWN_TYPE = 'ai';
 
 const GmailConf = new Lang.Class({
     Name: 'GmailConf',
@@ -53,6 +56,14 @@ const GmailConf = new Lang.Class({
     },
     getShowSummary: function () {
         return this.settings.get_string(GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY);
+    },
+    getMessagesShown: function () {
+        const val = this.settings.get_value(GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN, MESSAGES_SHOWN_TYPE);
+        return val.deep_unpack();
+    },
+    setMessagesShown: function (intArray) {
+        const gVariant = new GLib.Variant(MESSAGES_SHOWN_TYPE, intArray);
+        this.settings.set_value(GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN, gVariant, MESSAGES_SHOWN_TYPE);
     }
 });
 const getSettings = function () {

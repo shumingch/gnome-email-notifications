@@ -141,10 +141,10 @@ function _createSliderSetting(setting, value) {
         value_pos: Gtk.PositionType.RIGHT
     });
     setting_slider.set_value(settings.get_int(setting));
-    slider_label.label = _("Check every {0} sec: ").replace('{0}', settings.get_int(setting));
+    slider_label.label = value.label.replace('{0}', settings.get_int(setting));
     setting_slider.connect('value-changed', function (button) {
         let i = Math.round(button.get_value());
-        slider_label.label = _("Check every {0} sec: ").replace('{0}', i.toString());
+        slider_label.label = value.label.replace('{0}', i.toString());
         settings.set_int(setting, i);
     });
     if (value.help) {
