@@ -31,7 +31,7 @@ const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
 const Mainloop = imports.mainloop;
 const console = Me.imports.console.console;
 
-const _version = "5";
+const _version = Me.metadata['version'];
 
 let extension;
 let Soup, sSes, Gio, Goa;

@@ -26,11 +26,13 @@ const Main = imports.ui.main;
 const Util = imports.misc.util;
 const Lang = imports.lang;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
+const MailClientFocuser = new Me.imports.MailClientFocuser.MailClientFocuser();
 const Source = imports.ui.messageTray.Source;
 const console = Me.imports.console.console;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 const GmailConf = Me.imports.GmailConf;
+const Gio = imports.gi.Gio;
 
 const EXTENSION_NAME = "Gmail Message Tray";
 const DIALOG_ERROR = 'dialog-error';
@@ -157,7 +159,7 @@ const GmailMessageTray = new Lang.Class({
     },
     _displayUnreadMessages: function (content) {
         let newMessages = 0;
-        const messagesShown = Array.from(this.config.getMessagesShown());
+        const messagesShown = this.config.getMessagesShown();
         for (let msg of content) {
             const msgHash = this._simplehash(msg.link);
             const unseen = messagesShown.filter(h => h === msgHash).length === 0;
@@ -194,32 +196,15 @@ const GmailMessageTray = new Lang.Class({
         if (link === '' || link === undefined) {
             link = 'https://www.gmail.com';
         }
-        try {
-            Util.trySpawnCommandLine("xdg-open " + link);
-        } catch (err) {
-            this._showXdgError(err);
-        }
+        const defaultBrowser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
+        Util.trySpawnCommandLine(defaultBrowser + " " + link);
     },
     _openEmail: function (link) {
         if (this.config.getReader() === 0) {
             this._openBrowser(link);
         } else {
-            try {
-                Util.trySpawnCommandLine("xdg-email");
-            } catch (err) {
-                this._showXdgError(err);
-            }
+            MailClientFocuser.open();
         }
-    },
-    _showXdgError: function (err) {
-        console.error(err);
-        const content = {
-            from: _('Please install xdg-utils'),
-            date: new Date(),
-            subject: EXTENSION_NAME
-        };
-        this._createNotification(content, DIALOG_ERROR, true, true, () => {
-        });
     }
 });
 
