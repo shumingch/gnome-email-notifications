@@ -127,10 +127,7 @@ const Extension = new Lang.Class({
 
     stopTimeout: function () {
         Mainloop.source_remove(this.checkMailTimeout);
-        if(this.initialCheckMail !== null){
-            Mainloop.source_remove(this.initialCheckMail);
-            this.initialCheckMail = null;
-        }
+        Mainloop.source_remove(this.initialCheckMail);
     },
     destroy: function () {
         this.stopTimeout();

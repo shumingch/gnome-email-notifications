@@ -39,7 +39,7 @@ const GmailConf = new Lang.Class({
     Name: 'GmailConf',
     _init: function (extension) {
         this.settings = getSettings(Me);
-        this.settings.connect("change-event", () => {
+        this.settings.connect("changed::timeout", () => {
             extension.stopTimeout();
             extension.startTimeout();
         });
