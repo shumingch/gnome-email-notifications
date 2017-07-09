@@ -46,7 +46,6 @@ const GmailMessageTray = new Lang.Class({
     _init: function (extension) {
         this.config = extension.config;
         this.sources = [];
-        this.dateMenu = Main.panel.statusArea.dateMenu.menu;
         this.errorSource = this._newErrorSource();
         this.summarySource = this._newSummarySource();
     },
@@ -107,7 +106,6 @@ const GmailMessageTray = new Lang.Class({
         };
         const callback = () => {
             this._openEmail("");
-            this.dateMenu.close();
         };
         return this._createNotificationWithSource(this.summarySource, content, MAIL_READ, false, true, callback);
     },
@@ -153,7 +151,6 @@ const GmailMessageTray = new Lang.Class({
         this.summarySource.destroy();
         const callback = () => {
             this._openEmail(msg.link);
-            this.dateMenu.close();
         };
         this._createNotification(msg, MAIL_UNREAD, true, false, callback);
     },
@@ -179,17 +176,20 @@ const GmailMessageTray = new Lang.Class({
         content.reverse();
         this.sources = this._nonEmptySources();
         this.mailbox = mailbox;
+        this.numUnread = 0;
 
-        if (content !== undefined && content.length > 0) {
+        if (content !== undefined) {
             this.numUnread = this._displayUnreadMessages(content);
             if (this.numUnread > 0) {
-                this._showEmailSummaryNotification();
+                this.summaryNotification = this._showEmailSummaryNotification();
             }
-        } else {
-            this.numUnread = 0;
         }
-        if (this.numUnread === 0 && this.sources.length === 0) {
-            this._showNoMessage();
+        if (this.numUnread === 0) {
+            if (this.sources.length === 0) {
+                this.summaryNotification = this._showNoMessage();
+            } else {
+                if (this.summaryNotification) this.summaryNotification.update(this.summaryNotification.title, this.summaryNotification.bannerBodyText);
+            }
         }
     },
     _openBrowser: function (link) {
