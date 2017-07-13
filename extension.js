@@ -25,13 +25,14 @@ const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const GmailFeed = Me.imports.GmailFeed.GmailFeed;
 const GmailConf = Me.imports.GmailConf.GmailConf;
-const GmailMessageTray = Me.imports.GmailMessageTray.GmailMessageTray;
+const EmailAccount = Me.imports.EmailAccount.EmailAccount;
 const Mainloop = imports.mainloop;
+const Main = imports.ui.main;
 const console = Me.imports.console.console;
 
 const _version = Me.metadata['version'];
+const _name = Me.metadata['name'];
 
 let extension;
 let Soup, sSes, Gio, Goa;
@@ -47,21 +48,22 @@ catch (err) {
 }
 
 function init(extensionMeta) {
-    console.log('Init Gmail Message Tray version ' + _version);
+    console.log('Init ' + _name + ' version ' + _version);
     const extensionPath = extensionMeta.path;
     let userExtensionLocalePath = extensionPath + '/locale';
     imports.gettext.bindtextdomain('gmail_notify', userExtensionLocalePath);
 }
 
+const supportedProviders = new Set(["google", "windows_live"]);
+
 const Extension = new Lang.Class({
     Name: "Extension",
     _init: function () {
-        console.log('Enabling Gmail Message Tray version ' + _version);
+        console.log('Enabling ' + _name + '  version ' + _version);
         this.config = new GmailConf(this);
-        this.messageTray = new GmailMessageTray(this);
         this.checkMailTimeout = null;
         this._libCheck();
-        this.goaAccounts = this._initData();
+        this.goaAccounts = this._getGoaAccounts();
         this.startTimeout();
         this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
             this._checkMail();
@@ -71,44 +73,29 @@ const Extension = new Lang.Class({
     _checkMail: function () {
         try {
             console.log("Checking mail");
-            for (let i = 0; i < this.goaAccounts.length; i++) {
-                this.goaAccounts[i].scanInbox(Lang.bind(this, this._processData));
-            }
-            if(this.goaAccounts.length === 0){
-                //noinspection ExceptionCaughtLocallyJS
-                throw new Error("No Google accounts found");
+            for (let account of this.goaAccounts) {
+                account.scanInbox();
             }
         }
         catch (err) {
             console.error(err);
-            this.messageTray.showError(err.message);
         }
     },
 
-    _processData: function (err, folders, _conn) {
-        if(err){
-            this.messageTray.showError(err.message);
-            throw err;
-        }
-        let sU = 0;
-        for (let i = 0; i < folders.length; i++) {
-            sU += folders[i].unseen;
-        }
-        const content = folders[0].list;
-        let mailbox = _conn.get_account().presentation_identity;
-        mailbox = mailbox === undefined ? '' : mailbox;
-        this.messageTray.updateContent(content, sU, mailbox);
-    },
-    _initData: function () {
+    _getGoaAccounts: function () {
         const goaAccounts = [];
         const aClient = Goa.Client.new_sync(null);
         const accounts = aClient.get_accounts();
 
-        for (let i = 0; i < accounts.length; i++) {
-            let sprovider = accounts[i].get_account().provider_type;
-            if (sprovider === "google") {
-                goaAccounts.push(new GmailFeed(accounts[i]));
+        for (let account of accounts) {
+            const provider = account.get_account().provider_type;
+            if (supportedProviders.has(provider)) {
+                goaAccounts.push(new EmailAccount(this.config, account));
             }
+        }
+        if (goaAccounts.length === 0) {
+            Main.notifyError("No email accounts found");
+            throw new Error("No email accounts found");
         }
         return goaAccounts;
     },
@@ -146,7 +133,7 @@ function enable() {
 
 
 function disable() {
-    try{
+    try {
         extension.destroy();
         extension = null;
     }

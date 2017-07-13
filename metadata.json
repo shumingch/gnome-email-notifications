@@ -1,6 +1,6 @@
 {
-  "name": "Gmail Message Tray",
-  "description": "Shows Gmail notifications in Gnome Message Tray using Gnome Online Accounts",
+  "name": "Email Message Tray",
+  "description": "Formerly Gmail Message Tray.\nShows Email notifications in Gnome Message Tray using Gnome Online Accounts\nCurrently supports Gmail and Outlook",
   "shell-version": [
     "3.22",
     "3.24"

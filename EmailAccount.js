@@ -26,6 +26,7 @@ const Main = imports.ui.main;
 const Util = imports.misc.util;
 const Lang = imports.lang;
 const GmailNotification = Me.imports.GmailNotification.GmailNotification;
+const InboxScanner = Me.imports.InboxScanner.InboxScanner;
 const MailClientFocuser = new Me.imports.MailClientFocuser.MailClientFocuser();
 const Source = imports.ui.messageTray.Source;
 const console = Me.imports.console.console;
@@ -34,20 +35,35 @@ const _ = Gettext.gettext;
 const GmailConf = Me.imports.GmailConf;
 const Gio = imports.gi.Gio;
 
-const EXTENSION_NAME = "Gmail Message Tray";
+const EXTENSION_NAME = "Email Message Tray";
 const DIALOG_ERROR = 'dialog-error';
 const MAIL_READ = 'mail-read';
 const MAIL_UNREAD = 'mail-unread';
 const MAIL_MARK_IMPORTANT = 'mail-mark-important';
 
 
-const GmailMessageTray = new Lang.Class({
-    Name: 'GmailMessageTray',
-    _init: function (extension) {
-        this.config = extension.config;
+const EmailAccount = new Lang.Class({
+    Name: 'EmailAccount',
+    _init: function (config, conn) {
+        this.config = config;
+        this._conn = conn;
+        this._mailbox = this._conn.get_account().presentation_identity;
+        if(this._mailbox === undefined) this._mailbox = '';
+        this._scanner = new InboxScanner(conn);
         this.sources = [];
         this.errorSource = this._newErrorSource();
         this.summarySource = this._newSummarySource();
+    },
+    scanInbox(){
+        this._scanner.scanInbox(Lang.bind(this, this._processData));
+    },
+    _processData: function (err, folders) {
+        if (err) {
+            this.showError(err.message);
+            throw err;
+        }
+        const content = folders[0].list;
+        this.updateContent(content);
     },
     _simplehash: function (toHash) {
         let hash = 0, i, chr;
@@ -100,7 +116,7 @@ const GmailMessageTray = new Lang.Class({
         }
         this.summarySource.destroy();
         const content = {
-            from: this.mailbox,
+            from: this._mailbox,
             date: new Date(),
             subject: _('No new messages')
         };
@@ -123,7 +139,7 @@ const GmailMessageTray = new Lang.Class({
     },
     _createEmailSummary: function () {
         return {
-            from: this.mailbox,
+            from: this._mailbox,
             date: new Date(),
             subject: _('%s unread messages').format(this.numUnread)
         };
@@ -172,10 +188,9 @@ const GmailMessageTray = new Lang.Class({
     _nonEmptySources: function () {
         return this.sources.filter(source => source.count > 0);
     },
-    updateContent: function (content, numUnread, mailbox) {
+    updateContent: function (content) {
         content.reverse();
         this.sources = this._nonEmptySources();
-        this.mailbox = mailbox;
         this.numUnread = 0;
 
         if (content !== undefined) {
@@ -198,6 +213,7 @@ const GmailMessageTray = new Lang.Class({
         }
         const defaultBrowser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
         Util.trySpawnCommandLine(defaultBrowser + " " + link);
+        console.log(link);
     },
     _openEmail: function (link) {
         if (this.config.getReader() === 0) {

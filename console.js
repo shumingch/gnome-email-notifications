@@ -19,8 +19,9 @@
  * Authors:
  * Shuming Chan <shuming0207@gmail.com>
  */
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 function Console() {
-    this.extensionString = "[GMAIL MESSAGE TRAY]: ";
+    this.extensionString = "[" +  Me.metadata['name'] + "] ";
 }
 Console.prototype.log = function (...args) {
     log(this.extensionString + args.join());
