@@ -1,6 +1,6 @@
-# Gmail Message Tray Gnome Shell Extension
+# Email Message Tray Gnome Shell Extension
 
-Forked from Gmail Notify Gnome Shell Extension.
+Formerly Gmail Message Tray
 
 Utilizes Gnome Online Accounts to login to Gmail and check your incoming email
 
@@ -8,7 +8,7 @@ Utilizes Gnome Online Accounts to login to Gmail and check your incoming email
 
 1. Install gnome-shell version 3.22 or later.
 
-2. Sign in with your Google account in Gnome Online Accounts settings.
+2. Sign in with your Google and/or Microsoft account in Gnome Online Accounts settings.
 
 3. Either install from https://extensions.gnome.org/extension/1230/gmail-message-tray/
 OR
@@ -16,11 +16,11 @@ run `git clone --depth 1 https://github.com/shumingch/GmailMessageTray ~/.local/
 
 ## Screenshot
 
-![Gmail Message Tray](screenshot.png "Gmail Message Tray")
+![Email Message Tray](screenshot.png "Email Message Tray")
 
 ## Troubleshooting
 
-If you are getting "GDBus.Error:org.gnome.OnlineAccounts.Error.notAuth" after logging in and out of gnome, try rebooting or signing back in to Google.
+If you are getting any errors after logging in and out of gnome, try rebooting or signing back in to Google.
 
 ## Authors
 
