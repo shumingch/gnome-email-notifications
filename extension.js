@@ -32,7 +32,6 @@ const Main = imports.ui.main;
 const console = Me.imports.console.console;
 
 const _version = Me.metadata['version'];
-const _name = Me.metadata['name'];
 
 let extension;
 let Soup, sSes, Gio, Goa;
@@ -48,7 +47,7 @@ catch (err) {
 }
 
 function init(extensionMeta) {
-    console.log('Init ' + _name + ' version ' + _version);
+    console.log('Init version ' + _version);
     const extensionPath = extensionMeta.path;
     let userExtensionLocalePath = extensionPath + '/locale';
     imports.gettext.bindtextdomain('gmail_notify', userExtensionLocalePath);
@@ -59,7 +58,7 @@ const supportedProviders = new Set(["google", "windows_live"]);
 const Extension = new Lang.Class({
     Name: "Extension",
     _init: function () {
-        console.log('Enabling ' + _name + '  version ' + _version);
+        console.log('Enabling ' + _version);
         this.config = new GmailConf(this);
         this.checkMailTimeout = null;
         this._libCheck();
@@ -101,7 +100,7 @@ const Extension = new Lang.Class({
     },
     _libCheck: function () {
         if (Goa === undefined) {
-            this.messageTray.showError(_("Install gir1.2-goa"));
+            Main.notifyError(_("Install gir1.2-goa"));
             throw new Error("No Goa found");
         }
     },
@@ -118,7 +117,9 @@ const Extension = new Lang.Class({
     },
     destroy: function () {
         this.stopTimeout();
-        this.messageTray.destroySources();
+        for(let account of this.goaAccounts){
+            account.destroySources();
+        }
     }
 });
 

@@ -46,6 +46,7 @@ const GmailScanner = new Lang.Class({
                     subject: entry.childElement('title').text,
                     date: entry.childElement('modified').text,
                     link: entry.childElement('link').attribute('href').replace(/&amp;/g, '&'),
+                    id: entry.childElement('id').text
                 };
                 messages.push(em);
             }

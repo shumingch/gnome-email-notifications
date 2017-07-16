@@ -35,7 +35,6 @@ const _ = Gettext.gettext;
 const GmailConf = Me.imports.GmailConf;
 const Gio = imports.gi.Gio;
 
-const EXTENSION_NAME = "Email Message Tray";
 const DIALOG_ERROR = 'dialog-error';
 const MAIL_READ = 'mail-read';
 const MAIL_UNREAD = 'mail-unread';
@@ -48,13 +47,13 @@ const EmailAccount = new Lang.Class({
         this.config = config;
         this._conn = conn;
         this._mailbox = this._conn.get_account().presentation_identity;
-        if(this._mailbox === undefined) this._mailbox = '';
+        if (this._mailbox === undefined) this._mailbox = '';
         this._scanner = new InboxScanner(conn);
         this.sources = [];
         this.errorSource = this._newErrorSource();
         this.summarySource = this._newSummarySource();
     },
-    scanInbox(){
+    scanInbox: function(){
         this._scanner.scanInbox(Lang.bind(this, this._processData));
     },
     _processData: function (err, folders) {
@@ -76,13 +75,13 @@ const EmailAccount = new Lang.Class({
         return hash;
     },
     _newErrorSource: function () {
-        return new Source(EXTENSION_NAME, DIALOG_ERROR);
+        return new Source(this._mailbox, DIALOG_ERROR);
     },
     _newSummarySource: function () {
         return new Source(MAIL_MARK_IMPORTANT, DIALOG_ERROR);
     },
     _createNotification: function (content, iconName, popUp, permanent, cb) {
-        const source = new Source(EXTENSION_NAME, MAIL_READ);
+        const source = new Source(this._mailbox, MAIL_READ);
         return this._createNotificationWithSource(source, content, iconName, popUp, permanent, cb);
     },
     _createNotificationWithSource: function (source, content, iconName, popUp, permanent, cb) {
@@ -131,10 +130,10 @@ const EmailAccount = new Lang.Class({
         const content = {
             from: error,
             date: new Date(),
-            subject: EXTENSION_NAME
+            subject: this._mailbox
         };
         this._createNotificationWithSource(this.errorSource, content, DIALOG_ERROR, false, true, () => {
-            this._openBrowser("https://github.com/shumingch/GmailMessageTray");
+            this._openBrowser(Me.metadata["url"]);
         });
     },
     _createEmailSummary: function () {
@@ -174,7 +173,7 @@ const EmailAccount = new Lang.Class({
         let newMessages = 0;
         const messagesShown = this.config.getMessagesShown();
         for (let msg of content) {
-            const msgHash = this._simplehash(msg.link);
+            const msgHash = this._simplehash(msg.id);
             const unseen = messagesShown.filter(h => h === msgHash).length === 0;
             if (unseen) {
                 messagesShown.push(msgHash);
@@ -209,11 +208,10 @@ const EmailAccount = new Lang.Class({
     },
     _openBrowser: function (link) {
         if (link === '' || link === undefined) {
-            link = 'https://www.gmail.com';
+            link = 'https://' + this._mailbox.match(/@(.*)/)[1];
         }
         const defaultBrowser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
         Util.trySpawnCommandLine(defaultBrowser + " " + link);
-        console.log(link);
     },
     _openEmail: function (link) {
         if (this.config.getReader() === 0) {

@@ -33,7 +33,8 @@ const OutlookScanner = new Lang.Class({
                 from: this._decodeFrom(entry.From),
                 subject: entry.Subject,
                 date: entry.ReceivedDateTime,
-                link: entry.WebLink
+                link: entry.WebLink,
+                id: entry.Id
             });
         }
         folders.push({
