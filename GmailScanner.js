@@ -40,12 +40,13 @@ const GmailScanner = new Lang.Class({
         while (typeof(oxml.rootElement.childElements[i]) !== 'undefined') {
             if (_DEBUG) console.log('child name:' + oxml.rootElement.childElements[i].name);
             if (oxml.rootElement.childElements[i].name === 'entry') {
-                let entry = oxml.rootElement.childElements[i];
-                let em = {
+                const entry = oxml.rootElement.childElements[i];
+                const link = this._appendAccountChooser(entry.childElement('link').attribute('href').replace(/&amp;/g, '&'));
+                const em = {
                     from: entry.childElement('author').childElement('name').text + " <" + entry.childElement('author').childElement('email').text + ">",
                     subject: entry.childElement('title').text,
                     date: entry.childElement('modified').text,
-                    link: entry.childElement('link').attribute('href').replace(/&amp;/g, '&'),
+                    link: link,
                     id: entry.childElement('id').text
                 };
                 messages.push(em);
@@ -60,5 +61,8 @@ const GmailScanner = new Lang.Class({
     },
     getApiURL: function () {
         return "https://mail.google.com/mail/feed/atom/inbox";
+    },
+    _appendAccountChooser: function (url) {
+        return "https://accounts.google.com/AccountChooser/signinchooser?continue=" + encodeURIComponent(url);
     }
 });
