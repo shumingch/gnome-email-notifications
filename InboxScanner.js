@@ -22,7 +22,6 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const XML = Me.imports.rexml;
 const Soup = imports.gi.Soup;
 const Sess = new Soup.SessionAsync();
-const console = Me.imports.console.console;
 const OutlookScanner = Me.imports.OutlookScanner.OutlookScanner;
 const GmailScanner = Me.imports.GmailScanner.GmailScanner;
 
@@ -32,12 +31,11 @@ const InboxScanner = new Lang.Class({
         this._conn = conn;
         this._account = conn.get_account();
         this.provider = this._account.provider_type;
-        this._acc_token = conn.get_oauth2_based().call_get_access_token_sync(null)[1];
         this._scanner = this._createScanner();
     },
     scanInbox: function (callback) {
         const msg = Soup.Message.new("GET", this._scanner.getApiURL());
-        msg.request_headers.append('Authorization', 'Bearer ' + this._acc_token);
+        msg.request_headers.append('Authorization', 'Bearer ' + this._getCurrentToken());
         Sess.queue_message(msg, (sess, msg) => {
             const body = msg.response_body.data;
             if (msg.status_code === 200) {
@@ -45,7 +43,6 @@ const InboxScanner = new Lang.Class({
                 callback(null, folders, this._conn);
             }
             else {
-                console.log('Message body:' + body);
                 const err = new Error('Error scanning inbox: code ' + msg.status_code);
                 callback(err);
             }
@@ -58,5 +55,8 @@ const InboxScanner = new Lang.Class({
             case "windows_live":
                 return new OutlookScanner(this._acc_token, this._conn);
         }
+    },
+    _getCurrentToken: function(){
+        return this._conn.get_oauth2_based().call_get_access_token_sync(null)[1];
     }
 });
