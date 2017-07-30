@@ -22,6 +22,10 @@ run `git clone --depth 1 https://github.com/shumingch/GmailMessageTray ~/.local/
 
 If you are getting any errors after logging in and out of gnome, try rebooting or signing back in to Google.
 
+If you are getting "Forbidden Error 403" when attempting to view Gmail emails,
+try changing the "Gmail account number" in the extension settings. This number should be present in the
+Gmail URL when you view it normally. e.g. "mail.google.com/mail/u/0" has an account number of 0.
+
 ## Authors
 
 Adam Jabłoński <jablona123@gmail.com>

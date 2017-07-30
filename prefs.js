@@ -33,6 +33,7 @@ let settings;
 let settings_slider;
 let settings_switch;
 let settings_radio;
+let settings_text;
 const modes = new Map([
     [GmailConf.SHOWSUMMARY_YES, _("Show email summary")],
     [GmailConf.SHOWSUMMARY_NO, _("Show individual emails")],
@@ -62,6 +63,11 @@ function init() {
     settings_radio = new Map([
         [GmailConf.GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY, {
             label: _("Show email summary"), help: _("Show email summary")
+        }]
+    ]);
+    settings_text = new Map([
+        [GmailConf.GMAILNOTIFY_SETTINGS_KEY_GMAILACCOUNTNUMBER, {
+            label: _("Gmail account number"), help: _("Selects the correct Gmail account if more than one is present")
         }]
     ]);
 }
@@ -100,35 +106,24 @@ function _createRadioSetting(setting, value) {
     return hbox;
 }
 
-function _createSwitchSetting(setting, value) {
+function _createSwitchSetting(setting, info) {
 
     let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-    let setting_label = new Gtk.Label({
-        label: value.label,
-        xalign: 0
-    });
     let setting_switch = new Gtk.CheckButton({});
     setting_switch.active = settings.get_int(setting) === 1;
     setting_switch.connect('toggled', function (button) {
         settings.set_int(setting, (button.active) ? 1 : 0);
     });
-    if (value.help) {
-        setting_label.set_tooltip_text(value.help)
-
-    }
-    hbox.pack_start(setting_label, true, true, 0);
+    _addLabel(hbox, info);
     hbox.add(setting_switch);
     return hbox;
 }
 
-function _createSliderSetting(setting, value) {
+function _createSliderSetting(setting, info) {
     let hbox = new Gtk.Box({
         orientation: Gtk.Orientation.HORIZONTAL
     });
-    let slider_label = new Gtk.Label({
-        label: value.label,
-        xalign: 0
-    });
+    const setting_label = _addLabel(hbox, info);
 
     let adjustment = new Gtk.Adjustment({
         lower: 60,
@@ -141,18 +136,47 @@ function _createSliderSetting(setting, value) {
         value_pos: Gtk.PositionType.RIGHT
     });
     setting_slider.set_value(settings.get_int(setting));
-    slider_label.label = value.label.replace('{0}', settings.get_int(setting));
+    setting_label.label = info.label.replace('{0}', settings.get_int(setting));
     setting_slider.connect('value-changed', function (button) {
         let i = Math.round(button.get_value());
-        slider_label.label = value.label.replace('{0}', i.toString());
+        setting_label.label = info.label.replace('{0}', i.toString());
         settings.set_int(setting, i);
     });
-    if (value.help) {
-        slider_label.set_tooltip_text(value.help)
-    }
-    hbox.pack_start(slider_label, true, true, 0);
     hbox.pack_end(setting_slider, true, true, 0);
     return hbox;
+}
+
+function _createTextSetting(setting, info) {
+
+    const hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+    const setting_text = new Gtk.Entry({
+        'max-length': 2,
+        'width-chars': 2
+    });
+    setting_text.text = settings.get_int(setting).toString();
+    setting_text.connect('changed', button => {
+        settings.set_int(setting, parseInt(button.text));
+    });
+    _addLabel(hbox, info);
+    hbox.add(setting_text);
+    return hbox;
+}
+
+function _addLabel(hbox, info) {
+    const setting_label = new Gtk.Label({
+        label: info.label,
+        xalign: 0
+    });
+    setting_label.set_tooltip_text(info.help);
+    hbox.pack_start(setting_label, true, true, 0);
+    return setting_label;
+}
+
+function _addSettings(settings_map, settings_function, vbox) {
+    for (let [setting, info] of settings_map) {
+        const hbox = settings_function(setting, info);
+        vbox.add(hbox);
+    }
 }
 
 function buildPrefsWidget() {
@@ -164,18 +188,10 @@ function buildPrefsWidget() {
         orientation: Gtk.Orientation.VERTICAL,
         margin: 20, margin_top: 10
     });
-    for (let [setting, value] of settings_switch) {
-        let hbox = _createSwitchSetting(setting, value);
-        vbox.add(hbox);
-    }
-    for (let [setting, value] of settings_slider) {
-        let hbox = _createSliderSetting(setting, value);
-        vbox.add(hbox);
-    }
-    for (let [setting, value] of settings_radio) {
-        let hbox = _createRadioSetting(setting, value);
-        vbox.add(hbox);
-    }
+    _addSettings(settings_switch, _createSwitchSetting, vbox);
+    _addSettings(settings_slider, _createSliderSetting, vbox);
+    _addSettings(settings_text, _createTextSetting, vbox);
+    _addSettings(settings_radio, _createRadioSetting, vbox);
     frame.add(vbox);
     frame.show_all();
     return frame;

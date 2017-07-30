@@ -48,12 +48,12 @@ const EmailAccount = new Lang.Class({
         this._conn = conn;
         this._mailbox = this._conn.get_account().presentation_identity;
         if (this._mailbox === undefined) this._mailbox = '';
-        this._scanner = new InboxScanner(conn);
+        this._scanner = new InboxScanner(conn, this.config);
         this.sources = [];
         this.errorSource = this._newErrorSource();
         this.summarySource = this._newSummarySource();
     },
-    scanInbox: function(){
+    scanInbox: function () {
         this._scanner.scanInbox(Lang.bind(this, this._processData));
     },
     _processData: function (err, folders) {
@@ -63,16 +63,6 @@ const EmailAccount = new Lang.Class({
         }
         const content = folders[0].list;
         this.updateContent(content);
-    },
-    _simplehash: function (toHash) {
-        let hash = 0, i, chr;
-        if (toHash.length === 0) return hash;
-        for (i = 0; i < toHash.length; i++) {
-            chr = toHash.charCodeAt(i);
-            hash = ((hash << 5) - hash) + chr;
-            hash |= 0; // Convert to 32bit integer
-        }
-        return hash;
     },
     _newErrorSource: function () {
         return new Source(this._mailbox, DIALOG_ERROR);
@@ -171,17 +161,15 @@ const EmailAccount = new Lang.Class({
     },
     _displayUnreadMessages: function (content) {
         let newMessages = 0;
-        const messagesShown = this.config.getMessagesShown();
+        const messagesShown = new Set(this.config.getMessagesShown());
         for (let msg of content) {
-            const msgHash = this._simplehash(msg.id);
-            const unseen = messagesShown.filter(h => h === msgHash).length === 0;
-            if (unseen) {
-                messagesShown.push(msgHash);
+            if (!messagesShown.has(msg.id)) {
+                messagesShown.add(msg.id);
                 newMessages++;
                 this._createEmailNotification(msg);
             }
         }
-        this.config.setMessagesShown(messagesShown);
+        this.config.setMessagesShown([...messagesShown]);
         return newMessages;
     },
     _nonEmptySources: function () {

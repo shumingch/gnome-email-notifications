@@ -27,10 +27,11 @@ const GmailScanner = Me.imports.GmailScanner.GmailScanner;
 
 const InboxScanner = new Lang.Class({
     Name: 'InboxScanner',
-    _init: function (conn) {
+    _init: function (conn, config) {
         this._conn = conn;
+        this._config = config;
         this._account = conn.get_account();
-        this.provider = this._account.provider_type;
+        this._provider = this._account.provider_type;
         this._scanner = this._createScanner();
     },
     scanInbox: function (callback) {
@@ -49,11 +50,11 @@ const InboxScanner = new Lang.Class({
         });
     },
     _createScanner: function () {
-        switch (this.provider) {
+        switch (this._provider) {
             case "google":
-                return new GmailScanner(this._acc_token, this._conn);
+                return new GmailScanner(this._config);
             case "windows_live":
-                return new OutlookScanner(this._acc_token, this._conn);
+                return new OutlookScanner();
         }
     },
     _getCurrentToken: function(){

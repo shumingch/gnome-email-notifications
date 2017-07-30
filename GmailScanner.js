@@ -20,14 +20,16 @@
 const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const XML = Me.imports.rexml;
+const GmailConf = Me.imports.GmailConf;
 const console = Me.imports.console.console;
 const OutlookScanner = Me.imports.OutlookScanner.OutlookScanner;
 const _DEBUG = false;
 
 
 const GmailScanner = new Lang.Class({
-    Name: 'InboxScanner',
-    _init: function () {
+    Name: 'GmailScanner',
+    _init: function (config) {
+        this._config = config;
     },
     parseResponse: function (body) {
         const folders = [];
@@ -41,7 +43,7 @@ const GmailScanner = new Lang.Class({
             if (_DEBUG) console.log('child name:' + oxml.rootElement.childElements[i].name);
             if (oxml.rootElement.childElements[i].name === 'entry') {
                 const entry = oxml.rootElement.childElements[i];
-                const link = this._appendAccountChooser(entry.childElement('link').attribute('href').replace(/&amp;/g, '&'));
+                const link = this._chooseAccount(entry.childElement('link').attribute('href').replace(/&amp;/g, '&'));
                 const em = {
                     from: entry.childElement('author').childElement('name').text + " <" + entry.childElement('author').childElement('email').text + ">",
                     subject: entry.childElement('title').text,
@@ -62,7 +64,7 @@ const GmailScanner = new Lang.Class({
     getApiURL: function () {
         return "https://mail.google.com/mail/feed/atom/inbox";
     },
-    _appendAccountChooser: function (url) {
-        return "https://accounts.google.com/AccountChooser/signinchooser?continue=" + encodeURIComponent(url);
+    _chooseAccount: function (url) {
+        return url.replace("com/mail", "com/mail/u/" + this._config.getGmailAccountNumber());
     }
 });
