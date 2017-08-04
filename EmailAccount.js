@@ -62,7 +62,8 @@ const EmailAccount = new Lang.Class({
             throw err;
         }
         const content = folders[0].list;
-        this.updateContent(content);
+        const inboxURL = folders[0].inboxURL;
+        this.updateContent(content, inboxURL);
     },
     _newErrorSource: function () {
         return new Source(this._mailbox, DIALOG_ERROR);
@@ -99,7 +100,7 @@ const EmailAccount = new Lang.Class({
         return notification;
     },
 
-    _showNoMessage: function () {
+    _showNoMessage: function (inboxURL) {
         if (!this.config.getNoMail()) {
             return;
         }
@@ -110,7 +111,7 @@ const EmailAccount = new Lang.Class({
             subject: _('No new messages')
         };
         const callback = () => {
-            this._openEmail("");
+            this._openEmail(inboxURL);
         };
         return this._createNotificationWithSource(this.summarySource, content, MAIL_READ, false, true, callback);
     },
@@ -133,13 +134,13 @@ const EmailAccount = new Lang.Class({
             subject: _('%s unread messages').format(this.numUnread)
         };
     },
-    _showEmailSummaryNotification: function () {
+    _showEmailSummaryNotification: function (inboxURL) {
         if (this.config.getShowSummary() === GmailConf.SHOWSUMMARY_NO) {
             return
         }
         this.summarySource.destroy();
         const callback = () => {
-            this._openEmail("");
+            this._openEmail(inboxURL);
         };
         const summary = this._createEmailSummary();
         return this._createNotificationWithSource(this.summarySource, summary, MAIL_MARK_IMPORTANT, true, false, callback);
@@ -175,7 +176,7 @@ const EmailAccount = new Lang.Class({
     _nonEmptySources: function () {
         return this.sources.filter(source => source.count > 0);
     },
-    updateContent: function (content) {
+    updateContent: function (content, inboxURL) {
         content.reverse();
         this.sources = this._nonEmptySources();
         this.numUnread = 0;
@@ -183,12 +184,12 @@ const EmailAccount = new Lang.Class({
         if (content !== undefined) {
             this.numUnread = this._displayUnreadMessages(content);
             if (this.numUnread > 0) {
-                this.summaryNotification = this._showEmailSummaryNotification();
+                this.summaryNotification = this._showEmailSummaryNotification(inboxURL);
             }
         }
         if (this.numUnread === 0) {
             if (this.sources.length === 0) {
-                this.summaryNotification = this._showNoMessage();
+                this.summaryNotification = this._showNoMessage(inboxURL);
             } else {
                 if (this.summaryNotification) this.summaryNotification.update(this.summaryNotification.title, this.summaryNotification.bannerBodyText);
             }

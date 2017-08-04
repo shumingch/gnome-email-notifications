@@ -20,10 +20,6 @@
 const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const XML = Me.imports.rexml;
-const GmailConf = Me.imports.GmailConf;
-const console = Me.imports.console.console;
-const OutlookScanner = Me.imports.OutlookScanner.OutlookScanner;
-const _DEBUG = false;
 
 
 const GmailScanner = new Lang.Class({
@@ -35,36 +31,39 @@ const GmailScanner = new Lang.Class({
         const folders = [];
         const messages = [];
         const xmltx = body.substr(body.indexOf('>') + 1).replace('xmlns="http://purl.org/atom/ns#"', '');
-        const oxml = new XML.REXML(xmltx);
+        const root = new XML.REXML(xmltx).rootElement;
+        let inboxURL;
 
-        if (_DEBUG) console.log('xml name:' + oxml.rootElement.name);
-        let i = 0;
-        while (typeof(oxml.rootElement.childElements[i]) !== 'undefined') {
-            if (_DEBUG) console.log('child name:' + oxml.rootElement.childElements[i].name);
-            if (oxml.rootElement.childElements[i].name === 'entry') {
-                const entry = oxml.rootElement.childElements[i];
-                const link = this._chooseAccount(entry.childElement('link').attribute('href').replace(/&amp;/g, '&'));
-                const em = {
-                    from: entry.childElement('author').childElement('name').text + " <" + entry.childElement('author').childElement('email').text + ">",
+        for (let i = 0; typeof(root.childElements[i]) !== 'undefined'; i++) {
+            const entry = root.childElements[i];
+            if (entry.name === 'link') {
+                inboxURL = this._processLinkElement(entry);
+            }
+            else if (entry.name === 'entry') {
+                messages.push({
+                    from: this._decodeFrom(entry.childElement('author')),
                     subject: entry.childElement('title').text,
                     date: entry.childElement('modified').text,
-                    link: link,
+                    link: this._processLinkElement(entry.childElement('link')),
                     id: entry.childElement('id').text
-                };
-                messages.push(em);
+                });
             }
-            i++;
         }
         folders.push({
             name: 'inbox',
-            list: messages
+            list: messages,
+            inboxURL: inboxURL
         });
         return folders;
     },
     getApiURL: function () {
         return "https://mail.google.com/mail/feed/atom/inbox";
     },
-    _chooseAccount: function (url) {
+    _processLinkElement: function (linkElement) {
+        const url = linkElement.attribute('href').replace(/&amp;/g, '&');
         return url.replace("com/mail", "com/mail/u/" + this._config.getGmailAccountNumber());
+    },
+    _decodeFrom: function (authorElement) {
+        return authorElement.childElement('name').text + " <" + authorElement.childElement('email').text + ">";
     }
 });

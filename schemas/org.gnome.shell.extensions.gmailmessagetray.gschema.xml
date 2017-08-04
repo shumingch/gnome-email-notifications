@@ -7,7 +7,7 @@
             <description>Use default email client instead of browser.</description>
         </key>
         <key type="i" name="timeout">
-            <default>300</default>
+            <default>60</default>
             <summary>Check mail every (sec):</summary>
             <description>Check mail every (sec):</description>
         </key>
@@ -17,7 +17,7 @@
             <description>Shows "No new emails" notification</description>
         </key>
         <key type="s" name="showsummary">
-            <default>"yes"</default>
+            <default>"no"</default>
             <summary>Show email summary</summary>
             <description>If email summary not shown, individual emails are shown</description>
         </key>

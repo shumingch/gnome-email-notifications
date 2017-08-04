@@ -155,7 +155,8 @@ function _createTextSetting(setting, info) {
     });
     setting_text.text = settings.get_int(setting).toString();
     setting_text.connect('changed', button => {
-        settings.set_int(setting, parseInt(button.text));
+        const int = parseInt(button.text);
+        if (!isNaN(int))settings.set_int(setting, int);
     });
     _addLabel(hbox, info);
     hbox.add(setting_text);

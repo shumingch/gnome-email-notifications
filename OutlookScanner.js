@@ -39,7 +39,8 @@ const OutlookScanner = new Lang.Class({
         }
         folders.push({
             name: 'inbox',
-            list: messages
+            list: messages,
+            inboxURL:  ""
         });
         return folders;
     },
