@@ -54,7 +54,12 @@ const EmailAccount = new Lang.Class({
         this.summarySource = this._newSummarySource();
     },
     scanInbox: function () {
-        this._scanner.scanInbox(Lang.bind(this, this._processData));
+        try {
+            this._scanner.scanInbox(Lang.bind(this, this._processData));
+        } catch (err) {
+            console.error(err);
+            this.showError(err.message);
+        }
     },
     _processData: function (err, folders) {
         if (err) {
@@ -123,7 +128,7 @@ const EmailAccount = new Lang.Class({
             date: new Date(),
             subject: this._mailbox
         };
-        this._createNotificationWithSource(this.errorSource, content, DIALOG_ERROR, false, true, () => {
+        this._createNotificationWithSource(this.errorSource, content, DIALOG_ERROR, false, false, () => {
             this._openBrowser(Me.metadata["url"]);
         });
     },

@@ -70,14 +70,9 @@ const Extension = new Lang.Class({
         });
     },
     _checkMail: function () {
-        try {
-            console.log("Checking mail");
-            for (let account of this.goaAccounts) {
-                account.scanInbox();
-            }
-        }
-        catch (err) {
-            console.error(err);
+        console.log("Checking mail");
+        for (let account of this.goaAccounts) {
+            account.scanInbox();
         }
     },
 
@@ -117,7 +112,7 @@ const Extension = new Lang.Class({
     },
     destroy: function () {
         this.stopTimeout();
-        for(let account of this.goaAccounts){
+        for (let account of this.goaAccounts) {
             account.destroySources();
         }
     }

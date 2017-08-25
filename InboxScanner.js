@@ -44,7 +44,7 @@ const InboxScanner = new Lang.Class({
                 callback(null, folders, this._conn);
             }
             else {
-                const err = new Error('Error scanning inbox: code ' + msg.status_code);
+                const err = new Error('Status ' + msg.status_code + ': ' + msg.reason_phrase);
                 callback(err);
             }
         });
