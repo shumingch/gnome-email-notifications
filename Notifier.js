@@ -132,8 +132,7 @@ const Notifier = new Lang.Class({
      * @param {string} error - the error to display
      */
     showError: function (error) {
-        this._errorSource.destroy();
-        this._errorSource = this._newErrorSource();
+        this.removeErrors();
         const content = {
             from: error,
             date: new Date(),
@@ -185,6 +184,13 @@ const Notifier = new Lang.Class({
      */
     removeEmptySources: function () {
         this.sources = this.sources.filter(source => source.count > 0);
+    },
+    /**
+     * Removes all errors currently displaying for this email account
+     */
+    removeErrors: function () {
+        this._errorSource.destroy();
+        this._errorSource = this._newErrorSource();
     },
     /**
      * Creates a new source with an error icon

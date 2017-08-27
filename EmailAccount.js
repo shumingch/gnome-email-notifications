@@ -86,6 +86,7 @@ const EmailAccount = new Lang.Class({
     updateContent: function (content, inboxURL) {
         content.reverse();
         this._notifier.removeEmptySources();
+        this._notifier.removeErrors();
         let numUnread = 0;
 
         if (content !== undefined) {
