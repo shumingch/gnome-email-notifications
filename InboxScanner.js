@@ -25,15 +25,35 @@ const Sess = new Soup.SessionAsync();
 const OutlookScanner = Me.imports.OutlookScanner.OutlookScanner;
 const GmailScanner = Me.imports.GmailScanner.GmailScanner;
 
+/**
+ * Scans an email account of any supported type using online APIs
+ * @type {Lang.Class}
+ */
 const InboxScanner = new Lang.Class({
     Name: 'InboxScanner',
-    _init: function (conn, config) {
-        this._conn = conn;
+    /**
+     * Creates a new scanner using a Gnome Online Account
+     * @param account - Gnome Online Account
+     * @param {GmailConf} config - the extension configuration
+     * @private
+     */
+    _init: function (account, config) {
         this._config = config;
-        this._account = conn.get_account();
-        this._provider = this._account.provider_type;
+        this._account = account;
+        this._provider = this._account.get_account().provider_type;
         this._scanner = this._createScanner();
     },
+    /**
+     * A callback to execute after the GET request is complete
+     * @callback requestCallback
+     * @param {Error} err - any error that occurred
+     * @param {Array} [folders] - a list of folders containing unread emails
+     * @param [account] - the Gnome Online Account of the request
+     */
+    /**
+     * Scans the inbox and returns a callback
+     * @param {requestCallback} callback
+     */
     scanInbox: function (callback) {
         const msg = Soup.Message.new("GET", this._scanner.getApiURL());
         msg.request_headers.append('Authorization', 'Bearer ' + this._getCurrentToken());
@@ -41,7 +61,7 @@ const InboxScanner = new Lang.Class({
             const body = msg.response_body.data;
             if (msg.status_code === 200) {
                 const folders = this._scanner.parseResponse(body, callback);
-                callback(null, folders, this._conn);
+                callback(null, folders, this._account);
             }
             else {
                 const err = new Error('Status ' + msg.status_code + ': ' + msg.reason_phrase);
@@ -49,6 +69,11 @@ const InboxScanner = new Lang.Class({
             }
         });
     },
+    /**
+     * Create a new scanner chosen by the current provider
+     * @returns {*} the scanner created
+     * @private
+     */
     _createScanner: function () {
         switch (this._provider) {
             case "google":
@@ -57,7 +82,12 @@ const InboxScanner = new Lang.Class({
                 return new OutlookScanner();
         }
     },
-    _getCurrentToken: function(){
-        return this._conn.get_oauth2_based().call_get_access_token_sync(null)[1];
+    /**
+     * Returns the most recent auth token for the current Gnome Online Account
+     * @returns {string} the auth token
+     * @private
+     */
+    _getCurrentToken: function () {
+        return this._account.get_oauth2_based().call_get_access_token_sync(null)[1];
     }
 });

@@ -36,8 +36,17 @@ const SHOWSUMMARY_YES = 'yes';
 const SHOWSUMMARY_NO = 'no';
 const MESSAGES_SHOWN_TYPE = 'as';
 
+/**
+ * Controls configuration for extension.
+ * @type {Lang.Class}
+ */
 const GmailConf = new Lang.Class({
     Name: 'GmailConf',
+    /**
+     * Creates a new conf for an extension
+     * @param {Extension} extension - the extension to control
+     * @private
+     */
     _init: function (extension) {
         this.settings = getSettings(Me);
         this.settings.connect("changed::timeout", () => {
@@ -58,10 +67,18 @@ const GmailConf = new Lang.Class({
     getShowSummary: function () {
         return this.settings.get_string(GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY);
     },
+    /**
+     * Returns an array of ids of messages already shown
+     * @returns {Array} array of ids
+     */
     getMessagesShown: function () {
         const val = this.settings.get_value(GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN, MESSAGES_SHOWN_TYPE);
         return val.deep_unpack();
     },
+    /**
+     * Replaces the array of ids of messages already shown
+     * @param {Array} array - array of ids
+     */
     setMessagesShown: function (array) {
         const gVariant = new GLib.Variant(MESSAGES_SHOWN_TYPE, array);
         this.settings.set_value(GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN, gVariant, MESSAGES_SHOWN_TYPE);
@@ -70,6 +87,10 @@ const GmailConf = new Lang.Class({
         return this.settings.get_int(GMAILNOTIFY_SETTINGS_KEY_GMAILACCOUNTNUMBER);
     },
 });
+/**
+ * Gets the settings from Gio.
+ * @returns {Gio.Settings}
+ */
 const getSettings = function () {
     let schemaName = 'org.gnome.shell.extensions.gmailmessagetray';
     let schemaDir = Me.dir.get_child('schemas').get_path();

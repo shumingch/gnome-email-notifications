@@ -19,10 +19,19 @@
 "use strict";
 const Lang = imports.lang;
 
+/**
+ * Scans Outlook json api for unread emails.
+ * @type {Lang.Class}
+ */
 const OutlookScanner = new Lang.Class({
     Name: 'OutlookScanner',
     _init: function () {
     },
+    /**
+     * Parses a JSON response for unread emails
+     * @param {string} body - JSON containing emails
+     * @returns {Array} - a list of folders containing unread emails
+     */
     parseResponse: function (body) {
         const folders = [];
         const messages = [];
@@ -40,13 +49,23 @@ const OutlookScanner = new Lang.Class({
         folders.push({
             name: 'inbox',
             list: messages,
-            inboxURL:  ""
+            inboxURL: ""
         });
         return folders;
     },
+    /**
+     * Returns the Outlook API URL
+     * @returns {string} - the URL
+     */
     getApiURL: function () {
         return "https://outlook.office.com/api/v2.0/me/messages?$select=From,Subject,ReceivedDateTime,WebLink";
     },
+    /**
+     * Converts the 'from' object into a readable string
+     * @param from - an object containing 'from' information
+     * @returns {string} - the readable string
+     * @private
+     */
     _decodeFrom: function (from) {
         const email = from.EmailAddress;
         return email.Name + " <" + email.Address + ">";

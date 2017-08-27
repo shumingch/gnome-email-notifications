@@ -26,6 +26,8 @@ const console = Me.imports.console.console;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 const GmailConf = Me.imports.GmailConf;
+const Gio = imports.gi.Gio;
+const Util = imports.misc.util;
 
 const DIALOG_ERROR = 'dialog-error';
 const MAIL_READ = 'mail-read';
@@ -181,7 +183,7 @@ const Notifier = new Lang.Class({
     /**
      * Removes all empty sources.
      */
-    emptySources: function () {
+    removeEmptySources: function () {
         this.sources = this.sources.filter(source => source.count > 0);
     },
     /**

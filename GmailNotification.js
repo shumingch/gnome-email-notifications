@@ -38,10 +38,20 @@ const escaped_one_to_xml_special_map = {
 };
 const unescape_regex = /(&quot;|&#39;|&lt;|&gt;|&amp;)/g;
 
+/**
+ * A single notification in the message tray.
+ * @type {Lang.Class}
+ */
 const GmailNotification = new Lang.Class({
     Name: 'GmailNotification',
     Extends: MessageTray.Notification,
-
+    /**
+     * Creates a notification in the specified source
+     * @param {Source} source - the source to create the notification in
+     * @param content - information to display in notification
+     * @param iconName - the name of the icon to display in the notification
+     * @private
+     */
     _init: function (source, content, iconName) {
         try {
             const date = new Date(content.date);
@@ -65,14 +75,33 @@ const GmailNotification = new Lang.Class({
             console.error(err);
         }
     },
+    /**
+     * Unescapes special characters found in XML
+     * @param {string} string - the string to unescape
+     * @returns {string} - the unescaped string
+     * @private
+     */
     _unescapeXML: function (string) {
         return string.replace(unescape_regex,
             (str, item) => escaped_one_to_xml_special_map[item]);
     },
+    /**
+     * Adds date and time to the banner
+     * @param {Date} date - the date to format into a string
+     * @param {string} banner - the string to prepend the date to
+     * @returns {string} - the final string
+     * @private
+     */
     _addDateTimeToBanner: function (date, banner) {
         const locale_date = date.toLocaleFormat("%b %d %H:%M %p");
         return locale_date + " " + banner;
     },
+    /**
+     * Adds date and time to the params object as unix local time
+     * @param {Date} date - the date  to add
+     * @param params - parameters for creating a {@link MessageTray.Notification}
+     * @private
+     */
     _addDateTimeToParams: function (date, params) {
         const unix_local = date.getTime() / 1000;
         params.datetime = GLib.DateTime.new_from_unix_local(unix_local);

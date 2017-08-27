@@ -18,15 +18,12 @@
  */
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Util = imports.misc.util;
 const Lang = imports.lang;
 const InboxScanner = Me.imports.InboxScanner.InboxScanner;
 const Notifier = Me.imports.Notifier.Notifier;
-const MailClientFocuser = new Me.imports.MailClientFocuser.MailClientFocuser();
 const console = Me.imports.console.console;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
-const Gio = imports.gi.Gio;
 
 
 /**
@@ -35,12 +32,17 @@ const Gio = imports.gi.Gio;
  */
 const EmailAccount = new Lang.Class({
     Name: 'EmailAccount',
-    _init: function (config, conn) {
+    /**
+     * Creates a new EmailAccount with a Gnome Online Account
+     * @param {GmailConf} config
+     * @param account - the Gnome Online Account
+     * @private
+     */
+    _init: function (config, account) {
         this.config = config;
-        this._conn = conn;
-        this.mailbox = this._conn.get_account().presentation_identity;
+        this.mailbox = account.get_account().presentation_identity;
         if (this.mailbox === undefined) this.mailbox = '';
-        this._scanner = new InboxScanner(conn, this.config);
+        this._scanner = new InboxScanner(account, this.config);
         this._notifier = new Notifier(this);
     },
     /**
@@ -83,7 +85,7 @@ const EmailAccount = new Lang.Class({
      */
     updateContent: function (content, inboxURL) {
         content.reverse();
-        this._notifier.emptySources();
+        this._notifier.removeEmptySources();
         let numUnread = 0;
 
         if (content !== undefined) {

@@ -27,19 +27,38 @@ const Main = imports.ui.main;
 const Gio = imports.gi.Gio;
 const Util = imports.misc.util;
 
+/**
+ * Focuses on the default Mail Client if it is already open
+ * @type {Lang.Class}
+ */
 const MailClientFocuser = new Lang.Class({
     Name: 'MailClientFocuser',
     _init: function () {
     },
+    /**
+     * Opens the default mail client, or focuses on it if it is already open
+     *@static
+     */
     open: function () {
         const defaultMailClient = Gio.app_info_get_default_for_uri_scheme("mailto").get_executable();
-        if(!this._trySwitchToExistingMailClient(defaultMailClient)){
+        if (!this._trySwitchToExistingMailClient(defaultMailClient)) {
             this._openNewMailClient(defaultMailClient);
         }
     },
+    /**
+     * Opens the mail client from the command line
+     * @param {string} mailClient - the mail client
+     * @private
+     */
     _openNewMailClient: function (mailClient) {
         Util.trySpawnCommandLine(mailClient);
     },
+    /**
+     * Tries to switch to the mail client if it is open
+     * @param {string} mailClient - the mail client to search for
+     * @returns {boolean} - true if switching to mail client was successful
+     * @private
+     */
     _trySwitchToExistingMailClient: function (mailClient) {
         for (let i = 0; i < screen.n_workspaces; i++) {
             const workspace = screen.get_workspace_by_index(i);
@@ -49,7 +68,14 @@ const MailClientFocuser = new Lang.Class({
         }
         return false;
     },
-    _trySwitchToProgram: function(workspace, program){
+    /**
+     * Tries to switch to program if it exists in a workspace
+     * @param workspace - the workspace to search in
+     * @param {string} program - the program to search for
+     * @returns {boolean} - true if switching to the program was successful
+     * @private
+     */
+    _trySwitchToProgram: function (workspace, program) {
         const display = screen.get_display();
         const windows = display.get_tab_list(Meta.TabList.NORMAL, workspace);
         for (let i = 0; i < windows.length; i++) {

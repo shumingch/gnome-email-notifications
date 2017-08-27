@@ -21,12 +21,25 @@ const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const XML = Me.imports.rexml;
 
-
+/**
+ * Scans Gmail atom api for unread emails.
+ * @type {Lang.Class}
+ */
 const GmailScanner = new Lang.Class({
     Name: 'GmailScanner',
+    /**
+     * Creates a scanner with the given config
+     * @param config - the configuration of the extension
+     * @private
+     */
     _init: function (config) {
         this._config = config;
     },
+    /**
+     * Parses an html response containing unread emails
+     * @param {string} body - html response
+     * @returns {Array} - list of parsed folders
+     */
     parseResponse: function (body) {
         const folders = [];
         const messages = [];
@@ -56,13 +69,29 @@ const GmailScanner = new Lang.Class({
         });
         return folders;
     },
+    /**
+     * Returns the URL for Google's Gmail API
+     * @returns {string} - the URL
+     */
     getApiURL: function () {
         return "https://mail.google.com/mail/feed/atom/inbox";
     },
+    /**
+     * Adds the proper Gmail account number to the URL (e.g. mail.google.com/u/0) and unescapes XML characters
+     * @param {XML} linkElement - the link element to process
+     * @returns {string} the URL pointing the the unread email
+     * @private
+     */
     _processLinkElement: function (linkElement) {
         const url = linkElement.attribute('href').replace(/&amp;/g, '&');
         return url.replace("com/mail", "com/mail/u/" + this._config.getGmailAccountNumber());
     },
+    /**
+     * Converts the author element to a readable string
+     * @param {XML} authorElement - the element containing "from" information
+     * @returns {string} - the string
+     * @private
+     */
     _decodeFrom: function (authorElement) {
         return authorElement.childElement('name').text + " <" + authorElement.childElement('email').text + ">";
     }

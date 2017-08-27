@@ -39,6 +39,9 @@ const modes = new Map([
     [GmailConf.SHOWSUMMARY_NO, _("Show individual emails")],
 ]);
 
+/**
+ * Initializes settings
+ */
 function init() {
     _initTranslations();
     settings = GmailConf.getSettings();
@@ -72,6 +75,13 @@ function init() {
     ]);
 }
 
+/**
+ * Creates a single radio setting
+ * @param {string} setting - the name of the setting to modify
+ * @param value - information about the setting
+ * @returns {Gtk.Box} - the GUI element to render
+ * @private
+ */
 function _createRadioSetting(setting, value) {
     const hbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
     const align = new Gtk.Alignment({left_padding: 12});
@@ -106,6 +116,13 @@ function _createRadioSetting(setting, value) {
     return hbox;
 }
 
+/**
+ * Creates a single switch setting
+ * @param {string} setting - the name of the setting to modify
+ * @param info - information about the setting
+ * @returns {Gtk.Box} - the GUI element to render
+ * @private
+ */
 function _createSwitchSetting(setting, info) {
 
     let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
@@ -119,6 +136,13 @@ function _createSwitchSetting(setting, info) {
     return hbox;
 }
 
+/**
+ * Creates a single slider setting
+ * @param {string} setting - the name of the setting to modify
+ * @param info - information about the setting
+ * @returns {Gtk.Box} - the GUI element to render
+ * @private
+ */
 function _createSliderSetting(setting, info) {
     let hbox = new Gtk.Box({
         orientation: Gtk.Orientation.HORIZONTAL
@@ -146,6 +170,13 @@ function _createSliderSetting(setting, info) {
     return hbox;
 }
 
+/**
+ * Creates a single text setting
+ * @param {string} setting - the name of the setting to modify
+ * @param info - information about the setting
+ * @returns {Gtk.Box} - the GUI element to render
+ * @private
+ */
 function _createTextSetting(setting, info) {
 
     const hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
@@ -156,13 +187,20 @@ function _createTextSetting(setting, info) {
     setting_text.text = settings.get_int(setting).toString();
     setting_text.connect('changed', button => {
         const int = parseInt(button.text);
-        if (!isNaN(int))settings.set_int(setting, int);
+        if (!isNaN(int)) settings.set_int(setting, int);
     });
     _addLabel(hbox, info);
     hbox.add(setting_text);
     return hbox;
 }
 
+/**
+ * Creates a label for an hbox
+ * @param {Gtk.Box} hbox - the GUI element to add the label to
+ * @param info - information about the setting
+ * @returns {Gtk.Label}
+ * @private
+ */
 function _addLabel(hbox, info) {
     const setting_label = new Gtk.Label({
         label: info.label,
@@ -173,6 +211,20 @@ function _addLabel(hbox, info) {
     return setting_label;
 }
 
+/**
+ * A callback that returns an hbox
+ * @callback settingsFunction
+ * @param {string} setting - the name of the setting to create an element for
+ * @param info - information about the setting
+ * @return {Gtk.Box} - the GUI element to render
+ */
+/**
+ * Creates GUI elements for each setting and adds it to the vbox
+ * @param {Map} settings_map - map of setting names to information
+ * @param {settingsFunction} settings_function - the function that creates the GUI element
+ * @param {Gtk.Box} vbox - the element to add created elements to
+ * @private
+ */
 function _addSettings(settings_map, settings_function, vbox) {
     for (let [setting, info] of settings_map) {
         const hbox = settings_function(setting, info);
@@ -180,6 +232,9 @@ function _addSettings(settings_map, settings_function, vbox) {
     }
 }
 
+/**
+ * Creates the setting GUI
+ */
 function buildPrefsWidget() {
     let frame = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
@@ -198,6 +253,10 @@ function buildPrefsWidget() {
     return frame;
 }
 
+/**
+ * Sets up translations using locale folder
+ * @private
+ */
 function _initTranslations() {
     const Gettext = imports.gettext;
     let localeDir = Me.dir.get_child('locale').get_path();

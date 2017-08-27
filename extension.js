@@ -46,6 +46,10 @@ catch (err) {
     console.error(err);
 }
 
+/**
+ * Initializes translations for the extension
+ * @param extensionMeta - information about the extension
+ */
 function init(extensionMeta) {
     console.log('Init version ' + _version);
     const extensionPath = extensionMeta.path;
@@ -143,6 +147,9 @@ const Extension = new Lang.Class({
     }
 });
 
+/**
+ * Sets up the extension
+ */
 function enable() {
     try {
         extension = new Extension();
@@ -152,7 +159,9 @@ function enable() {
     }
 }
 
-
+/**
+ * Stops and cleans up extension
+ */
 function disable() {
     try {
         extension.destroy();
