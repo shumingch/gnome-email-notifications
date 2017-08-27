@@ -55,6 +55,10 @@ function init(extensionMeta) {
 
 const supportedProviders = new Set(["google", "windows_live"]);
 
+/**
+ * An instance of this gnome extension
+ * @type {Lang.Class}
+ */
 const Extension = new Lang.Class({
     Name: "Extension",
     _init: function () {
@@ -69,6 +73,10 @@ const Extension = new Lang.Class({
             return false;
         });
     },
+    /**
+     * Checks the mail for each account available
+     * @private
+     */
     _checkMail: function () {
         console.log("Checking mail");
         for (let account of this.goaAccounts) {
@@ -76,6 +84,11 @@ const Extension = new Lang.Class({
         }
     },
 
+    /**
+     * Returns a list of all Gnome Online Accounts
+     * @returns {Array} - the list of accounts
+     * @private
+     */
     _getGoaAccounts: function () {
         const goaAccounts = [];
         const aClient = Goa.Client.new_sync(null);
@@ -93,23 +106,35 @@ const Extension = new Lang.Class({
         }
         return goaAccounts;
     },
+    /**
+     * Checks if required libraries are installed
+     * @private
+     */
     _libCheck: function () {
         if (Goa === undefined) {
             Main.notifyError(_("Install gir1.2-goa"));
             throw new Error("No Goa found");
         }
     },
+    /**
+     * Checks mail using timeout from config
+     */
     startTimeout: function () {
         this.checkMailTimeout = GLib.timeout_add_seconds(0, this.config.getTimeout(), () => {
             this._checkMail();
             return true;
         });
     },
-
+    /**
+     * Stops checking mail
+     */
     stopTimeout: function () {
         Mainloop.source_remove(this.checkMailTimeout);
         Mainloop.source_remove(this.initialCheckMail);
     },
+    /**
+     * Stops and cleans up extension
+     */
     destroy: function () {
         this.stopTimeout();
         for (let account of this.goaAccounts) {
