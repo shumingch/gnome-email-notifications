@@ -37,7 +37,6 @@ const MailClientFocuser = new Lang.Class({
     },
     /**
      * Opens the default mail client, or focuses on it if it is already open
-     *@static
      */
     open: function () {
         const defaultMailClient = Gio.app_info_get_default_for_uri_scheme("mailto").get_executable();

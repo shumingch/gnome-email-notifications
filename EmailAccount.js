@@ -102,5 +102,11 @@ const EmailAccount = new Lang.Class({
             this._notifier.showNoMessage(inboxURL);
         }
     },
+    /**
+     * Destroys all sources for the email account
+     */
+    destroySources: function () {
+        this._notifier.destroySources();
+    }
 });
 

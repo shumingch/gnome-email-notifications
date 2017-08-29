@@ -70,7 +70,7 @@ const Extension = new Lang.Class({
         this.config = new GmailConf(this);
         this.checkMailTimeout = null;
         this._libCheck();
-        this.goaAccounts = this._getGoaAccounts();
+        this.goaAccounts = this._getEmailAccounts();
         this.startTimeout();
         this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
             this._checkMail();
@@ -90,25 +90,25 @@ const Extension = new Lang.Class({
 
     /**
      * Returns a list of all Gnome Online Accounts
-     * @returns {Array} - the list of accounts
+     * @returns {EmailAccount[]} - the list of accounts
      * @private
      */
-    _getGoaAccounts: function () {
-        const goaAccounts = [];
+    _getEmailAccounts: function () {
+        const emailAccounts = [];
         const aClient = Goa.Client.new_sync(null);
         const accounts = aClient.get_accounts();
 
         for (let account of accounts) {
             const provider = account.get_account().provider_type;
             if (supportedProviders.has(provider)) {
-                goaAccounts.push(new EmailAccount(this.config, account));
+                emailAccounts.push(new EmailAccount(this.config, account));
             }
         }
-        if (goaAccounts.length === 0) {
+        if (emailAccounts.length === 0) {
             Main.notifyError("No email accounts found");
             throw new Error("No email accounts found");
         }
-        return goaAccounts;
+        return emailAccounts;
     },
     /**
      * Checks if required libraries are installed

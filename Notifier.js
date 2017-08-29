@@ -28,6 +28,7 @@ const _ = Gettext.gettext;
 const GmailConf = Me.imports.GmailConf;
 const Gio = imports.gi.Gio;
 const Util = imports.misc.util;
+const MailClientFocuser = Me.imports.MailClientFocuser.MailClientFocuser;
 
 const DIALOG_ERROR = 'dialog-error';
 const MAIL_READ = 'mail-read';
@@ -50,6 +51,7 @@ const Notifier = new Lang.Class({
         this.sources = [];
         this._errorSource = this._newErrorSource();
         this._summarySource = this._newSummarySource();
+        this._mailClientFocuser = new MailClientFocuser();
     },
     /**
      * Creates a notification with the given source
@@ -256,7 +258,7 @@ const Notifier = new Lang.Class({
         if (this._config.getReader() === 0) {
             this._openBrowser(link);
         } else {
-            MailClientFocuser.open();
+            this._mailClientFocuser.open();
         }
     }
 });
