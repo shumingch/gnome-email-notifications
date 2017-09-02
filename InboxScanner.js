@@ -27,7 +27,7 @@ const GmailScanner = Me.imports.GmailScanner.GmailScanner;
 
 /**
  * Scans an email account of any supported type using online APIs
- * @type {Lang.Class}
+ * @class
  */
 const InboxScanner = new Lang.Class({
     Name: 'InboxScanner',

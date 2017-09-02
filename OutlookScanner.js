@@ -21,7 +21,7 @@ const Lang = imports.lang;
 
 /**
  * Scans Outlook json api for unread emails.
- * @type {Lang.Class}
+ * @class
  */
 const OutlookScanner = new Lang.Class({
     Name: 'OutlookScanner',
@@ -67,6 +67,7 @@ const OutlookScanner = new Lang.Class({
      * @private
      */
     _decodeFrom: function (from) {
+        if(from === undefined) return "";
         const email = from.EmailAddress;
         return email.Name + " <" + email.Address + ">";
     }

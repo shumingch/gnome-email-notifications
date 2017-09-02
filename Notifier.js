@@ -18,25 +18,18 @@
  */
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Main = imports.ui.main;
 const Lang = imports.lang;
-const GmailNotification = Me.imports.GmailNotification.GmailNotification;
 const Source = imports.ui.messageTray.Source;
-const console = Me.imports.console.console;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
-const GmailConf = Me.imports.GmailConf;
 const Gio = imports.gi.Gio;
 const Util = imports.misc.util;
 const MailClientFocuser = Me.imports.MailClientFocuser.MailClientFocuser;
+const NotificationFactory = Me.imports.NotificationFactory.NotificationFactory;
 
-const DIALOG_ERROR = 'dialog-error';
-const MAIL_READ = 'mail-read';
-const MAIL_UNREAD = 'mail-unread';
-const MAIL_MARK_IMPORTANT = 'mail-mark-important';
 /**
- * Controls a single Gnome Online Account
- * @type {Lang.Class}
+ * Controls notifications in message tray.
+ * @class
  */
 const Notifier = new Lang.Class({
     Name: 'Notifier',
@@ -48,68 +41,14 @@ const Notifier = new Lang.Class({
     _init: function (emailAccount) {
         this._config = emailAccount.config;
         this._mailbox = emailAccount.mailbox;
-        this.sources = [];
-        this._errorSource = this._newErrorSource();
-        this._summarySource = this._newSummarySource();
+        this._notificationFactory = new NotificationFactory(emailAccount);
         this._mailClientFocuser = new MailClientFocuser();
-    },
-    /**
-     * Creates a notification with the given source
-     * @param {Source} source - the source used to create the notification
-     * @param content - an object containing all information about the email
-     * @param {string} iconName - the name of the icon that will display
-     * @param {boolean} popUp - true if notification should display outside the message tray
-     * @param {boolean} permanent - true if notification should not go away if you click on it
-     * @param {function} cb - callback that runs when notification is clicked
-     * @returns {GmailNotification} - the notification created
-     * @private
-     */
-    _createNotificationWithSource: function (source, content, iconName, popUp, permanent, cb) {
-        Main.messageTray.add(source);
-        const notification = new GmailNotification(source, content, iconName);
-        notification.connect('activated', () => {
-            try {
-                cb();
-            } catch (err) {
-                console.error(err);
-            }
-        });
-
-        if (permanent) {
-            notification.setResident(true);
-        }
-        if (popUp) {
-            source.notify(notification);
-        } else {
-            notification.acknowledged = true;
-            source.pushNotification(notification);
-        }
-
-        this.sources.push(source);
-        return notification;
-    },
-    /**
-     * Creates a notification for a single unread email
-     * @param msg - the information about the email
-     * @private
-     */
-    _createEmailNotification: function (msg) {
-        if (this._config.getShowSummary() === GmailConf.SHOWSUMMARY_YES) {
-            return
-        }
-        this._summarySource.destroy();
-        const callback = () => {
-            this._openEmail(msg.link);
-        };
-        this._createNotification(msg, MAIL_UNREAD, true, false, callback);
     },
     /**
      * Destroys all sources for the email account
      */
     destroySources: function () {
-        for (let source of this.sources) {
-            source.destroy();
-        }
+        this._notificationFactory.destroySources();
     },
     /**
      * Creates a notification for each unread email
@@ -123,7 +62,10 @@ const Notifier = new Lang.Class({
             if (!messagesShown.has(msg.id)) {
                 messagesShown.add(msg.id);
                 newMessages++;
-                this._createEmailNotification(msg);
+                const callback = () => {
+                    this._openEmail(msg.link);
+                };
+                this._notificationFactory.createEmailNotification(msg, callback);
             }
         }
         this._config.setMessagesShown([...messagesShown]);
@@ -140,9 +82,7 @@ const Notifier = new Lang.Class({
             date: new Date(),
             subject: this._mailbox
         };
-        this._createNotificationWithSource(this._errorSource, content, DIALOG_ERROR, false, false, () => {
-            this._openBrowser(Me.metadata["url"]);
-        });
+        this._notificationFactory.createErrorNotification(content);
     },
     /**
      * Creates notification summarizing all unread emails
@@ -150,16 +90,14 @@ const Notifier = new Lang.Class({
      * @param numUnread - the number of unread mail
      */
     showEmailSummaryNotification: function (inboxURL, numUnread) {
-        if (this._config.getShowSummary() === GmailConf.SHOWSUMMARY_NO) {
+        if (this._config.getShowSummary() === this._config.SHOWSUMMARY_NO) {
             return
         }
-        this._summarySource.destroy();
-        this._summarySource = this._newSummarySource();
-        const callback = () => {
+        const cb = () => {
             this._openEmail(inboxURL);
         };
         const summary = this._createEmailSummary(numUnread);
-        this._createNotificationWithSource(this._summarySource, summary, MAIL_MARK_IMPORTANT, true, false, callback);
+        this._notificationFactory.createSummaryNotification(summary, cb);
     },
     /**
      * Shows the "no messages" notification if the user sets this in the config
@@ -169,60 +107,34 @@ const Notifier = new Lang.Class({
         if (!this._config.getNoMail()) {
             return;
         }
-        this._summarySource.destroy();
-        this._summarySource = this._newSummarySource();
         const content = {
             from: this._mailbox,
             date: new Date(),
             subject: _('No new messages')
         };
-        const callback = () => {
+        const cb = () => {
             this._openEmail(inboxURL);
         };
-        this._createNotificationWithSource(this._summarySource, content, MAIL_READ, false, true, callback);
-    },
-    /**
-     * Removes all empty sources.
-     */
-    removeEmptySources: function () {
-        this.sources = this.sources.filter(source => source.count > 0);
+        this._notificationFactory.createNoMailNotification(content, cb);
     },
     /**
      * Removes all errors currently displaying for this email account
      */
     removeErrors: function () {
-        this._errorSource.destroy();
-        this._errorSource = this._newErrorSource();
+        this._notificationFactory.removeErrors();
     },
     /**
-     * Creates a new source with an error icon
-     * @returns {Source} - the error source
-     * @private
+     * Removes summary notification
      */
-    _newErrorSource: function () {
-        return new Source(this._mailbox, DIALOG_ERROR);
+    removeSummary: function () {
+        this._notificationFactory.removeSummary();
     },
     /**
-     * Create a new source with important icon
-     * @returns {Source} - the summary source
-     * @private
+     * Returns non-empty sources
+     * @returns {Source[]} array of sources
      */
-    _newSummarySource: function () {
-        return new Source(this._mailbox, MAIL_MARK_IMPORTANT);
-    },
-    /**
-     * Creates a new notification with it's own source
-     * @param content - an object containing all information about the email
-     * @param {string} iconName - the name of the icon that will display
-     * @param {boolean} popUp - true if notification should display outside the message tray
-     * @param {boolean} permanent - true if notification should not go away if you click on it
-     * @param {function} cb - callback that runs when notification is clicked
-     * @returns {GmailNotification} - the notification created
-     * @private
-     */
-    _createNotification: function (content, iconName, popUp, permanent, cb) {
-        const source = new Source(this._mailbox, MAIL_READ);
-        return this._createNotificationWithSource(source, content, iconName, popUp, permanent, cb);
+    getNonEmptySources: function () {
+        return this._notificationFactory.getNonEmptySources();
     },
     /**
      * Creates an notification information for summary

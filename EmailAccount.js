@@ -28,7 +28,7 @@ const _ = Gettext.gettext;
 
 /**
  * Controls a single Gnome Online Account
- * @type {Lang.Class}
+ * @class
  */
 const EmailAccount = new Lang.Class({
     Name: 'EmailAccount',
@@ -85,8 +85,8 @@ const EmailAccount = new Lang.Class({
      */
     updateContent: function (content, inboxURL) {
         content.reverse();
-        this._notifier.removeEmptySources();
         this._notifier.removeErrors();
+        this._notifier.removeSummary();
         let numUnread = 0;
 
         if (content !== undefined) {
@@ -96,10 +96,9 @@ const EmailAccount = new Lang.Class({
             }
         }
         if (numUnread === 0) {
-            if (this._notifier.sources.length !== 0) {
-                this._notifier.destroySources();
+            if (this._notifier.getNonEmptySources().length === 0) {
+                this._notifier.showNoMessage(inboxURL);
             }
-            this._notifier.showNoMessage(inboxURL);
         }
     },
     /**

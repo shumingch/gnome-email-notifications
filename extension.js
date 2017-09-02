@@ -61,7 +61,7 @@ const supportedProviders = new Set(["google", "windows_live"]);
 
 /**
  * An instance of this gnome extension
- * @type {Lang.Class}
+ * @class
  */
 const Extension = new Lang.Class({
     Name: "Extension",

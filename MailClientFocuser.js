@@ -29,7 +29,7 @@ const Util = imports.misc.util;
 
 /**
  * Focuses on the default Mail Client if it is already open
- * @type {Lang.Class}
+ * @class
  */
 const MailClientFocuser = new Lang.Class({
     Name: 'MailClientFocuser',

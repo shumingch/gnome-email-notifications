@@ -40,7 +40,7 @@ const unescape_regex = /(&quot;|&#39;|&lt;|&gt;|&amp;)/g;
 
 /**
  * A single notification in the message tray.
- * @type {Lang.Class}
+ * @class
  */
 const GmailNotification = new Lang.Class({
     Name: 'GmailNotification',
@@ -82,6 +82,7 @@ const GmailNotification = new Lang.Class({
      * @private
      */
     _unescapeXML: function (string) {
+        if(string === null) return "";
         return string.replace(unescape_regex,
             (str, item) => escaped_one_to_xml_special_map[item]);
     },

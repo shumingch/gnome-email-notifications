@@ -23,7 +23,7 @@ const XML = Me.imports.rexml;
 
 /**
  * Scans Gmail atom api for unread emails.
- * @type {Lang.Class}
+ * @class
  */
 const GmailScanner = new Lang.Class({
     Name: 'GmailScanner',

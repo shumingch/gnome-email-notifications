@@ -27,7 +27,8 @@ const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const GmailConf = Me.imports.GmailConf;
+const GmailConf = Me.imports.GmailConf.GmailConf;
+const gmailConf = new GmailConf();
 
 let settings;
 let settings_slider;
@@ -35,8 +36,8 @@ let settings_switch;
 let settings_radio;
 let settings_text;
 const modes = new Map([
-    [GmailConf.SHOWSUMMARY_YES, _("Show email summary")],
-    [GmailConf.SHOWSUMMARY_NO, _("Show individual emails")],
+    [gmailConf.SHOWSUMMARY_YES, _("Show email summary")],
+    [gmailConf.SHOWSUMMARY_NO, _("Show individual emails")],
 ]);
 
 /**
@@ -44,7 +45,7 @@ const modes = new Map([
  */
 function init() {
     _initTranslations();
-    settings = GmailConf.getSettings();
+    settings = gmailConf.getSettings();
     settings_slider = new Map([
         ["timeout", {
             label: _("Check every {0} sec: "), help: _("Check every {0} sec: ")
@@ -64,12 +65,12 @@ function init() {
     ]);
 
     settings_radio = new Map([
-        [GmailConf.GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY, {
+        [gmailConf.GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY, {
             label: _("Show email summary"), help: _("Show email summary")
         }]
     ]);
     settings_text = new Map([
-        [GmailConf.GMAILNOTIFY_SETTINGS_KEY_GMAILACCOUNTNUMBER, {
+        [gmailConf.GMAILNOTIFY_SETTINGS_KEY_GMAILACCOUNTNUMBER, {
             label: _("Gmail account number"), help: _("Selects the correct Gmail account if more than one is present")
         }]
     ]);
