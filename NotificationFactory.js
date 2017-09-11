@@ -49,7 +49,6 @@ const NotificationFactory = new Lang.Class({
         this._mailbox = emailAccount.mailbox;
         this.sources = new Set();
         this._errorSource = this._newErrorSource();
-        this._summarySource = this._newSummarySource();
         this._mailClientFocuser = new MailClientFocuser();
     },
     /**
@@ -58,10 +57,6 @@ const NotificationFactory = new Lang.Class({
      * @param {function} cb - callback that runs when notification is clicked
      */
     createEmailNotification: function (msg, cb) {
-        if (this._config.getShowSummary() === this._config.SHOWSUMMARY_YES) {
-            return
-        }
-        this._summarySource = this._newSummarySource();
         this._createNotification(msg, this.MAIL_UNREAD, true, false, cb);
     },
     /**
@@ -73,24 +68,6 @@ const NotificationFactory = new Lang.Class({
             this._openBrowser(Me.metadata["url"]);
         };
         this._createNotificationWithSource(this._errorSource, content, this.DIALOG_ERROR, false, false, cb);
-    },
-    /**
-     * Creates a notification for an email summary
-     * @param content - the information about the summary
-     * @param {function} cb - callback that runs when notification is clicked
-     */
-    createSummaryNotification: function (content, cb) {
-        this._summarySource = this._newSummarySource();
-        this._createNotificationWithSource(this._summarySource, content, this.MAIL_MARK_IMPORTANT, true, false, cb);
-    },
-    /**
-     * Creates a notification for no new emails
-     * @param content - the information about the summary
-     * @param {function} cb - callback that runs when notification is clicked
-     */
-    createNoMailNotification: function (content, cb) {
-        this._summarySource = this._newSummarySource();
-        this._createNotificationWithSource(this._summarySource, content, this.MAIL_READ, false, true, cb);
     },
     /**
      * Destroys all sources for the email account
@@ -107,12 +84,6 @@ const NotificationFactory = new Lang.Class({
         this._errorSource = this._newErrorSource();
     },
     /**
-     * Removes summary notification
-     */
-    removeSummary: function () {
-        this._summarySource = this._newSummarySource();
-    },
-    /**
      * Returns non-empty sources
      * @returns {Source[]} array of sources
      */
@@ -127,17 +98,6 @@ const NotificationFactory = new Lang.Class({
     _newErrorSource: function () {
         if (this._errorSource !== undefined) this._errorSource.destroy();
         const source = new Source(this._mailbox, this.DIALOG_ERROR);
-        this.sources.add(source);
-        return source;
-    },
-    /**
-     * Create a new source with important icon
-     * @returns {Source} - the summary source
-     * @private
-     */
-    _newSummarySource: function () {
-        if (this._summarySource !== undefined) this._summarySource.destroy();
-        const source = new Source(this._mailbox, this.MAIL_MARK_IMPORTANT);
         this.sources.add(source);
         return source;
     },

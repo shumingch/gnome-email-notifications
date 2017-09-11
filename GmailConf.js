@@ -35,8 +35,6 @@ const GmailConf = new Lang.Class({
     Name: 'GmailConf',
     GMAILNOTIFY_SETTINGS_KEY_TIMEOUT: 'timeout',
     GMAILNOTIFY_SETTINGS_KEY_USEMAIL: 'usemail',
-    GMAILNOTIFY_SETTINGS_KEY_SHOWNOMAIL: 'shownomail',
-    GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY: 'showsummary',
     GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN: 'messagesshown',
     GMAILNOTIFY_SETTINGS_KEY_GMAILACCOUNTNUMBER: 'gmailaccountnumber',
     SHOWSUMMARY_YES: 'yes',
@@ -61,12 +59,6 @@ const GmailConf = new Lang.Class({
     },
     getReader: function () {
         return this.settings.get_int(this.GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
-    },
-    getNoMail: function () {
-        return this.settings.get_int(this.GMAILNOTIFY_SETTINGS_KEY_SHOWNOMAIL);
-    },
-    getShowSummary: function () {
-        return this.settings.get_string(this.GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY);
     },
     /**
      * Returns an array of ids of messages already shown

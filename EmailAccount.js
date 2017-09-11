@@ -46,10 +46,11 @@ const EmailAccount = new Lang.Class({
         this._notifier = new Notifier(this);
     },
     /**
-     * Creates a notification for an error
-     * @param {string} error - the error to display
+     * Creates a notification for an error and logs it to the console
+     * @param {Error} error - the error to display
      */
-    showError: function (error) {
+    _showError: function (error) {
+        console.error(error);
         this._notifier.showError(error);
     },
     /**
@@ -57,10 +58,10 @@ const EmailAccount = new Lang.Class({
      */
     scanInbox: function () {
         try {
+            this._notifier.removeErrors();
             this._scanner.scanInbox(Lang.bind(this, this._processData));
         } catch (err) {
-            console.error(err);
-            this.showError(err.message);
+            this._showError(err);
         }
     },
     /**
@@ -71,34 +72,24 @@ const EmailAccount = new Lang.Class({
      */
     _processData: function (err, folders) {
         if (err) {
-            this.showError(err.message);
-            throw err;
+            this._showError(err);
+        } else {
+            try {
+                const content = folders[0].list;
+                this.updateContent(content);
+            } catch (err) {
+                this._showError(err);
+            }
         }
-        const content = folders[0].list;
-        const inboxURL = folders[0].inboxURL;
-        this.updateContent(content, inboxURL);
     },
     /**
      * Displays notifications for unread emails
      * @param content - a list of unread emails
-     * @param inboxURL - the URL to navigate to when clicking a notification.
      */
-    updateContent: function (content, inboxURL) {
+    updateContent: function (content) {
         content.reverse();
-        this._notifier.removeErrors();
-        this._notifier.removeSummary();
-        let numUnread = 0;
-
         if (content !== undefined) {
-            numUnread = this._notifier.displayUnreadMessages(content);
-            if (numUnread > 0) {
-                this._notifier.showEmailSummaryNotification(inboxURL, numUnread);
-            }
-        }
-        if (numUnread === 0) {
-            if (this._notifier.getNonEmptySources().length === 0) {
-                this._notifier.showNoMessage(inboxURL);
-            }
+            this._notifier.displayUnreadMessages(content);
         }
     },
     /**

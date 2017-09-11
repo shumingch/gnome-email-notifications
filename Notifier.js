@@ -53,69 +53,32 @@ const Notifier = new Lang.Class({
     /**
      * Creates a notification for each unread email
      * @param content - a list of unread emails
-     * @returns {number} - number of unread emails
      */
     displayUnreadMessages: function (content) {
-        let newMessages = 0;
         const messagesShown = new Set(this._config.getMessagesShown());
         for (let msg of content) {
             if (!messagesShown.has(msg.id)) {
                 messagesShown.add(msg.id);
-                newMessages++;
+                const _msg = msg; // need this because variables aren't scoped properly in Gnome Shell 3.24
                 const callback = () => {
-                    this._openEmail(msg.link);
+                    this._openEmail(_msg.link);
                 };
                 this._notificationFactory.createEmailNotification(msg, callback);
             }
         }
         this._config.setMessagesShown([...messagesShown]);
-        return newMessages;
     },
     /**
      * Creates a notification for an error
-     * @param {string} error - the error to display
+     * @param {Error} error - the error to display
      */
     showError: function (error) {
-        this.removeErrors();
         const content = {
-            from: error,
+            from: error.message,
             date: new Date(),
             subject: this._mailbox
         };
         this._notificationFactory.createErrorNotification(content);
-    },
-    /**
-     * Creates notification summarizing all unread emails
-     * @param inboxURL - the URL to open when the notification is clicked
-     * @param numUnread - the number of unread mail
-     */
-    showEmailSummaryNotification: function (inboxURL, numUnread) {
-        if (this._config.getShowSummary() === this._config.SHOWSUMMARY_NO) {
-            return
-        }
-        const cb = () => {
-            this._openEmail(inboxURL);
-        };
-        const summary = this._createEmailSummary(numUnread);
-        this._notificationFactory.createSummaryNotification(summary, cb);
-    },
-    /**
-     * Shows the "no messages" notification if the user sets this in the config
-     * @param {string} inboxURL - the URL to open when the notification is clicked
-     */
-    showNoMessage: function (inboxURL) {
-        if (!this._config.getNoMail()) {
-            return;
-        }
-        const content = {
-            from: this._mailbox,
-            date: new Date(),
-            subject: _('No new messages')
-        };
-        const cb = () => {
-            this._openEmail(inboxURL);
-        };
-        this._notificationFactory.createNoMailNotification(content, cb);
     },
     /**
      * Removes all errors currently displaying for this email account
@@ -124,30 +87,11 @@ const Notifier = new Lang.Class({
         this._notificationFactory.removeErrors();
     },
     /**
-     * Removes summary notification
-     */
-    removeSummary: function () {
-        this._notificationFactory.removeSummary();
-    },
-    /**
      * Returns non-empty sources
      * @returns {Source[]} array of sources
      */
     getNonEmptySources: function () {
         return this._notificationFactory.getNonEmptySources();
-    },
-    /**
-     * Creates an notification information for summary
-     * @param {number} unread - number of unread messages
-     * @returns {{from: string, date: Date, subject: string}}
-     * @private
-     */
-    _createEmailSummary: function (unread) {
-        return {
-            from: this._mailbox,
-            date: new Date(),
-            subject: _('%d unread messages').format(unread)
-        };
     },
     /**
      * Opens the default browser with the given link

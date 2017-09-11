@@ -51,24 +51,13 @@ function init() {
             label: _("Check every {0} sec: "), help: _("Check every {0} sec: ")
         }]
     ]);
-    const usemail = _("Use default email client instead of browser");
-    const shownomail = "Show \"" + _("No new messages") + "\" notification";
+
     settings_switch = new Map([
-        ["usemail", {
-            label: usemail,
-            help: usemail
-        }],
-        ["shownomail", {
-            label: shownomail,
-            help: shownomail
-        }]
     ]);
 
     settings_radio = new Map([
-        [gmailConf.GMAILNOTIFY_SETTINGS_KEY_SHOWSUMMARY, {
-            label: _("Show email summary"), help: _("Show email summary")
-        }]
     ]);
+
     settings_text = new Map([
         [gmailConf.GMAILNOTIFY_SETTINGS_KEY_GMAILACCOUNTNUMBER, {
             label: _("Gmail account number"), help: _("Selects the correct Gmail account if more than one is present")
