@@ -78,7 +78,10 @@ const Notifier = new Lang.Class({
             date: new Date(),
             subject: this._mailbox
         };
-        this._notificationFactory.createErrorNotification(content);
+        const cb = () => {
+            this._openBrowser(Me.metadata["url"]);
+        };
+        this._notificationFactory.createErrorNotification(content, cb);
     },
     /**
      * Removes all errors currently displaying for this email account

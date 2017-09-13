@@ -62,11 +62,9 @@ const NotificationFactory = new Lang.Class({
     /**
      * Creates a notification for an error
      * @param content - the information about the error
+     * @param {function} cb - callback that runs when notification is clicked
      */
-    createErrorNotification: function (content) {
-        const cb = () => {
-            this._openBrowser(Me.metadata["url"]);
-        };
+    createErrorNotification: function (content, cb) {
         this._createNotificationWithSource(this._errorSource, content, this.DIALOG_ERROR, false, false, cb);
     },
     /**
