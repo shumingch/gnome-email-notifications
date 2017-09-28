@@ -51,8 +51,12 @@ function init() {
             label: _("Check every {0} sec: "), help: _("Check every {0} sec: ")
         }]
     ]);
-
+    const usemail = _("Use default email client instead of browser");
     settings_switch = new Map([
+        ["usemail", {
+            label: usemail,
+            help: usemail
+        }]
     ]);
 
     settings_radio = new Map([
