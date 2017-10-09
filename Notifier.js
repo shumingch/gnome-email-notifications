@@ -31,7 +31,7 @@ const NotificationFactory = Me.imports.NotificationFactory.NotificationFactory;
  * Controls notifications in message tray.
  * @class
  */
-const Notifier = new Lang.Class({
+var Notifier = new Lang.Class({
     Name: 'Notifier',
     /**
      * Creates new notifier for an email account.

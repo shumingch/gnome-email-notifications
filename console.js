@@ -30,4 +30,4 @@ Console.prototype.json = function (obj) {
     this.log(JSON.stringify(obj));
 };
 
-const console = new Console();
+var console = new Console();

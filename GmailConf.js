@@ -31,7 +31,7 @@ const GLib = imports.gi.GLib;
  * Controls configuration for extension.
  * @class
  */
-const GmailConf = new Lang.Class({
+var GmailConf = new Lang.Class({
     Name: 'GmailConf',
     GMAILNOTIFY_SETTINGS_KEY_TIMEOUT: 'timeout',
     GMAILNOTIFY_SETTINGS_KEY_USEMAIL: 'usemail',
@@ -65,7 +65,7 @@ const GmailConf = new Lang.Class({
      * @returns {Array} array of ids
      */
     getMessagesShown: function () {
-        const val = this.settings.get_value(this.GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN, this.MESSAGES_SHOWN_TYPE);
+        const val = this.settings.get_value(this.GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN);
         return val.deep_unpack();
     },
     /**
@@ -74,7 +74,7 @@ const GmailConf = new Lang.Class({
      */
     setMessagesShown: function (array) {
         const gVariant = new GLib.Variant(this.MESSAGES_SHOWN_TYPE, array);
-        this.settings.set_value(this.GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN, gVariant, this.MESSAGES_SHOWN_TYPE);
+        this.settings.set_value(this.GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN, gVariant);
     },
     getGmailAccountNumber: function () {
         return this.settings.get_int(this.GMAILNOTIFY_SETTINGS_KEY_GMAILACCOUNTNUMBER);

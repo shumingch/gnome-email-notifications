@@ -33,7 +33,7 @@ const MailClientFocuser = Me.imports.MailClientFocuser.MailClientFocuser;
  * Creates and displays notifications.
  * @class
  */
-const NotificationFactory = new Lang.Class({
+var NotificationFactory = new Lang.Class({
     Name: 'NotificationFactory',
     DIALOG_ERROR: 'dialog-error',
     MAIL_READ: 'mail-read',

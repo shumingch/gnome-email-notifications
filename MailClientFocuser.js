@@ -31,7 +31,7 @@ const Util = imports.misc.util;
  * Focuses on the default Mail Client if it is already open
  * @class
  */
-const MailClientFocuser = new Lang.Class({
+var MailClientFocuser = new Lang.Class({
     Name: 'MailClientFocuser',
     _init: function () {
     },
@@ -39,7 +39,13 @@ const MailClientFocuser = new Lang.Class({
      * Opens the default mail client, or focuses on it if it is already open
      */
     open: function () {
-        const defaultMailClient = Gio.app_info_get_default_for_uri_scheme("mailto").get_executable();
+        const mailto = Gio.app_info_get_default_for_uri_scheme("mailto");
+        if (mailto === null) {
+            const error = "No default email client found";
+            Main.notifyError(error);
+            throw new Error(error);
+        }
+        const defaultMailClient = mailto.get_executable();
         if (!this._trySwitchToExistingMailClient(defaultMailClient)) {
             this._openNewMailClient(defaultMailClient);
         }

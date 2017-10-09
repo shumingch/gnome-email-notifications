@@ -25,7 +25,7 @@ const XML = Me.imports.rexml;
  * Scans Gmail atom api for unread emails.
  * @class
  */
-const GmailScanner = new Lang.Class({
+var GmailScanner = new Lang.Class({
     Name: 'GmailScanner',
     /**
      * Creates a scanner with the given config

@@ -30,7 +30,7 @@ const _ = Gettext.gettext;
  * Controls a single Gnome Online Account
  * @class
  */
-const EmailAccount = new Lang.Class({
+var EmailAccount = new Lang.Class({
     Name: 'EmailAccount',
     /**
      * Creates a new EmailAccount with a Gnome Online Account

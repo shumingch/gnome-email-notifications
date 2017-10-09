@@ -29,7 +29,7 @@ const GmailScanner = Me.imports.GmailScanner.GmailScanner;
  * Scans an email account of any supported type using online APIs
  * @class
  */
-const InboxScanner = new Lang.Class({
+var InboxScanner = new Lang.Class({
     Name: 'InboxScanner',
     /**
      * Creates a new scanner using a Gnome Online Account
@@ -80,6 +80,8 @@ const InboxScanner = new Lang.Class({
                 return new GmailScanner(this._config);
             case "windows_live":
                 return new OutlookScanner();
+            default:
+                return new Error("Provider type not found");
         }
     },
     /**

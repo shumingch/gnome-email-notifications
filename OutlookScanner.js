@@ -23,7 +23,7 @@ const Lang = imports.lang;
  * Scans Outlook json api for unread emails.
  * @class
  */
-const OutlookScanner = new Lang.Class({
+var OutlookScanner = new Lang.Class({
     Name: 'OutlookScanner',
     _init: function () {
     },
