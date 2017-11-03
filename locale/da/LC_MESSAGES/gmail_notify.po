@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmail_notify\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-01 22:33+0100\n"
+"POT-Creation-Date: 2017-11-02 20:32-0400\n"
 "PO-Revision-Date: 2012-02-22 14:29+0100\n"
 "Last-Translator: Adam Jabłoński <jablona123@gmail.com>\n"
 "Language-Team: \n"
@@ -14,72 +14,34 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Poedit-Language: English\n"
-"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl\n"
+"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/"
+"gmail_notify@jablona123.pl\n"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:123
-msgid "New gmail message"
-msgstr "Ny Gmail besked"
+#: extension.js:108
+msgid "No email accounts found"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:163
-#, python-format
-msgid "New mail from %s"
-msgstr "Ny mail fra %s"
+#: extension.js:119
+msgid "Install gir1.2-goa"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:438
-msgid "No new messages"
-msgstr "Ingen nye meddelelser"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:506
-msgid "Settings"
-msgstr "Indstillinger"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:509
-msgid "Use default email client instead of browser"
+#: MailClientFocuser.js:46
+#, fuzzy
+msgid "No default email client found"
 msgstr "Brug standard mailklient i stedet for browser"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:520
-msgid "Notify about incoming mail"
-msgstr "Påmind mig om indgående mails"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:531
-msgid "Show email summary"
-msgstr "Vis uddrag af mails"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:543
-msgid "Check for new versions on startup"
-msgstr "Tjek efter opdateringer ved start"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:556
-msgid "Safe mode"
-msgstr "Sikker tilstand"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:569
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:578
+#: prefs.js:47
 msgid "Check every {0} sec: "
 msgstr "Opdater hver {0} sek:"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:595
-msgid "Extension position"
-msgstr "Tilføjelsens placering"
+#: prefs.js:50
+msgid "Use default email client instead of browser"
+msgstr "Brug standard mailklient i stedet for browser"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:602
-msgid "Right"
-msgstr "Højre"
+#: prefs.js:63
+msgid "Gmail account number"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:604
-msgid "Center"
-msgstr "Midt"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:606
-msgid "Left"
-msgstr "Venstre"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:685
-#, python-format
-msgid "There is newer version of this extension: %s - click to download"
-msgstr "Der er en nyere version af denne tilføjelse: %s - klik for at downloade"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:1002
-msgid "Extension requires Goa,Soup,Gio typelibs - click for instructions how to install"
-msgstr "Tilføjelsen kræver Goa, Soup, Gio typelibs - klik for installationsvejledninger"
-
+#: prefs.js:63
+msgid "Selects the correct Gmail account if more than one is present"
+msgstr ""

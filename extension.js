@@ -105,7 +105,7 @@ const Extension = new Lang.Class({
             }
         }
         if (emailAccounts.length === 0) {
-            Main.notifyError("No email accounts found");
+            Main.notifyError(_("No email accounts found"));
             throw new Error("No email accounts found");
         }
         return emailAccounts;

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmail_notify\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-07 02:23+0100\n"
+"POT-Creation-Date: 2017-11-02 20:32-0400\n"
 "PO-Revision-Date: 2012-01-13 20:33+0100\n"
 "Last-Translator: Adam Jabłoński <jablona123@gmail.com>\n"
 "Language-Team: \n"
@@ -14,67 +14,34 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-Language: Italian\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl\n"
+"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/"
+"gmail_notify@jablona123.pl\n"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:48
-msgid "New gmail message"
-msgstr "Új gmail üzenet"
+#: extension.js:108
+msgid "No email accounts found"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:88
-#, python-format
-msgid "New mail from %s"
-msgstr "Új email %stól"
+#: extension.js:119
+msgid "Install gir1.2-goa"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:212
-msgid "GMail not authenticated"
-msgstr "GMail nincs hitelesítve"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:216
-msgid "GMail not connected"
-msgstr "GMail nincs csatlakoztatva"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:338
-msgid "Settings"
-msgstr "Beállítások"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:341
-msgid "Use default email client instead of browser"
+#: MailClientFocuser.js:46
+#, fuzzy
+msgid "No default email client found"
 msgstr "Használja az alapértelmezett email klienst a böngésző helyett"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:352
-msgid "Notify about incoming mail"
-msgstr "Értesítés bejövő emailről"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:363
-msgid "Show email summary"
-msgstr "Email összegzés megjelenítése"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:375
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:384
+#: prefs.js:47
 msgid "Check every {0} sec: "
 msgstr "Ellenőrzés {0} másodpercenként"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:401
-msgid "Extension position"
-msgstr "Kiterjesztés állapota"
+#: prefs.js:50
+msgid "Use default email client instead of browser"
+msgstr "Használja az alapértelmezett email klienst a böngésző helyett"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:408
-msgid "Left"
-msgstr "Bal"
+#: prefs.js:63
+msgid "Gmail account number"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:410
-msgid "Center"
-msgstr "Közép"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:412
-msgid "Right"
-msgstr "Jobb"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:552
-msgid "No new messages"
-msgstr "Nincs új üzenet"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:713
-msgid "Install gir1.2-goa package to run this extension"
-msgstr "Telepítse a gir1.2-goa csomagot a kiterjesztés futtatásához"
-
+#: prefs.js:63
+msgid "Selects the correct Gmail account if more than one is present"
+msgstr ""

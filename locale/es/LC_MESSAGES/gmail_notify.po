@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmail_notify\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-07 02:23+0100\n"
+"POT-Creation-Date: 2017-11-02 20:32-0400\n"
 "PO-Revision-Date: 2012-01-15 18:31+0100\n"
 "Last-Translator: Adam Jabłoński <jablona123@gmail.com>\n"
 "Language-Team: \n"
@@ -14,67 +14,34 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-Language: Italian\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl\n"
+"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/"
+"gmail_notify@jablona123.pl\n"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:48
-msgid "New gmail message"
-msgstr "Nuevo mensaje en Gmail"
+#: extension.js:108
+msgid "No email accounts found"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:88
-#, python-format
-msgid "New mail from %s"
-msgstr "Nuevo correo de %s"
+#: extension.js:119
+msgid "Install gir1.2-goa"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:212
-msgid "GMail not authenticated"
-msgstr "No se pudo autenticar en Gmail"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:216
-msgid "GMail not connected"
-msgstr "No se pudo conectar a Gmail"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:338
-msgid "Settings"
-msgstr "Configuración"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:341
-msgid "Use default email client instead of browser"
+#: MailClientFocuser.js:46
+#, fuzzy
+msgid "No default email client found"
 msgstr "Usar el cliente de e-mail predeterminado en vez del navegador web"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:352
-msgid "Notify about incoming mail"
-msgstr "Notificar cuando lleguen nuevos mensajes"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:363
-msgid "Show email summary"
-msgstr "Mostrar resumen de e-mail"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:375
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:384
+#: prefs.js:47
 msgid "Check every {0} sec: "
 msgstr "Revisar cada {0} segundos:"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:401
-msgid "Extension position"
-msgstr "Posición de la extensión"
+#: prefs.js:50
+msgid "Use default email client instead of browser"
+msgstr "Usar el cliente de e-mail predeterminado en vez del navegador web"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:408
-msgid "Left"
-msgstr "Izquierda"
+#: prefs.js:63
+msgid "Gmail account number"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:410
-msgid "Center"
-msgstr "Centro"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:412
-msgid "Right"
-msgstr "Derecha"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:552
-msgid "No new messages"
-msgstr "No hay mensajes nuevos"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:713
-msgid "Install gir1.2-goa package to run this extension"
-msgstr "Instale el paquete gir1.2-goa para ejecutar esta extensión"
-
+#: prefs.js:63
+msgid "Selects the correct Gmail account if more than one is present"
+msgstr ""

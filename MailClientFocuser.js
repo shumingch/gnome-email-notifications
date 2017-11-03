@@ -26,6 +26,8 @@ const Meta = imports.gi.Meta;
 const Main = imports.ui.main;
 const Gio = imports.gi.Gio;
 const Util = imports.misc.util;
+const Gettext = imports.gettext.domain('gmail_notify');
+const _ = Gettext.gettext;
 
 /**
  * Focuses on the default Mail Client if it is already open
@@ -41,7 +43,7 @@ var MailClientFocuser = new Lang.Class({
     open: function () {
         const mailto = Gio.app_info_get_default_for_uri_scheme("mailto");
         if (mailto === null) {
-            const error = "No default email client found";
+            const error = _("No default email client found");
             Main.notifyError(error);
             throw new Error(error);
         }

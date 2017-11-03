@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmail_notify\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-07 02:23+0100\n"
+"POT-Creation-Date: 2017-11-02 20:32-0400\n"
 "PO-Revision-Date: 2012-11-12 18:41+0100\n"
 "Last-Translator: Adam Jabłoński <jablona123@gmail.com>\n"
 "Language-Team: \n"
@@ -14,73 +14,34 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-Language: Italian\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl\n"
+"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/"
+"gmail_notify@jablona123.pl\n"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:48
-msgid "New gmail message"
-msgstr "Mezu berria Gmail-en"
+#: extension.js:108
+msgid "No email accounts found"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:88
-#, python-format
-msgid "New mail from %s"
-msgstr "Mezu berria, %s-k bidalia"
+#: extension.js:119
+msgid "Install gir1.2-goa"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:212
-msgid "GMail not authenticated"
-msgstr "Gmail-en baimendu ezinean"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:216
-msgid "GMail not connected"
-msgstr "Gmail-ekin konektatu ezinean"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:338
-msgid "Settings"
-msgstr "Ezarpenak"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:341
-msgid "Use default email client instead of browser"
+#: MailClientFocuser.js:46
+#, fuzzy
+msgid "No default email client found"
 msgstr "Nabigatzailea barik, mezuetarako aplikazio lehenetsia erabili"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:352
-msgid "Notify about incoming mail"
-msgstr "Mezu berriak heltzean ohartarazi"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:363
-msgid "Show email summary"
-msgstr "Mezuen laburpena erakutsi"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:375
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:384
+#: prefs.js:47
 msgid "Check every {0} sec: "
 msgstr "{0} segundutan behin berrikusi:"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:401
-msgid "Extension position"
-msgstr "Hedapenaren kokalekua"
+#: prefs.js:50
+msgid "Use default email client instead of browser"
+msgstr "Nabigatzailea barik, mezuetarako aplikazio lehenetsia erabili"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:408
-msgid "Left"
-msgstr "Ezkerra"
+#: prefs.js:63
+msgid "Gmail account number"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:410
-msgid "Center"
-msgstr "Erdia"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:412
-msgid "Right"
-msgstr "Eskuina"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:552
-msgid "No new messages"
-msgstr "Mezu berririk ez"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:713
-msgid "Install gir1.2-goa package to run this extension"
-msgstr "Hedapen hau exekutatzeko, gir1.2-goa paketea instalatu"
-
-msgid "Safe mode"
-msgstr "Modu segurua"
-
-msgid "Check for new versions on startup"
-msgstr "Abiaraztean bertsio berriak aztertu"
-
+#: prefs.js:63
+msgid "Selects the correct Gmail account if more than one is present"
+msgstr ""

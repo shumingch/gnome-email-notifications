@@ -35,10 +35,6 @@ let settings_slider;
 let settings_switch;
 let settings_radio;
 let settings_text;
-const modes = new Map([
-    [gmailConf.SHOWSUMMARY_YES, _("Show email summary")],
-    [gmailConf.SHOWSUMMARY_NO, _("Show individual emails")],
-]);
 
 /**
  * Initializes settings
@@ -67,47 +63,6 @@ function init() {
             label: _("Gmail account number"), help: _("Selects the correct Gmail account if more than one is present")
         }]
     ]);
-}
-
-/**
- * Creates a single radio setting
- * @param {string} setting - the name of the setting to modify
- * @param value - information about the setting
- * @returns {Gtk.Box} - the GUI element to render
- * @private
- */
-function _createRadioSetting(setting, value) {
-    const hbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
-    const align = new Gtk.Alignment({left_padding: 12});
-    const grid = new Gtk.Grid({
-        orientation: Gtk.Orientation.VERTICAL,
-        row_spacing: 6,
-        column_spacing: 6
-    });
-    const setting_label = '<b>' + value.label + '</b>';
-    hbox.add(new Gtk.Label({
-        label: setting_label, use_markup: true,
-        halign: Gtk.Align.START
-    }));
-    let radio = null;
-    let currentMode = settings.get_string(setting);
-    for (let [mode, label] of modes) {
-        const _mode = mode;
-        radio = new Gtk.RadioButton({group: radio, label: label, valign: Gtk.Align.START});
-        radio.connect('toggled', widget => {
-            if (widget.active) {
-                settings.set_string(setting, _mode);
-            }
-        });
-        grid.add(radio);
-        if (mode === currentMode) {
-            radio.active = true;
-        }
-    }
-    radio.set_tooltip_text(value.help);
-    align.add(grid);
-    hbox.add(align);
-    return hbox;
 }
 
 /**
@@ -241,7 +196,6 @@ function buildPrefsWidget() {
     _addSettings(settings_switch, _createSwitchSetting, vbox);
     _addSettings(settings_slider, _createSliderSetting, vbox);
     _addSettings(settings_text, _createTextSetting, vbox);
-    _addSettings(settings_radio, _createRadioSetting, vbox);
     frame.add(vbox);
     frame.show_all();
     return frame;

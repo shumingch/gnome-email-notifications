@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gmail_notify\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-17 19:07+0100\n"
+"POT-Creation-Date: 2017-11-02 20:32-0400\n"
 "PO-Revision-Date: 2012-01-17 19:08+0100\n"
 "Last-Translator: Adam Jabłoński <jablona123@gmail.com>\n"
 "Language-Team: \n"
@@ -17,73 +17,35 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-Language: Italian\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl\n"
+"X-Poedit-SearchPath-0: /home/adam/.local/share/gnome-shell/extensions/"
+"gmail_notify@jablona123.pl\n"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:89
-msgid "New gmail message"
-msgstr "Nová zpráva"
+#: extension.js:108
+msgid "No email accounts found"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:127
-#, python-format
-msgid "New mail from %s"
-msgstr "Nová zpráva od %s"
+#: extension.js:119
+msgid "Install gir1.2-goa"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:370
-msgid "No new messages"
-msgstr "Žádné nové zprávy"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:423
-msgid "Settings"
-msgstr "Nastavení"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:426
-msgid "Use default email client instead of browser"
+#: MailClientFocuser.js:46
+#, fuzzy
+msgid "No default email client found"
 msgstr "Použít poštovního klienta místo prohlížeče"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:437
-msgid "Notify about incoming mail"
-msgstr "Upozornit na nové zprávy"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:448
-msgid "Show email summary"
-msgstr "Zobrazovat počet zpráv"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:460
-msgid "Check for new versions on startup"
-msgstr "Kontrolovat nové verze při startu"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:472
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:481
+#: prefs.js:47
 msgid "Check every {0} sec: "
 msgstr "Kontrolovat každých {0} sec:"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:498
-msgid "Extension position"
-msgstr "Umístění na panelu"
+#: prefs.js:50
+msgid "Use default email client instead of browser"
+msgstr "Použít poštovního klienta místo prohlížeče"
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:505
-msgid "Right"
-msgstr "Vpravo"
+#: prefs.js:63
+msgid "Gmail account number"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:507
-msgid "Center"
-msgstr "Uprostřed"
+#: prefs.js:63
+msgid "Selects the correct Gmail account if more than one is present"
+msgstr ""
 
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:509
-msgid "Left"
-msgstr "Vlevo"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:587
-#, python-format
-msgid "There is newer version of this extension: %s - click to download"
-msgstr "Je k dispozici nová verze: %s - klikněte pro stažení"
-
-#: /home/adam/.local/share/gnome-shell/extensions/gmail_notify@jablona123.pl/extension.js:856
-msgid "Install gir1.2-goa package to run this extension"
-msgstr "Pro spuštění vyžaduje balíček gir1.2-goa"
-
-#~ msgid "GMail not authenticated"
-#~ msgstr "Neautentizován v GMailu"
-
-#~ msgid "GMail not connected"
-#~ msgstr "Nepřipojeno ke GMailu"
