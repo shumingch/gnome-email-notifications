@@ -33,13 +33,14 @@ const GLib = imports.gi.GLib;
  */
 var GmailConf = new Lang.Class({
     Name: 'GmailConf',
-    GMAILNOTIFY_SETTINGS_KEY_TIMEOUT: 'timeout',
-    GMAILNOTIFY_SETTINGS_KEY_USEMAIL: 'usemail',
-    GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN: 'messagesshown',
-    GMAILNOTIFY_SETTINGS_KEY_GMAILACCOUNTNUMBER: 'gmailaccountnumber',
+    SETTINGS_KEY_TIMEOUT: 'timeout',
+    SETTINGS_KEY_USEMAIL: 'usemail',
+    SETTINGS_KEY_MESSAGESSHOWN: 'messagesshown',
+    SETTINGS_KEY_GMAILACCOUNTNUMBERS: 'gmailaccountnumbers',
     SHOWSUMMARY_YES: 'yes',
     SHOWSUMMARY_NO: 'no',
     MESSAGES_SHOWN_TYPE: 'as',
+    GMAILACCOUNTNUMBERS_TYPE: 'a{si}',
     /**
      * Creates a new conf for an extension
      * @param {Extension} extension - the extension to control
@@ -55,17 +56,17 @@ var GmailConf = new Lang.Class({
     },
 
     getTimeout: function () {
-        return this.settings.get_int(this.GMAILNOTIFY_SETTINGS_KEY_TIMEOUT);
+        return this.settings.get_int(this.SETTINGS_KEY_TIMEOUT);
     },
     getReader: function () {
-        return this.settings.get_int(this.GMAILNOTIFY_SETTINGS_KEY_USEMAIL);
+        return this.settings.get_int(this.SETTINGS_KEY_USEMAIL);
     },
     /**
      * Returns an array of ids of messages already shown
      * @returns {Array} array of ids
      */
     getMessagesShown: function () {
-        const val = this.settings.get_value(this.GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN);
+        const val = this.settings.get_value(this.SETTINGS_KEY_MESSAGESSHOWN);
         return val.deep_unpack();
     },
     /**
@@ -74,10 +75,23 @@ var GmailConf = new Lang.Class({
      */
     setMessagesShown: function (array) {
         const gVariant = new GLib.Variant(this.MESSAGES_SHOWN_TYPE, array);
-        this.settings.set_value(this.GMAILNOTIFY_SETTINGS_KEY_MESSAGESSHOWN, gVariant);
+        this.settings.set_value(this.SETTINGS_KEY_MESSAGESSHOWN, gVariant);
     },
-    getGmailAccountNumber: function () {
-        return this.settings.get_int(this.GMAILNOTIFY_SETTINGS_KEY_GMAILACCOUNTNUMBER);
+    /**
+     * Gets the Gmail account numbers as a dict of mailbox keys and account number values.
+     * @returns {Object.<string, number>} - the dict
+     */
+    getGmailAccountNumbers: function () {
+        const val = this.settings.get_value(this.SETTINGS_KEY_GMAILACCOUNTNUMBERS);
+        return val.deep_unpack();
+    },
+    /**
+     * Sets the Gmail account numbers as a dict of mailbox keys and account number values.
+     * @param {Object.<string, number>} accountNumbersDict - the dict
+     */
+    setGmailAccountNumbers: function (accountNumbersDict) {
+        const gVariant = new GLib.Variant(this.GMAILACCOUNTNUMBERS_TYPE, accountNumbersDict);
+        this.settings.set_value(this.SETTINGS_KEY_GMAILACCOUNTNUMBERS, gVariant);
     },
     /**
      * Gets the settings from Gio.

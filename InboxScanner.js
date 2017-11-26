@@ -40,6 +40,8 @@ var InboxScanner = new Lang.Class({
     _init: function (account, config) {
         this._config = config;
         this._account = account;
+        this._mailbox = account.get_account().presentation_identity;
+        if (this._mailbox === undefined) this.mailbox = '';
         this._provider = this._account.get_account().provider_type;
         this._scanner = this._createScanner();
     },
@@ -77,7 +79,7 @@ var InboxScanner = new Lang.Class({
     _createScanner: function () {
         switch (this._provider) {
             case "google":
-                return new GmailScanner(this._config);
+                return new GmailScanner(this._config, this._mailbox);
             case "windows_live":
                 return new OutlookScanner();
             default:

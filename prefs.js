@@ -21,7 +21,9 @@
  *
  */
 "use strict";
+const Lang = imports.lang;
 const Gtk = imports.gi.Gtk;
+const GLib = imports.gi.GLib;
 
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
@@ -30,183 +32,167 @@ const Me = imports.misc.extensionUtils.getCurrentExtension();
 const GmailConf = Me.imports.GmailConf.GmailConf;
 const gmailConf = new GmailConf();
 
-let settings;
-let settings_slider;
-let settings_switch;
-let settings_radio;
-let settings_text;
-
 /**
  * Initializes settings
  */
 function init() {
-    _initTranslations();
-    settings = gmailConf.getSettings();
-    settings_slider = new Map([
-        ["timeout", {
-            label: _("Check every {0} sec: "), help: _("Check every {0} sec: ")
-        }]
-    ]);
-    const usemail = _("Use default email client instead of browser");
-    settings_switch = new Map([
-        ["usemail", {
-            label: usemail,
-            help: usemail
-        }]
-    ]);
-
-    settings_radio = new Map([
-    ]);
-
-    settings_text = new Map([
-        [gmailConf.GMAILNOTIFY_SETTINGS_KEY_GMAILACCOUNTNUMBER, {
-            label: _("Gmail account number"), help: _("Selects the correct Gmail account if more than one is present")
-        }]
-    ]);
-}
-
-/**
- * Creates a single switch setting
- * @param {string} setting - the name of the setting to modify
- * @param info - information about the setting
- * @returns {Gtk.Box} - the GUI element to render
- * @private
- */
-function _createSwitchSetting(setting, info) {
-
-    let hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-    let setting_switch = new Gtk.CheckButton({});
-    setting_switch.active = settings.get_int(setting) === 1;
-    setting_switch.connect('toggled', function (button) {
-        settings.set_int(setting, (button.active) ? 1 : 0);
-    });
-    _addLabel(hbox, info);
-    hbox.add(setting_switch);
-    return hbox;
-}
-
-/**
- * Creates a single slider setting
- * @param {string} setting - the name of the setting to modify
- * @param info - information about the setting
- * @returns {Gtk.Box} - the GUI element to render
- * @private
- */
-function _createSliderSetting(setting, info) {
-    let hbox = new Gtk.Box({
-        orientation: Gtk.Orientation.HORIZONTAL
-    });
-    const setting_label = _addLabel(hbox, info);
-
-    let adjustment = new Gtk.Adjustment({
-        lower: 60,
-        upper: 1800,
-        step_increment: 1
-    });
-    let setting_slider = new Gtk.HScale({
-        digits: 0,
-        adjustment: adjustment,
-        value_pos: Gtk.PositionType.RIGHT
-    });
-    setting_slider.set_value(settings.get_int(setting));
-    setting_label.label = info.label.replace('{0}', settings.get_int(setting));
-    setting_slider.connect('value-changed', function (button) {
-        let i = Math.round(button.get_value());
-        setting_label.label = info.label.replace('{0}', i.toString());
-        settings.set_int(setting, i);
-    });
-    hbox.pack_end(setting_slider, true, true, 0);
-    return hbox;
-}
-
-/**
- * Creates a single text setting
- * @param {string} setting - the name of the setting to modify
- * @param info - information about the setting
- * @returns {Gtk.Box} - the GUI element to render
- * @private
- */
-function _createTextSetting(setting, info) {
-
-    const hbox = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-    const setting_text = new Gtk.Entry({
-        'max-length': 2,
-        'width-chars': 2
-    });
-    setting_text.text = settings.get_int(setting).toString();
-    setting_text.connect('changed', button => {
-        const int = parseInt(button.text);
-        if (!isNaN(int)) settings.set_int(setting, int);
-    });
-    _addLabel(hbox, info);
-    hbox.add(setting_text);
-    return hbox;
-}
-
-/**
- * Creates a label for an hbox
- * @param {Gtk.Box} hbox - the GUI element to add the label to
- * @param info - information about the setting
- * @returns {Gtk.Label}
- * @private
- */
-function _addLabel(hbox, info) {
-    const setting_label = new Gtk.Label({
-        label: info.label,
-        xalign: 0
-    });
-    setting_label.set_tooltip_text(info.help);
-    hbox.pack_start(setting_label, true, true, 0);
-    return setting_label;
-}
-
-/**
- * A callback that returns an hbox
- * @callback settingsFunction
- * @param {string} setting - the name of the setting to create an element for
- * @param info - information about the setting
- * @return {Gtk.Box} - the GUI element to render
- */
-/**
- * Creates GUI elements for each setting and adds it to the vbox
- * @param {Map} settings_map - map of setting names to information
- * @param {settingsFunction} settings_function - the function that creates the GUI element
- * @param {Gtk.Box} vbox - the element to add created elements to
- * @private
- */
-function _addSettings(settings_map, settings_function, vbox) {
-    for (let [setting, info] of settings_map) {
-        const hbox = settings_function(setting, info);
-        vbox.add(hbox);
-    }
 }
 
 /**
  * Creates the setting GUI
  */
 function buildPrefsWidget() {
-    let frame = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        border_width: 10
-    });
-    let vbox = new Gtk.Box({
-        orientation: Gtk.Orientation.VERTICAL,
-        margin: 20, margin_top: 10
-    });
-    _addSettings(settings_switch, _createSwitchSetting, vbox);
-    _addSettings(settings_slider, _createSliderSetting, vbox);
-    _addSettings(settings_text, _createTextSetting, vbox);
-    frame.add(vbox);
-    frame.show_all();
-    return frame;
+    const prefs = new Prefs();
+    prefs.show_all();
+    return prefs;
 }
 
 /**
- * Sets up translations using locale folder
- * @private
+ * Creates a preference widget for extension settings
+ * @class
  */
-function _initTranslations() {
-    const Gettext = imports.gettext;
-    let localeDir = Me.dir.get_child('locale').get_path();
-    Gettext.bindtextdomain('gmail_notify', localeDir);
-}
+const Prefs = new Lang.Class({
+    Name: 'Prefs',
+    Extends: Gtk.Box,
+    _init: function (params) {
+        this.parent(params);
+        this.margin = 24;
+        this.orientation = Gtk.Orientation.VERTICAL;
+        this.settings = gmailConf.getSettings();
+        const usemailLabel = _("Use default email client instead of browser");
+        const timeoutLabel = _("Check every {0} sec: ");
+        const accountNumbersLabel = _("Gmail account number");
+        const accountNumbersHelp = _("Selects the correct Gmail account if more than one is present");
+        this._addSwitchSetting(gmailConf.SETTINGS_KEY_USEMAIL, usemailLabel, usemailLabel);
+        this._addSliderSetting(gmailConf.SETTINGS_KEY_TIMEOUT, timeoutLabel, timeoutLabel);
+        this._addDictSetting(gmailConf.SETTINGS_KEY_GMAILACCOUNTNUMBERS, accountNumbersLabel, accountNumbersHelp);
+    },
+    /**
+     * Creates a single switch setting
+     * @param {string} setting - the name of the setting to modify
+     * @param {string} label - label for setting
+     * @param {string} help - help information for setting
+     * @private
+     */
+    _addSwitchSetting: function (setting, label, help) {
+        const hbox = this._createHBox();
+        const setting_switch = new Gtk.CheckButton({
+            active: this.settings.get_int(setting) === 1
+        });
+        setting_switch.connect('toggled', button => {
+            this.settings.set_int(setting, (button.active) ? 1 : 0);
+        });
+        this._addLabel(hbox, label, help);
+        hbox.add(setting_switch);
+        this.add(hbox);
+    },
+    /**
+     * Creates a horizontal Box
+     * @returns {Gtk.Box}
+     * @private
+     */
+    _createHBox: function () {
+        return new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+    },
+
+    /**
+     * Creates a single slider setting
+     * @param {string} setting - the name of the setting to modify
+     * @param {string} label - label for setting
+     * @param {string} help - help information for setting
+     * @private
+     */
+    _addSliderSetting: function (setting, label, help) {
+        const hbox = this._createHBox();
+        const new_label = label.replace('{0}', this.settings.get_int(setting));
+        const setting_label = this._addLabel(hbox, new_label, help);
+
+        const adjustment = new Gtk.Adjustment({
+            lower: 60,
+            upper: 1800,
+            step_increment: 1
+        });
+        const setting_slider = new Gtk.HScale({
+            digits: 0,
+            adjustment: adjustment,
+            value_pos: Gtk.PositionType.RIGHT
+        });
+        setting_slider.set_value(this.settings.get_int(setting));
+        setting_slider.connect('value-changed', button => {
+            let i = Math.round(button.get_value());
+            setting_label.label = label.replace('{0}', i.toString());
+            this.settings.set_int(setting, i);
+        });
+        hbox.pack_end(setting_slider, true, true, 0);
+        this.add(hbox);
+    },
+
+    /**
+     * Creates a text setting for each value in the dict
+     * @param {string} setting - the name of the setting to modify
+     * @param {string} label - label for setting
+     * @param {string} help - help information for setting
+     * @private
+     */
+    _addDictSetting: function (setting, label, help) {
+        const baseURL = 'https://mail.google.com/mail/u/';
+        const accountNumbersDict = this.settings.get_value(setting).deep_unpack();
+
+        const label_hbox = this._createHBox();
+        this._addLabel(label_hbox, '<b>' + label + '</b>', help);
+        this.add(label_hbox);
+        for (let key in accountNumbersDict) {
+            if (!accountNumbersDict.hasOwnProperty(key)) continue;
+            const accountNumber = accountNumbersDict[key].toString();
+
+            const hbox = this._createHBox();
+            const setting_text = new Gtk.Entry({
+                'max-length': 2,
+                'width-chars': 2,
+                'text': accountNumber
+            });
+            const linkURL = baseURL + accountNumber;
+            const linkButton = new Gtk.LinkButton({
+                uri: linkURL,
+                label: linkURL
+            });
+            setting_text.connect('changed', button => {
+                const newAccountNumber = parseInt(button.text);
+                if (!isNaN(newAccountNumber)) {
+                    accountNumbersDict[key] = newAccountNumber;
+                    const gVariant = new GLib.Variant(gmailConf.GMAILACCOUNTNUMBERS_TYPE, accountNumbersDict);
+                    this.settings.set_value(setting, gVariant);
+
+                    const newLinkURL = baseURL + newAccountNumber;
+                    linkButton.uri = newLinkURL;
+                    linkButton.label = newLinkURL;
+                }
+            });
+            this._addLabel(hbox, key, help);
+            hbox.add(linkButton);
+            hbox.add(setting_text);
+            this.add(hbox);
+        }
+    },
+
+    /**
+     * Creates a label for an hbox
+     * @param {Gtk.Box} hbox - the GUI element to add the label to
+     * @param {string} label - label for setting
+     * @param {string} help - help information for setting
+     * @returns {Gtk.Label}
+     * @private
+     */
+    _addLabel: function (hbox, label, help) {
+        const setting_label = new Gtk.Label({
+            label: label,
+            xalign: 0,
+            use_markup: true
+        });
+        setting_label.set_tooltip_text(help);
+        hbox.pack_start(setting_label, true, true, 0);
+        return setting_label;
+    }
+});
+
+

@@ -29,11 +29,13 @@ var GmailScanner = new Lang.Class({
     Name: 'GmailScanner',
     /**
      * Creates a scanner with the given config
-     * @param config - the configuration of the extension
+     * @param {GmailConf} config - the configuration of the extension
+     * @param {string} mailbox - email account in the form "email@gmail.com"
      * @private
      */
-    _init: function (config) {
+    _init: function (config, mailbox) {
         this._config = config;
+        this._mailbox = mailbox;
     },
     /**
      * Parses an html response containing unread emails
@@ -45,14 +47,9 @@ var GmailScanner = new Lang.Class({
         const messages = [];
         const xmltx = body.substr(body.indexOf('>') + 1).replace('xmlns="http://purl.org/atom/ns#"', '');
         const root = new XML.REXML(xmltx).rootElement;
-        let inboxURL;
-
         for (let i = 0; typeof(root.childElements[i]) !== 'undefined'; i++) {
             const entry = root.childElements[i];
-            if (entry.name === 'link') {
-                inboxURL = this._processLinkElement(entry);
-            }
-            else if (entry.name === 'entry') {
+            if (entry.name === 'entry') {
                 messages.push({
                     from: this._decodeFrom(entry.childElement('author')),
                     subject: entry.childElement('title').text,
@@ -64,8 +61,7 @@ var GmailScanner = new Lang.Class({
         }
         folders.push({
             name: 'inbox',
-            list: messages,
-            inboxURL: inboxURL
+            list: messages
         });
         return folders;
     },
@@ -84,7 +80,20 @@ var GmailScanner = new Lang.Class({
      */
     _processLinkElement: function (linkElement) {
         const url = linkElement.attribute('href').replace(/&amp;/g, '&');
-        return url.replace("com/mail", "com/mail/u/" + this._config.getGmailAccountNumber());
+        return url.replace("com/mail", "com/mail/u/" + this._getGmailAccountNumbers());
+    },
+    /**
+     * Gets a dict of mailboxes to account numbers. Creates a new entry if needed.
+     * @returns {Object.<string, number>} - the dict
+     * @private
+     */
+    _getGmailAccountNumbers() {
+        const accountNumberDict = this._config.getGmailAccountNumbers();
+        if (accountNumberDict[this._mailbox] === undefined) {
+            accountNumberDict[this._mailbox] = 0;
+            this._config.setGmailAccountNumbers(accountNumberDict);
+        }
+        return accountNumberDict[this._mailbox];
     },
     /**
      * Converts the author element to a readable string
