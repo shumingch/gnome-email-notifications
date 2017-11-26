@@ -17,16 +17,16 @@ msgstr ""
 
 #: extension.js:108
 msgid "No email accounts found"
-msgstr ""
+msgstr "Не знайдено жодної поштової обліковики"
 
 #: extension.js:119
 msgid "Install gir1.2-goa"
-msgstr ""
+msgstr "Встановити gir1.2-goa"
 
 #: MailClientFocuser.js:46
 #, fuzzy
 msgid "No default email client found"
-msgstr "Використати типову поштову програму замість оглядача"
+msgstr "Не знайдено типової поштової програми"
 
 #: prefs.js:47
 msgid "Check every {0} sec: "
@@ -38,8 +38,8 @@ msgstr "Використати типову поштову програму за
 
 #: prefs.js:63
 msgid "Gmail account number"
-msgstr ""
+msgstr "Номер обліковки Gmail"
 
 #: prefs.js:63
 msgid "Selects the correct Gmail account if more than one is present"
-msgstr ""
+msgstr "Обирає необхідну обліковку Gmail, якщо присутні більш ніж одна"

@@ -25,8 +25,9 @@ const Lang = imports.lang;
 const Gtk = imports.gi.Gtk;
 const GLib = imports.gi.GLib;
 
-const Gettext = imports.gettext.domain('gmail_notify');
-const _ = Gettext.gettext;
+const Gettext = imports.gettext;
+const domain = 'gmail_notify';
+const _ = Gettext.domain(domain).gettext;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const GmailConf = Me.imports.GmailConf.GmailConf;
@@ -36,6 +37,8 @@ const gmailConf = new GmailConf();
  * Initializes settings
  */
 function init() {
+    const localeDir = Me.dir.get_child('locale').get_path();
+    Gettext.bindtextdomain(domain, localeDir);
 }
 
 /**

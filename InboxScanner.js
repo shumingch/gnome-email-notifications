@@ -78,9 +78,9 @@ var InboxScanner = new Lang.Class({
      */
     _createScanner: function () {
         switch (this._provider) {
-            case "google":
+            case 'google':
                 return new GmailScanner(this._config, this._mailbox);
-            case "windows_live":
+            case 'windows_live':
                 return new OutlookScanner();
             default:
                 return new Error("Provider type not found");
