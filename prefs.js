@@ -159,18 +159,21 @@ const Prefs = new Lang.Class({
                 uri: linkURL,
                 label: linkURL
             });
-            setting_text.connect('changed', button => {
-                const newAccountNumber = parseInt(button.text);
-                if (!isNaN(newAccountNumber)) {
-                    accountNumbersDict[key] = newAccountNumber;
-                    const gVariant = new GLib.Variant(gmailConf.GMAILACCOUNTNUMBERS_TYPE, accountNumbersDict);
-                    this.settings.set_value(setting, gVariant);
+            /* There is a scoping issue with gnome 3.22 so we need this self invoking function */
+            (lb => {
+                setting_text.connect('changed', button => {
+                    const newAccountNumber = parseInt(button.text);
+                    if (!isNaN(newAccountNumber)) {
+                        accountNumbersDict[key] = newAccountNumber;
+                        const gVariant = new GLib.Variant(gmailConf.GMAILACCOUNTNUMBERS_TYPE, accountNumbersDict);
+                        this.settings.set_value(setting, gVariant);
 
-                    const newLinkURL = baseURL + newAccountNumber;
-                    linkButton.uri = newLinkURL;
-                    linkButton.label = newLinkURL;
-                }
-            });
+                        const newLinkURL = baseURL + newAccountNumber;
+                        lb.uri = newLinkURL;
+                        lb.label = newLinkURL;
+                    }
+                });
+            })(linkButton);
             this._addLabel(hbox, key, help);
             hbox.add(linkButton);
             hbox.add(setting_text);

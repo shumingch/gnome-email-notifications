@@ -87,7 +87,7 @@ var GmailScanner = new Lang.Class({
      * @returns {Object.<string, number>} - the dict
      * @private
      */
-    _getGmailAccountNumbers() {
+    _getGmailAccountNumbers: function() {
         const accountNumberDict = this._config.getGmailAccountNumbers();
         if (accountNumberDict[this._mailbox] === undefined) {
             accountNumberDict[this._mailbox] = 0;
