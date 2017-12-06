@@ -57,7 +57,7 @@ var OutlookScanner = new Lang.Class({
      * @returns {string} - the URL
      */
     getApiURL: function () {
-        return "https://outlook.office.com/api/v2.0/me/messages?$select=From,Subject,ReceivedDateTime,WebLink";
+        return "https://outlook.office.com/api/v2.0/me/MailFolders/Inbox/messages?$select=From,Subject,ReceivedDateTime,WebLink";
     },
     /**
      * Converts the 'from' object into a readable string
