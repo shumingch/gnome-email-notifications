@@ -58,17 +58,19 @@ var InboxScanner = new Lang.Class({
      */
     scanInbox: function (callback) {
         const msg = Soup.Message.new("GET", this._scanner.getApiURL());
-        msg.request_headers.append('Authorization', 'Bearer ' + this._getCurrentToken());
-        Sess.queue_message(msg, (sess, msg) => {
-            const body = msg.response_body.data;
-            if (msg.status_code === 200) {
-                const folders = this._scanner.parseResponse(body, callback);
-                callback(null, folders, this._account);
-            }
-            else {
-                const err = new Error('Status ' + msg.status_code + ': ' + msg.reason_phrase);
-                callback(err);
-            }
+        this._getCurrentToken(token => {
+            msg.request_headers.append('Authorization', 'Bearer ' + token);
+            Sess.queue_message(msg, (sess, msg) => {
+                const body = msg.response_body.data;
+                if (msg.status_code === 200) {
+                    const folders = this._scanner.parseResponse(body, callback);
+                    callback(null, folders, this._account);
+                }
+                else {
+                    const err = new Error('Status ' + msg.status_code + ': ' + msg.reason_phrase);
+                    callback(err);
+                }
+            });
         });
     },
     /**
@@ -88,10 +90,14 @@ var InboxScanner = new Lang.Class({
     },
     /**
      * Returns the most recent auth token for the current Gnome Online Account
+     * @param callback - a callback that is called with the token as a parameter
      * @returns {string} the auth token
      * @private
      */
-    _getCurrentToken: function () {
-        return this._account.get_oauth2_based().call_get_access_token_sync(null)[1];
+    _getCurrentToken: function (callback) {
+        this._account.get_oauth2_based().call_get_access_token(null, (proxy, asyncResult) => {
+            const [isSuccess, token] = this._account.get_oauth2_based().call_get_access_token_finish(asyncResult);
+            callback(token);
+        });
     }
 });

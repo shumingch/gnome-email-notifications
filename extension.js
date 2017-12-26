@@ -70,11 +70,13 @@ const Extension = new Lang.Class({
         this.config = new GmailConf(this);
         this.checkMailTimeout = null;
         this._libCheck();
-        this.goaAccounts = this._getEmailAccounts();
-        this.startTimeout();
-        this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
-            this._checkMail();
-            return false;
+        this._getEmailAccounts(emailAccounts => {
+            this.goaAccounts = emailAccounts;
+            this.startTimeout();
+            this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
+                this._checkMail();
+                return false;
+            });
         });
     },
     /**
@@ -90,25 +92,28 @@ const Extension = new Lang.Class({
 
     /**
      * Returns a list of all Gnome Online Accounts
-     * @returns {EmailAccount[]} - the list of accounts
+     * @param callback - callback that is called with {EmailAccount[]} as parameter
      * @private
      */
-    _getEmailAccounts: function () {
+    _getEmailAccounts: function (callback) {
         const emailAccounts = [];
-        const aClient = Goa.Client.new_sync(null);
-        const accounts = aClient.get_accounts();
+        Goa.Client.new(null, (proxy, asyncResult) => {
+                const aClient = Goa.Client.new_finish(asyncResult);
+                const accounts = aClient.get_accounts();
 
-        for (let account of accounts) {
-            const provider = account.get_account().provider_type;
-            if (supportedProviders.has(provider)) {
-                emailAccounts.push(new EmailAccount(this.config, account));
+                for (let account of accounts) {
+                    const provider = account.get_account().provider_type;
+                    if (supportedProviders.has(provider)) {
+                        emailAccounts.push(new EmailAccount(this.config, account));
+                    }
+                }
+                if (emailAccounts.length === 0) {
+                    Main.notifyError(_("No email accounts found"));
+                    throw new Error("No email accounts found");
+                }
+                callback(emailAccounts);
             }
-        }
-        if (emailAccounts.length === 0) {
-            Main.notifyError(_("No email accounts found"));
-            throw new Error("No email accounts found");
-        }
-        return emailAccounts;
+        );
     },
     /**
      * Checks if required libraries are installed
