@@ -22,8 +22,7 @@ run `git clone --depth 1 https://github.com/shumingch/gnome-email-notifications 
 
 1. If you are getting any errors after logging in and out of gnome, try rebooting or signing back in to Google.
 
-1. If you are getting "Forbidden Error 403" when attempting to view Gmail emails, try changing the "Gmail account number" in the extension settings.
-Clicking the URL next to the account number should go to the correct inbox if the number is correct.
+1. If you are getting "Forbidden Error 403" when attempting to view Gmail, you probably are not logged into that Gmail account on your default browser.
 
 ## Authors
 

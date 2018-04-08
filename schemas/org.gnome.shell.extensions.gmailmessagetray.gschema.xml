@@ -16,10 +16,5 @@
             <summary>Stores ids of all messages shown</summary>
             <description>Stores ids of all messages shown so they don't get shown again</description>
         </key>
-        <key type="a{si}" name="gmailaccountnumbers">
-            <default>{}</default>
-            <summary>Account number of logged in Gmail accounts</summary>
-            <description>Selects the correct Gmail account number for each account</description>
-        </key>
     </schema>
 </schemalist>

@@ -23,7 +23,6 @@
 "use strict";
 const Lang = imports.lang;
 const Gtk = imports.gi.Gtk;
-const GLib = imports.gi.GLib;
 
 const Gettext = imports.gettext;
 const domain = 'gmail_notify';
@@ -64,11 +63,8 @@ const Prefs = new Lang.Class({
         this.settings = gmailConf.getSettings();
         const usemailLabel = _("Use default email client instead of browser");
         const timeoutLabel = _("Check every {0} sec: ");
-        const accountNumbersLabel = _("Gmail account number");
-        const accountNumbersHelp = _("Selects the correct Gmail account if more than one is present");
         this._addSwitchSetting(gmailConf.SETTINGS_KEY_USEMAIL, usemailLabel, usemailLabel);
         this._addSliderSetting(gmailConf.SETTINGS_KEY_TIMEOUT, timeoutLabel, timeoutLabel);
-        this._addDictSetting(gmailConf.SETTINGS_KEY_GMAILACCOUNTNUMBERS, accountNumbersLabel, accountNumbersHelp);
     },
     /**
      * Creates a single switch setting
@@ -128,57 +124,6 @@ const Prefs = new Lang.Class({
         });
         hbox.pack_end(setting_slider, true, true, 0);
         this.add(hbox);
-    },
-
-    /**
-     * Creates a text setting for each value in the dict
-     * @param {string} setting - the name of the setting to modify
-     * @param {string} label - label for setting
-     * @param {string} help - help information for setting
-     * @private
-     */
-    _addDictSetting: function (setting, label, help) {
-        const baseURL = 'https://mail.google.com/mail/u/';
-        const accountNumbersDict = this.settings.get_value(setting).deep_unpack();
-
-        const label_hbox = this._createHBox();
-        this._addLabel(label_hbox, '<b>' + label + '</b>', help);
-        this.add(label_hbox);
-        for (let key in accountNumbersDict) {
-            if (!accountNumbersDict.hasOwnProperty(key)) continue;
-            const accountNumber = accountNumbersDict[key].toString();
-
-            const hbox = this._createHBox();
-            const setting_text = new Gtk.Entry({
-                'max-length': 2,
-                'width-chars': 2,
-                'text': accountNumber
-            });
-            const linkURL = baseURL + accountNumber;
-            const linkButton = new Gtk.LinkButton({
-                uri: linkURL,
-                label: linkURL
-            });
-            /* There is a scoping issue with gnome 3.22 so we need this self invoking function */
-            (lb => {
-                setting_text.connect('changed', button => {
-                    const newAccountNumber = parseInt(button.text);
-                    if (!isNaN(newAccountNumber)) {
-                        accountNumbersDict[key] = newAccountNumber;
-                        const gVariant = new GLib.Variant(gmailConf.GMAILACCOUNTNUMBERS_TYPE, accountNumbersDict);
-                        this.settings.set_value(setting, gVariant);
-
-                        const newLinkURL = baseURL + newAccountNumber;
-                        lb.uri = newLinkURL;
-                        lb.label = newLinkURL;
-                    }
-                });
-            })(linkButton);
-            this._addLabel(hbox, key, help);
-            hbox.add(linkButton);
-            hbox.add(setting_text);
-            this.add(hbox);
-        }
     },
 
     /**

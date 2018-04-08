@@ -73,27 +73,14 @@ var GmailScanner = new Lang.Class({
         return "https://mail.google.com/mail/feed/atom/inbox";
     },
     /**
-     * Adds the proper Gmail account number to the URL (e.g. mail.google.com/u/0) and unescapes XML characters
+     * Extracts the link used to navigate to the email.
      * @param {XML} linkElement - the link element to process
      * @returns {string} the URL pointing the the unread email
      * @private
      */
     _processLinkElement: function (linkElement) {
         const url = linkElement.attribute('href').replace(/&amp;/g, '&');
-        return url.replace("com/mail", "com/mail/u/" + this._getGmailAccountNumbers());
-    },
-    /**
-     * Gets a dict of mailboxes to account numbers. Creates a new entry if needed.
-     * @returns {Object.<string, number>} - the dict
-     * @private
-     */
-    _getGmailAccountNumbers: function() {
-        const accountNumberDict = this._config.getGmailAccountNumbers();
-        if (accountNumberDict[this._mailbox] === undefined) {
-            accountNumberDict[this._mailbox] = 0;
-            this._config.setGmailAccountNumbers(accountNumberDict);
-        }
-        return accountNumberDict[this._mailbox];
+        return url + "&authuser=" + this._mailbox;
     },
     /**
      * Converts the author element to a readable string
