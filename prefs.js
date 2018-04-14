@@ -29,8 +29,8 @@ const domain = 'gmail_notify';
 const _ = Gettext.domain(domain).gettext;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const GmailConf = Me.imports.GmailConf.GmailConf;
-const gmailConf = new GmailConf();
+const Conf = Me.imports.Conf.Conf;
+const conf = new Conf();
 
 /**
  * Initializes settings
@@ -60,11 +60,11 @@ const Prefs = new Lang.Class({
         this.parent(params);
         this.margin = 24;
         this.orientation = Gtk.Orientation.VERTICAL;
-        this.settings = gmailConf.getSettings();
+        this.settings = conf.getSettings();
         const usemailLabel = _("Use default email client instead of browser");
         const timeoutLabel = _("Check every {0} sec: ");
-        this._addSwitchSetting(gmailConf.SETTINGS_KEY_USEMAIL, usemailLabel, usemailLabel);
-        this._addSliderSetting(gmailConf.SETTINGS_KEY_TIMEOUT, timeoutLabel, timeoutLabel);
+        this._addSwitchSetting(conf.SETTINGS_KEY_USEMAIL, usemailLabel, usemailLabel);
+        this._addSliderSetting(conf.SETTINGS_KEY_TIMEOUT, timeoutLabel, timeoutLabel);
     },
     /**
      * Creates a single switch setting

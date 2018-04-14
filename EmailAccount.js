@@ -34,7 +34,7 @@ var EmailAccount = new Lang.Class({
     Name: 'EmailAccount',
     /**
      * Creates a new EmailAccount with a Gnome Online Account
-     * @param {GmailConf} config
+     * @param {Conf} config
      * @param account - the Gnome Online Account
      * @private
      */

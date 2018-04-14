@@ -34,7 +34,7 @@ var InboxScanner = new Lang.Class({
     /**
      * Creates a new scanner using a Gnome Online Account
      * @param account - Gnome Online Account
-     * @param {GmailConf} config - the extension configuration
+     * @param {Conf} config - the extension configuration
      * @private
      */
     _init: function (account, config) {

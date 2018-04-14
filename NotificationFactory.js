@@ -20,12 +20,12 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const Lang = imports.lang;
-const GmailNotification = Me.imports.GmailNotification.GmailNotification;
+const Notification = Me.imports.Notification.Notification;
 const Source = imports.ui.messageTray.Source;
 const console = Me.imports.console.console;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
-const GmailConf = Me.imports.GmailConf;
+const Conf = Me.imports.Conf;
 const MailClientFocuser = Me.imports.MailClientFocuser.MailClientFocuser;
 
 
@@ -106,7 +106,7 @@ var NotificationFactory = new Lang.Class({
      * @param {boolean} popUp - true if notification should display outside the message tray
      * @param {boolean} permanent - true if notification should not go away if you click on it
      * @param {function} cb - callback that runs when notification is clicked
-     * @returns {GmailNotification} - the notification created
+     * @returns {Notification} - the notification created
      */
     _createNotification: function (content, iconName, popUp, permanent, cb) {
         const source = new Source(this._mailbox, this.MAIL_READ);
@@ -120,12 +120,12 @@ var NotificationFactory = new Lang.Class({
      * @param {boolean} popUp - true if notification should display outside the message tray
      * @param {boolean} permanent - true if notification should not go away if you click on it
      * @param {function} cb - callback that runs when notification is clicked
-     * @returns {GmailNotification} - the notification created
+     * @returns {Notification} - the notification created
      * @private
      */
     _createNotificationWithSource: function (source, content, iconName, popUp, permanent, cb) {
         Main.messageTray.add(source);
-        const notification = new GmailNotification(source, content, iconName);
+        const notification = new Notification(source, content, iconName);
         notification.connect('activated', () => {
             try {
                 cb();

@@ -31,8 +31,8 @@ const GLib = imports.gi.GLib;
  * Controls configuration for extension.
  * @class
  */
-var GmailConf = new Lang.Class({
-    Name: 'GmailConf',
+var Conf = new Lang.Class({
+    Name: 'Conf',
     SETTINGS_KEY_TIMEOUT: 'timeout',
     SETTINGS_KEY_USEMAIL: 'usemail',
     SETTINGS_KEY_MESSAGESSHOWN: 'messagesshown',

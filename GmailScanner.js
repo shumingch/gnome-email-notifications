@@ -29,7 +29,7 @@ var GmailScanner = new Lang.Class({
     Name: 'GmailScanner',
     /**
      * Creates a scanner with the given config
-     * @param {GmailConf} config - the configuration of the extension
+     * @param {Conf} config - the configuration of the extension
      * @param {string} mailbox - email account in the form "email@gmail.com"
      * @private
      */

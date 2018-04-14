@@ -42,8 +42,8 @@ const unescape_regex = /(&quot;|&#39;|&lt;|&gt;|&amp;)/g;
  * A single notification in the message tray.
  * @class
  */
-var GmailNotification = new Lang.Class({
-    Name: 'GmailNotification',
+var Notification = new Lang.Class({
+    Name: 'Notification',
     Extends: MessageTray.Notification,
     /**
      * Creates a notification in the specified source

@@ -25,7 +25,7 @@ const GLib = imports.gi.GLib;
 const Lang = imports.lang;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const GmailConf = Me.imports.GmailConf.GmailConf;
+const Conf = Me.imports.Conf.Conf;
 const EmailAccount = Me.imports.EmailAccount.EmailAccount;
 const Mainloop = imports.mainloop;
 const Main = imports.ui.main;
@@ -67,7 +67,7 @@ const Extension = new Lang.Class({
     Name: "Extension",
     _init: function () {
         console.log('Enabling ' + _version);
-        this.config = new GmailConf(this);
+        this.config = new Conf(this);
         this.checkMailTimeout = null;
         this._libCheck();
         this._getEmailAccounts(emailAccounts => {
