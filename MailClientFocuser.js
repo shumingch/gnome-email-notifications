@@ -21,7 +21,7 @@
  */
 "use strict";
 const Lang = imports.lang;
-const screen = global.screen;
+const screen = global.screen || global.display;
 const Meta = imports.gi.Meta;
 const Main = imports.ui.main;
 const Gio = imports.gi.Gio;

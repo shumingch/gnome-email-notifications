@@ -2,7 +2,7 @@
 
 Formerly Gmail Message Tray
 
-Utilizes Gnome Online Accounts to login to Gmail and check your incoming email
+Utilizes Gnome Online Accounts to login to Gmail/Outlook and check your incoming email
 
 ## Installation
 

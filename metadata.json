@@ -4,9 +4,11 @@
   "shell-version": [
     "3.22",
     "3.24",
-    "3.26"
+    "3.26",
+    "3.28",
+    "3.30"
   ],
   "url": "https://github.com/shumingch/gnome-email-notifications",
   "uuid": "GmailMessageTray@shuming0207.gmail.com",
-  "version": 15
+  "version": 16
 }
