@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-02 20:32-0400\n"
 "PO-Revision-Date: 2012-02-04 17:58+0100\n"
-"Last-Translator: Adam Jabłoński <jablona123@gmail.com>\n"
+"Last-Translator: Mahmut Elmas <mahmutelmas06@gmail.com>\n"
 "Language-Team: \n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -19,11 +19,11 @@ msgstr ""
 
 #: extension.js:108
 msgid "No email accounts found"
-msgstr ""
+msgstr "Hiçbir Eposta hesabı bulunamadı"
 
 #: extension.js:119
 msgid "Install gir1.2-goa"
-msgstr ""
+msgstr "Yükle gir1.2-goa"
 
 #: MailClientFocuser.js:46
 #, fuzzy
@@ -40,8 +40,8 @@ msgstr "Tarayıcı yerine varsayılan istemciyi kullanın"
 
 #: prefs.js:63
 msgid "Gmail account number"
-msgstr ""
+msgstr "Gmail hesap numarası"
 
 #: prefs.js:63
 msgid "Selects the correct Gmail account if more than one is present"
-msgstr ""
+msgstr "Birden fazla gmail hesabı varsa kullanılmakta olanı seç"
