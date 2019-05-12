@@ -21,65 +21,83 @@
  *
  */
 "use strict";
+const Gettext = imports.gettext;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Lang = imports.lang;
-const Gio = imports.gi.Gio;
-const GLib = imports.gi.GLib;
-
+const {Gio, GLib} = imports.gi;
 
 /**
  * Controls configuration for extension.
- * @class
  */
-var Conf = new Lang.Class({
-    Name: 'Conf',
-    SETTINGS_KEY_TIMEOUT: 'timeout',
-    SETTINGS_KEY_USEMAIL: 'usemail',
-    SETTINGS_KEY_MESSAGESSHOWN: 'messagesshown',
-    SHOWSUMMARY_YES: 'yes',
-    SHOWSUMMARY_NO: 'no',
-    MESSAGES_SHOWN_TYPE: 'as',
+var Conf = class {
     /**
      * Creates a new conf for an extension
      * @param {Extension} extension - the extension to control
-     * @private
      */
-    _init: function (extension) {
+    constructor(extension) {
+
+        this.settings = Conf.getSettings();
         if (extension === undefined) return;
-        this.settings = this.getSettings();
         this.settings.connect("changed::timeout", () => {
             extension.stopTimeout();
             extension.startTimeout();
         });
-    },
+    }
 
-    getTimeout: function () {
-        return this.settings.get_int(this.SETTINGS_KEY_TIMEOUT);
-    },
-    getReader: function () {
-        return this.settings.get_int(this.SETTINGS_KEY_USEMAIL);
-    },
+    /**
+     * Gets time between calls to email server.
+     * @returns {number}
+     */
+    getTimeout() {
+        return this.settings.get_int('timeout');
+    }
+
+    /**
+     * Sets time between calls to email server.
+     * @param {number} timeout
+     */
+    setTimeout(timeout) {
+        this.settings.set_int('timeout', timeout);
+    }
+
+    /**
+     * Returns 1 if we should use default email client instead of browser. 0 otherwise.
+     * @returns {number}
+     */
+    getReader() {
+        return this.settings.get_int('usemail');
+    }
+
+    /**
+     * Sets 1 if we should use default email client instead of browser. 0 otherwise.
+     * @param {number} reader
+     */
+    setReader(reader) {
+        return this.settings.set_int('usemail', reader);
+    }
+
     /**
      * Returns an array of ids of messages already shown
      * @returns {Array} array of ids
      */
-    getMessagesShown: function () {
-        const val = this.settings.get_value(this.SETTINGS_KEY_MESSAGESSHOWN);
+    getMessagesShown() {
+        const val = this.settings.get_value('messagesshown');
         return val.deep_unpack();
-    },
+    }
+
     /**
      * Replaces the array of ids of messages already shown
      * @param {Array} array - array of ids
      */
-    setMessagesShown: function (array) {
-        const gVariant = new GLib.Variant(this.MESSAGES_SHOWN_TYPE, array);
-        this.settings.set_value(this.SETTINGS_KEY_MESSAGESSHOWN, gVariant);
-    },
+    setMessagesShown(array) {
+        const gVariant = new GLib.Variant('as', array);
+        this.settings.set_value('messagesshown', gVariant);
+    }
+
     /**
      * Gets the settings from Gio.
      * @returns {Gio.Settings}
      */
-    getSettings: function () {
+    static getSettings() {
         let schemaName = 'org.gnome.shell.extensions.gmailmessagetray';
         let schemaDir = Me.dir.get_child('schemas').get_path();
 
@@ -90,4 +108,12 @@ var Conf = new Lang.Class({
 
         return new Gio.Settings({settings_schema: schema});
     }
-});
+
+    /**
+     * Sets up translations from locale directory.
+     */
+    static setupTranslations() {
+        const localeDir = Me.dir.get_child('locale').get_path();
+        Gettext.bindtextdomain('gmail_notify', localeDir);
+    }
+};

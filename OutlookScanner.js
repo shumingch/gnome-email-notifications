@@ -17,29 +17,27 @@
  *
  */
 "use strict";
-const Lang = imports.lang;
 
 /**
  * Scans Outlook json api for unread emails.
- * @class
  */
-var OutlookScanner = new Lang.Class({
-    Name: 'OutlookScanner',
-    _init: function () {
-    },
+var OutlookScanner = class {
+    constructor() {
+    }
+
     /**
      * Parses a JSON response for unread emails
      * @param {string} body - JSON containing emails
      * @returns {Array} - a list of folders containing unread emails
      */
-    parseResponse: function (body) {
+    parseResponse(body) {
         const folders = [];
         const messages = [];
         const parsedBody = JSON.parse(body);
         const value = parsedBody.value;
         for (let entry of value) {
             messages.push({
-                from: this._decodeFrom(entry.From),
+                from: OutlookScanner._decodeFrom(entry.From),
                 subject: entry.Subject,
                 date: entry.ReceivedDateTime,
                 link: entry.WebLink,
@@ -51,23 +49,25 @@ var OutlookScanner = new Lang.Class({
             list: messages
         });
         return folders;
-    },
+    }
+
     /**
      * Returns the Outlook API URL
      * @returns {string} - the URL
      */
-    getApiURL: function () {
+    getApiURL() {
         return "https://outlook.office.com/api/v2.0/me/MailFolders/Inbox/messages?$select=From,Subject,ReceivedDateTime,WebLink";
-    },
+    }
+
     /**
      * Converts the 'from' object into a readable string
      * @param from - an object containing 'from' information
      * @returns {string} - the readable string
      * @private
      */
-    _decodeFrom: function (from) {
-        if(from === undefined) return "";
+    static _decodeFrom(from) {
+        if (from === undefined) return "";
         const email = from.EmailAddress;
         return email.Name + " <" + email.Address + ">";
     }
-});
+};

@@ -21,55 +21,45 @@
  *
  */
 "use strict";
+/** @external imports*/
 const GLib = imports.gi.GLib;
-const Lang = imports.lang;
-
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Conf = Me.imports.Conf.Conf;
-const EmailAccount = Me.imports.EmailAccount.EmailAccount;
 const Mainloop = imports.mainloop;
 const Main = imports.ui.main;
 const console = Me.imports.console.console;
+const Conf = Me.imports.Conf.Conf;
+const EmailAccount = Me.imports.EmailAccount.EmailAccount;
 
 const _version = Me.metadata['version'];
 
 let extension;
-let Soup, sSes, Gio, Goa;
+let Goa;
 try {
-    Soup = imports.gi.Soup;
-    Gio = imports.gi.Gio;
     Goa = imports.gi.Goa;
-    sSes = new Soup.SessionAsync();
-    Soup.Session.prototype.add_feature.call(sSes, new Soup.ProxyResolverDefault());
-}
-catch (err) {
+} catch (err) {
     console.error(err);
 }
 
 /**
  * Initializes translations for the extension
- * @param extensionMeta - information about the extension
  */
-function init(extensionMeta) {
+function init() {
     console.log('Init version ' + _version);
-    const extensionPath = extensionMeta.path;
-    let userExtensionLocalePath = extensionPath + '/locale';
-    imports.gettext.bindtextdomain('gmail_notify', userExtensionLocalePath);
+    Conf.setupTranslations();
 }
 
 const supportedProviders = new Set(["google", "windows_live"]);
 
 /**
  * An instance of this gnome extension
- * @class
  */
-const Extension = new Lang.Class({
-    Name: "Extension",
-    _init: function () {
+var Extension = class {
+    constructor() {
         console.log('Enabling ' + _version);
+        /** @type Conf */
         this.config = new Conf(this);
         this.checkMailTimeout = null;
-        this._libCheck();
+        Extension._libCheck();
         this._getEmailAccounts(emailAccounts => {
             this.goaAccounts = emailAccounts;
             this.startTimeout();
@@ -78,24 +68,25 @@ const Extension = new Lang.Class({
                 return false;
             });
         });
-    },
+    }
+
     /**
      * Checks the mail for each account available
      * @private
      */
-    _checkMail: function () {
+    _checkMail() {
         console.log("Checking mail");
         for (let account of this.goaAccounts) {
             account.scanInbox();
         }
-    },
+    }
 
     /**
      * Returns a list of all Gnome Online Accounts
      * @param callback - callback that is called with {EmailAccount[]} as parameter
      * @private
      */
-    _getEmailAccounts: function (callback) {
+    _getEmailAccounts(callback) {
         const emailAccounts = [];
         Goa.Client.new(null, (proxy, asyncResult) => {
                 const aClient = Goa.Client.new_finish(asyncResult);
@@ -114,43 +105,47 @@ const Extension = new Lang.Class({
                 callback(emailAccounts);
             }
         );
-    },
+    }
+
     /**
      * Checks if required libraries are installed
      * @private
      */
-    _libCheck: function () {
+    static _libCheck() {
         if (Goa === undefined) {
             Main.notifyError(_("Install gir1.2-goa"));
             throw new Error("No Goa found");
         }
-    },
+    }
+
     /**
      * Checks mail using timeout from config
      */
-    startTimeout: function () {
+    startTimeout() {
         this.checkMailTimeout = GLib.timeout_add_seconds(0, this.config.getTimeout(), () => {
             this._checkMail();
             return true;
         });
-    },
+    }
+
     /**
      * Stops checking mail
      */
-    stopTimeout: function () {
+    stopTimeout() {
         Mainloop.source_remove(this.checkMailTimeout);
         Mainloop.source_remove(this.initialCheckMail);
-    },
+    }
+
     /**
      * Stops and cleans up extension
      */
-    destroy: function () {
+    destroy() {
         this.stopTimeout();
         for (let account of this.goaAccounts) {
             account.destroySources();
         }
     }
-});
+};
 
 /**
  * Sets up the extension
@@ -158,8 +153,7 @@ const Extension = new Lang.Class({
 function enable() {
     try {
         extension = new Extension();
-    }
-    catch (err) {
+    } catch (err) {
         console.error(err);
     }
 }
@@ -171,8 +165,7 @@ function disable() {
     try {
         extension.destroy();
         extension = null;
-    }
-    catch (err) {
+    } catch (err) {
         console.error(err);
     }
 }

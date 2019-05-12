@@ -21,23 +21,19 @@
  *
  */
 "use strict";
-const Lang = imports.lang;
-const Gtk = imports.gi.Gtk;
+const {GObject, Gtk} = imports.gi;
 
 const Gettext = imports.gettext;
-const domain = 'gmail_notify';
-const _ = Gettext.domain(domain).gettext;
+const _ = Gettext.domain('gmail_notify').gettext;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Conf = Me.imports.Conf.Conf;
-const conf = new Conf();
 
 /**
  * Initializes settings
  */
 function init() {
-    const localeDir = Me.dir.get_child('locale').get_path();
-    Gettext.bindtextdomain(domain, localeDir);
+    Conf.setupTranslations();
 }
 
 /**
@@ -51,59 +47,57 @@ function buildPrefsWidget() {
 
 /**
  * Creates a preference widget for extension settings
- * @class
+ * @private
  */
-const Prefs = new Lang.Class({
-    Name: 'Prefs',
-    Extends: Gtk.Box,
-    _init: function (params) {
-        this.parent(params);
+var Prefs = GObject.registerClass(class extends Gtk.Box {
+    _init(params) {
+        super._init(params);
         this.margin = 24;
         this.orientation = Gtk.Orientation.VERTICAL;
-        this.settings = conf.getSettings();
-        const usemailLabel = _("Use default email client instead of browser");
+        this._conf = new Conf();
+        const useMailLabel = _("Use default email client instead of browser");
         const timeoutLabel = _("Check every {0} sec: ");
-        this._addSwitchSetting(conf.SETTINGS_KEY_USEMAIL, usemailLabel, usemailLabel);
-        this._addSliderSetting(conf.SETTINGS_KEY_TIMEOUT, timeoutLabel, timeoutLabel);
-    },
+        this._addSwitchSetting(useMailLabel, useMailLabel);
+        this._addSliderSetting(timeoutLabel, timeoutLabel);
+    }
+
     /**
      * Creates a single switch setting
-     * @param {string} setting - the name of the setting to modify
      * @param {string} label - label for setting
      * @param {string} help - help information for setting
      * @private
      */
-    _addSwitchSetting: function (setting, label, help) {
+    _addSwitchSetting(label, help) {
         const hbox = this._createHBox();
         const setting_switch = new Gtk.CheckButton({
-            active: this.settings.get_int(setting) === 1
+            active: this._conf.getReader() === 1
         });
         setting_switch.connect('toggled', button => {
-            this.settings.set_int(setting, (button.active) ? 1 : 0);
+            this._conf.setReader(button.active ? 1 : 0);
         });
         this._addLabel(hbox, label, help);
         hbox.add(setting_switch);
         this.add(hbox);
-    },
+    }
+
     /**
      * Creates a horizontal Box
      * @returns {Gtk.Box}
      * @private
      */
-    _createHBox: function () {
+    _createHBox() {
         return new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
-    },
+    }
 
     /**
      * Creates a single slider setting
-     * @param {string} setting - the name of the setting to modify
      * @param {string} label - label for setting
      * @param {string} help - help information for setting
      * @private
      */
-    _addSliderSetting: function (setting, label, help) {
+    _addSliderSetting(label, help) {
         const hbox = this._createHBox();
-        const new_label = label.replace('{0}', this.settings.get_int(setting));
+        const new_label = label.replace('{0}', this._conf.getTimeout());
         const setting_label = this._addLabel(hbox, new_label, help);
 
         const adjustment = new Gtk.Adjustment({
@@ -116,15 +110,15 @@ const Prefs = new Lang.Class({
             adjustment: adjustment,
             value_pos: Gtk.PositionType.RIGHT
         });
-        setting_slider.set_value(this.settings.get_int(setting));
+        setting_slider.set_value(this._conf.getTimeout());
         setting_slider.connect('value-changed', button => {
             let i = Math.round(button.get_value());
             setting_label.label = label.replace('{0}', i.toString());
-            this.settings.set_int(setting, i);
+            this._conf.setTimeout(i);
         });
         hbox.pack_end(setting_slider, true, true, 0);
         this.add(hbox);
-    },
+    }
 
     /**
      * Creates a label for an hbox
@@ -134,7 +128,7 @@ const Prefs = new Lang.Class({
      * @returns {Gtk.Label}
      * @private
      */
-    _addLabel: function (hbox, label, help) {
+    _addLabel(hbox, label, help) {
         const setting_label = new Gtk.Label({
             label: label,
             xalign: 0,

@@ -18,43 +18,40 @@
  */
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Lang = imports.lang;
 const Source = imports.ui.messageTray.Source;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 const Gio = imports.gi.Gio;
+const Main = imports.ui.main;
 const Util = imports.misc.util;
-const MailClientFocuser = Me.imports.MailClientFocuser.MailClientFocuser;
 const NotificationFactory = Me.imports.NotificationFactory.NotificationFactory;
 
 /**
  * Controls notifications in message tray.
- * @class
  */
-var Notifier = new Lang.Class({
-    Name: 'Notifier',
+var Notifier = class {
     /**
      * Creates new notifier for an email account.
      * @param {EmailAccount} emailAccount
-     * @private
      */
-    _init: function (emailAccount) {
+    constructor(emailAccount) {
         this._config = emailAccount.config;
         this._mailbox = emailAccount.mailbox;
         this._notificationFactory = new NotificationFactory(emailAccount);
-        this._mailClientFocuser = new MailClientFocuser();
-    },
+    }
+
     /**
      * Destroys all sources for the email account
      */
-    destroySources: function () {
+    destroySources() {
         this._notificationFactory.destroySources();
-    },
+    }
+
     /**
      * Creates a notification for each unread email
      * @param content - a list of unread emails
      */
-    displayUnreadMessages: function (content) {
+    displayUnreadMessages(content) {
         const messagesShown = new Set(this._config.getMessagesShown());
         for (let msg of content) {
             if (!messagesShown.has(msg.id)) {
@@ -67,12 +64,13 @@ var Notifier = new Lang.Class({
             }
         }
         this._config.setMessagesShown([...messagesShown]);
-    },
+    }
+
     /**
      * Creates a notification for an error
      * @param {Error} error - the error to display
      */
-    showError: function (error) {
+    showError(error) {
         const content = {
             from: error.message,
             date: new Date(),
@@ -82,42 +80,45 @@ var Notifier = new Lang.Class({
             this._openBrowser(Me.metadata["url"]);
         };
         this._notificationFactory.createErrorNotification(content, cb);
-    },
+    }
+
     /**
      * Removes all errors currently displaying for this email account
      */
-    removeErrors: function () {
+    removeErrors() {
         this._notificationFactory.removeErrors();
-    },
-    /**
-     * Returns non-empty sources
-     * @returns {Source[]} array of sources
-     */
-    getNonEmptySources: function () {
-        return this._notificationFactory.getNonEmptySources();
-    },
+    }
+
     /**
      * Opens the default browser with the given link
      * @param {undefined | string} link - the URL to open
      * @private
      */
-    _openBrowser: function (link) {
+    _openBrowser(link) {
         if (link === '' || link === undefined) {
             link = 'https://' + this._mailbox.match(/@(.*)/)[1];
         }
         const defaultBrowser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
         Util.trySpawnCommandLine(defaultBrowser + " " + link);
-    },
+    }
+
     /**
      * Opens email using either browser or email client
      * @param {undefined | string} link - the link to open
      * @private
      */
-    _openEmail: function (link) {
+    _openEmail(link) {
         if (this._config.getReader() === 0) {
             this._openBrowser(link);
         } else {
-            this._mailClientFocuser.open();
+            const mailto = Gio.app_info_get_default_for_uri_scheme("mailto");
+            if (mailto === null) {
+                const error = _("No default email client found");
+                Main.notifyError(error);
+                throw new Error(error);
+            }
+            const defaultMailClient = mailto.get_executable();
+            Util.trySpawnCommandLine(defaultMailClient);
         }
     }
-});
+};

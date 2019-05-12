@@ -22,12 +22,9 @@
  */
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Lang = imports.lang;
 const console = Me.imports.console.console;
 const MessageTray = imports.ui.messageTray;
-const GLib = imports.gi.GLib;
-const Gio = imports.gi.Gio;
-const Config = imports.misc.config;
+const {Gio, GLib} = imports.gi;
 
 const escaped_one_to_xml_special_map = {
     '&amp;': '&',
@@ -40,72 +37,54 @@ const unescape_regex = /(&quot;|&#39;|&lt;|&gt;|&amp;)/g;
 
 /**
  * A single notification in the message tray.
- * @class
+ * @class Notification
  */
-var Notification = new Lang.Class({
-    Name: 'Notification',
-    Extends: MessageTray.Notification,
+var Notification = class extends MessageTray.Notification {
     /**
      * Creates a notification in the specified source
      * @param {Source} source - the source to create the notification in
      * @param content - information to display in notification
      * @param iconName - the name of the icon to display in the notification
-     * @private
      */
-    _init: function (source, content, iconName) {
+    constructor(source, content, iconName) {
         try {
             const date = new Date(content.date);
-            const title = this._unescapeXML(content.subject);
+            const title = Notification._unescapeXML(content.subject);
             const gicon = new Gio.ThemedIcon({name: iconName});
-            let banner = this._unescapeXML(content.from);
+            let banner = Notification._unescapeXML(content.from);
             const params = {
                 gicon: gicon
             };
 
-            if (Config.PACKAGE_VERSION.startsWith("3.22")) {
-                banner = this._addDateTimeToBanner(date, banner);
-            }
-            else {
-                this._addDateTimeToParams(date, params);
-            }
+            Notification._addDateTimeToParams(date, params);
 
-            this.parent(source, title, banner, params);
-        }
-        catch (err) {
+            super(source, title, banner, params);
+        } catch (err) {
             console.error(err);
         }
-    },
+    }
+
     /**
      * Unescapes special characters found in XML
-     * @param {string} string - the string to unescape
+     * @param {?string} xmlString - the string to unescape
      * @returns {string} - the unescaped string
      * @private
      */
-    _unescapeXML: function (string) {
-        if(string === null) return "";
-        return string.replace(unescape_regex,
+    static _unescapeXML(xmlString) {
+        if (xmlString === null) return "";
+        return xmlString.replace(unescape_regex,
             (str, item) => escaped_one_to_xml_special_map[item]);
-    },
-    /**
-     * Adds date and time to the banner
-     * @param {Date} date - the date to format into a string
-     * @param {string} banner - the string to prepend the date to
-     * @returns {string} - the final string
-     * @private
-     */
-    _addDateTimeToBanner: function (date, banner) {
-        const locale_date = date.toLocaleFormat("%b %d %H:%M %p");
-        return locale_date + " " + banner;
-    },
+    }
+
     /**
      * Adds date and time to the params object as unix local time
      * @param {Date} date - the date  to add
      * @param params - parameters for creating a {@link MessageTray.Notification}
      * @private
      */
-    _addDateTimeToParams: function (date, params) {
+    static _addDateTimeToParams(date, params) {
         const unix_local = date.getTime() / 1000;
         params.datetime = GLib.DateTime.new_from_unix_local(unix_local);
     }
 
-});
+};

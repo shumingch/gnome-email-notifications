@@ -18,59 +18,57 @@
  */
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Lang = imports.lang;
-const InboxScanner = Me.imports.InboxScanner.InboxScanner;
-const Notifier = Me.imports.Notifier.Notifier;
 const console = Me.imports.console.console;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
-
+const InboxScanner = Me.imports.InboxScanner.InboxScanner;
+const Notifier = Me.imports.Notifier.Notifier;
 
 /**
  * Controls a single Gnome Online Account
- * @class
  */
-var EmailAccount = new Lang.Class({
-    Name: 'EmailAccount',
+var EmailAccount = class {
     /**
      * Creates a new EmailAccount with a Gnome Online Account
      * @param {Conf} config
      * @param account - the Gnome Online Account
-     * @private
      */
-    _init: function (config, account) {
+    constructor(config, account) {
         this.config = config;
         this.mailbox = account.get_account().presentation_identity;
         if (this.mailbox === undefined) this.mailbox = '';
         this._scanner = new InboxScanner(account, this.config);
         this._notifier = new Notifier(this);
-    },
+    }
+
     /**
      * Creates a notification for an error and logs it to the console
      * @param {Error} error - the error to display
      */
-    _showError: function (error) {
+    _showError(error) {
         console.error(error);
         this._notifier.showError(error);
-    },
+    }
+
     /**
      * Scans the current account for emails
      */
-    scanInbox: function () {
+    scanInbox() {
         try {
             this._notifier.removeErrors();
-            this._scanner.scanInbox(Lang.bind(this, this._processData));
+            this._scanner.scanInbox(this._processData.bind(this));
         } catch (err) {
             this._showError(err);
         }
-    },
+    }
+
     /**
      * Displays error or emails to message tray.
      * @param {Error} err - the error to display
      * @param folders - a list of folders which contain unread emails
      * @private
      */
-    _processData: function (err, folders) {
+    _processData(err, folders) {
         if (err) {
             this._showError(err);
         } else {
@@ -81,22 +79,24 @@ var EmailAccount = new Lang.Class({
                 this._showError(err);
             }
         }
-    },
+    }
+
     /**
      * Displays notifications for unread emails
      * @param content - a list of unread emails
      */
-    updateContent: function (content) {
-        content.reverse();
+    updateContent(content) {
         if (content !== undefined) {
+            content.reverse();
             this._notifier.displayUnreadMessages(content);
         }
-    },
+    }
+
     /**
      * Destroys all sources for the email account
      */
-    destroySources: function () {
+    destroySources() {
         this._notifier.destroySources();
     }
-});
+};
 

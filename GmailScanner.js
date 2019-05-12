@@ -17,41 +17,36 @@
  *
  */
 "use strict";
-const Lang = imports.lang;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const XML = Me.imports.rexml;
 
 /**
  * Scans Gmail atom api for unread emails.
- * @class
  */
-var GmailScanner = new Lang.Class({
-    Name: 'GmailScanner',
+var GmailScanner = class {
     /**
      * Creates a scanner with the given config
-     * @param {Conf} config - the configuration of the extension
      * @param {string} mailbox - email account in the form "email@gmail.com"
-     * @private
      */
-    _init: function (config, mailbox) {
-        this._config = config;
+    constructor(mailbox) {
         this._mailbox = mailbox;
-    },
+    }
+
     /**
      * Parses an html response containing unread emails
      * @param {string} body - html response
      * @returns {Array} - list of parsed folders
      */
-    parseResponse: function (body) {
+    parseResponse(body) {
         const folders = [];
         const messages = [];
         const xmltx = body.substr(body.indexOf('>') + 1).replace('xmlns="http://purl.org/atom/ns#"', '');
         const root = new XML.REXML(xmltx).rootElement;
-        for (let i = 0; typeof(root.childElements[i]) !== 'undefined'; i++) {
+        for (let i = 0; typeof (root.childElements[i]) !== 'undefined'; i++) {
             const entry = root.childElements[i];
             if (entry.name === 'entry') {
                 messages.push({
-                    from: this._decodeFrom(entry.childElement('author')),
+                    from: GmailScanner._decodeFrom(entry.childElement('author')),
                     subject: entry.childElement('title').text,
                     date: entry.childElement('modified').text,
                     link: this._processLinkElement(entry.childElement('link')),
@@ -64,31 +59,34 @@ var GmailScanner = new Lang.Class({
             list: messages
         });
         return folders;
-    },
+    }
+
     /**
      * Returns the URL for Google's Gmail API
      * @returns {string} - the URL
      */
-    getApiURL: function () {
+    getApiURL() {
         return "https://mail.google.com/mail/feed/atom/inbox";
-    },
+    }
+
     /**
      * Extracts the link used to navigate to the email.
      * @param {XML} linkElement - the link element to process
      * @returns {string} the URL pointing the the unread email
      * @private
      */
-    _processLinkElement: function (linkElement) {
+    _processLinkElement(linkElement) {
         const url = linkElement.attribute('href').replace(/&amp;/g, '&');
         return url + "&authuser=" + this._mailbox;
-    },
+    }
+
     /**
      * Converts the author element to a readable string
      * @param {XML} authorElement - the element containing "from" information
      * @returns {string} - the string
      * @private
      */
-    _decodeFrom: function (authorElement) {
+    static _decodeFrom(authorElement) {
         return authorElement.childElement('name').text + " <" + authorElement.childElement('email').text + ">";
     }
-});
+};
