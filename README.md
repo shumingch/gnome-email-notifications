@@ -18,9 +18,7 @@ run `git clone --depth 1 https://github.com/shumingch/gnome-email-notifications 
 
 ## Troubleshooting
 
-1. If you are getting any errors after logging in and out of gnome, try rebooting or signing back in to your Gnome Online Accounts. 
-
-1. If you are getting "Forbidden Error 403" when attempting to view Gmail, you probably are not logged into that Gmail account on your default browser.
+1. For any errors, try rebooting or signing back in to your Gnome Online Accounts. 
 
 ## Authors
 
