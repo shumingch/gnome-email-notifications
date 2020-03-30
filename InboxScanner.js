@@ -17,11 +17,15 @@
  *
  */
 "use strict";
+const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
+const console = Me.imports.console.console;
 const Soup = imports.gi.Soup;
 const Sess = new Soup.SessionAsync();
 const OutlookScanner = Me.imports.OutlookScanner.OutlookScanner;
 const GmailScanner = Me.imports.GmailScanner.GmailScanner;
+const Gettext = imports.gettext.domain('gmail_notify');
+const _ = Gettext.gettext;
 
 /**
  * Scans an email account of any supported type using online APIs
@@ -91,8 +95,14 @@ var InboxScanner = class {
      */
     _getCurrentToken(callback) {
         this._account.get_oauth2_based().call_get_access_token(null, (proxy, asyncResult) => {
-            const [, token] = this._account.get_oauth2_based().call_get_access_token_finish(asyncResult);
-            callback(token);
+            try {
+                const [, token] = this._account.get_oauth2_based().call_get_access_token_finish(asyncResult);
+                callback(token);
+            } catch (err) {
+                const message = _("Failed to get Authorization for {0}");
+                Main.notifyError(message.replace("{0}", this._mailbox));
+                console.error(err);
+            }
         });
     }
 };
