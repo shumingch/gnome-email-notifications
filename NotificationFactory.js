@@ -126,7 +126,7 @@ var NotificationFactory = class {
             notification.setResident(true);
         }
         if (popUp) {
-            source.notify(notification);
+            source.showNotification(notification);
         } else {
             notification.acknowledged = true;
             source.pushNotification(notification);

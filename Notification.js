@@ -24,7 +24,7 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const console = Me.imports.console.console;
 const MessageTray = imports.ui.messageTray;
-const {Gio, GLib} = imports.gi;
+const {Gio, GLib, GObject} = imports.gi;
 
 const escaped_one_to_xml_special_map = {
     '&amp;': '&',
@@ -39,14 +39,15 @@ const unescape_regex = /(&quot;|&#39;|&lt;|&gt;|&amp;)/g;
  * A single notification in the message tray.
  * @class Notification
  */
-var Notification = class extends MessageTray.Notification {
+var Notification = GObject.registerClass(
+    class extends MessageTray.Notification {
     /**
      * Creates a notification in the specified source
      * @param {Source} source - the source to create the notification in
      * @param content - information to display in notification
      * @param iconName - the name of the icon to display in the notification
      */
-    constructor(source, content, iconName) {
+    _init(source, content, iconName) {
         try {
             const date = new Date(content.date);
             const title = Notification._unescapeXML(content.subject);
@@ -57,8 +58,8 @@ var Notification = class extends MessageTray.Notification {
             };
 
             Notification._addDateTimeToParams(date, params);
-
-            super(source, title, banner, params);
+            
+            super._init(source, title, banner, params);
         } catch (err) {
             console.error(err);
         }
@@ -87,4 +88,4 @@ var Notification = class extends MessageTray.Notification {
         params.datetime = GLib.DateTime.new_from_unix_local(unix_local);
     }
 
-};
+});
