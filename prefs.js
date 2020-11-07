@@ -29,6 +29,94 @@ const _ = Gettext.domain('gmail_notify').gettext;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Conf = Me.imports.Conf.Conf;
 
+/*
+Gmail system label definitions taken from
+https://developers.google.com/gmail/android/com/google/android/gm/contentprovider/GmailContract.Labels.LabelCanonicalNames
+Linked to by https://stackoverflow.com/questions/24959370/list-of-gmail-atom-available-labels
+Only those marked as "include" are available to choose from, but the
+whole list is documented here anyway.
+*/
+const GMAIL_SYSTEM_LABELS = {
+    CANONICAL_NAME_ALL_MAIL: {
+        display: "All Mail label",
+        value: "^all",
+        include: false,
+        order: 0
+    },
+    CANONICAL_NAME_DRAFTS: {
+        display: "Drafts label",
+        value: "^r",
+        include: false,
+        order: 0
+    },
+    CANONICAL_NAME_INBOX: {
+        display: "Whole inbox (the 'inbox' label)",
+        value: "^i",
+        include: true,
+        order: 1
+    },
+    CANONICAL_NAME_INBOX_CATEGORY_FORUMS: {
+        display: "Forums inbox category",
+        value: "^sq_ig_i_group",
+        include: false,
+        order: 0
+    },
+    CANONICAL_NAME_INBOX_CATEGORY_PRIMARY: {
+        display: "Priority Inbox: Primary category only",
+        value: "^sq_ig_i_personal",
+        include: true,
+        order: 3
+    },
+    CANONICAL_NAME_INBOX_CATEGORY_PROMOTIONS: {
+        display: "Promotions inbox category",
+        value: "^sq_ig_i_promo",
+        include: false,
+        order: 0
+    },
+    CANONICAL_NAME_INBOX_CATEGORY_SOCIAL: {
+        display: "Social inbox category",
+        value: "^sq_ig_i_social",
+        include: false,
+        order: 0
+    },
+    CANONICAL_NAME_INBOX_CATEGORY_UPDATES: {
+        display: "Updates inbox category",
+        value: "^sq_ig_i_notification",
+        include: false,
+        order: 0
+    },
+    CANONICAL_NAME_PRIORITY_INBOX: {
+        display: "Priority Inbox",
+        value: "^iim",
+        include: true,
+        order: 2
+    },
+    CANONICAL_NAME_SENT: {
+        display: "Sent label",
+        value: "^f",
+        include: false,
+        order: 0
+    },
+    CANONICAL_NAME_SPAM: {
+        display: "Spam label",
+        value: "^s",
+        include: false,
+        order: 0
+    },
+    CANONICAL_NAME_STARRED: {
+        display: "Starred label",
+        value: "^t",
+        include: false,
+        order: 0
+    },
+    CANONICAL_NAME_TRASH: {
+        display: "Trash label",
+        value: "^k",
+        include: false,
+        order: 0
+    }
+}
+
 /**
  * Initializes settings
  */
@@ -57,8 +145,56 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
         this._conf = new Conf();
         const useMailLabel = _("Use default email client instead of browser");
         const timeoutLabel = _("Check every {0} sec: ");
+        const gmailSystemLabelLabel = _("Select mailbox (for Gmail accounts only)");
         this._addSwitchSetting(useMailLabel, useMailLabel);
         this._addSliderSetting(timeoutLabel, timeoutLabel);
+        const gmailSystemLabelRadioDefinitions = [];
+        for (let key in GMAIL_SYSTEM_LABELS) {
+            if (GMAIL_SYSTEM_LABELS[key].include) {
+                gmailSystemLabelRadioDefinitions.push(Object.assign({}, GMAIL_SYSTEM_LABELS[key]))
+            }
+        }
+        gmailSystemLabelRadioDefinitions.sort((a, b) => a.order - b.order)
+        this._addRadioSetting(
+            gmailSystemLabelLabel,
+            gmailSystemLabelLabel,
+            gmailSystemLabelRadioDefinitions
+        );
+    }
+
+    /**
+     * Creates a set of radio buttons
+     * @param {string} label - label for setting
+     * @param {string} help - help information for setting
+     * @param {array of objects} definitions - Each radio button, with "display" and "value" entries
+     * @private
+     */
+    _addRadioSetting(label, help, definitions) {
+        const vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
+        const setting_label = new Gtk.Label({
+            label: label,
+            xalign: 0,
+            use_markup: true
+        });
+        setting_label.set_tooltip_text(help);
+        vbox.pack_start(setting_label, true, true, 0);
+
+        let previous_radio_button = null;
+        definitions.forEach(d => {
+            const setting_radio_button = new Gtk.RadioButton({
+                group: previous_radio_button,
+                label: d.display,
+                active: this._conf.getGmailSystemLabel() === d.value
+            })
+            previous_radio_button = setting_radio_button
+            setting_radio_button.connect('toggled', button => {
+                if (button.active) {
+                    this._conf.setGmailSystemLabel(d.value)
+                }
+            })
+            vbox.pack_start(setting_radio_button, true, true, 0)
+        })
+        this.add(vbox);
     }
 
     /**

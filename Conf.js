@@ -94,6 +94,22 @@ var Conf = class {
     }
 
     /**
+     * Returns the Gmail system label for the mailbox to read
+     * @returns {string}
+     */
+    getGmailSystemLabel() {
+        return this.settings.get_string('gmailsystemlabel');
+    }
+
+    /**
+     * Sets the Gmail system label for the mailbox to read
+     * @param {number} reader
+     */
+    setGmailSystemLabel(gmail_system_label) {
+        return this.settings.set_string('gmailsystemlabel', gmail_system_label);
+    }
+
+    /**
      * Gets the settings from Gio.
      * @returns {Gio.Settings}
      */

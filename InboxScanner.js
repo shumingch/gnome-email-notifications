@@ -37,6 +37,8 @@ var InboxScanner = class {
      * @param {Conf} config - the extension configuration
      */
     constructor(account, config) {
+        this._config = config;
+
         this._account = account;
         this._mailbox = account.get_account().presentation_identity;
         this._provider = this._account.get_account().provider_type;
@@ -79,7 +81,7 @@ var InboxScanner = class {
     _createScanner() {
         switch (this._provider) {
             case 'google':
-                return new GmailScanner(this._mailbox);
+                return new GmailScanner(this._mailbox, this._config);
             case 'windows_live':
                 return new OutlookScanner();
             default:
