@@ -1,10 +1,10 @@
 {
   "name": "Gnome Email Notifications",
-  "description": "Shows Gmail and Outlook notifications in Gnome Message Tray using Gnome Online Accounts\nFormerly Gmail Message Tray.",
+  "description": "Shows Gmail and Outlook notifications in Gnome Message Tray using Gnome Online Accounts\n",
   "shell-version": [
     "3.36"
   ],
   "url": "https://github.com/shumingch/gnome-email-notifications",
   "uuid": "GmailMessageTray@shuming0207.gmail.com",
-  "version": 19
+  "version": 20
 }
