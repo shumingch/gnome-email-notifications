@@ -19,6 +19,7 @@
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const XML = Me.imports.rexml;
+const console = Me.imports.console.console;
 
 /**
  * Scans Gmail atom api for unread emails.
@@ -27,9 +28,11 @@ var GmailScanner = class {
     /**
      * Creates a scanner with the given config
      * @param {string} mailbox - email account in the form "email@gmail.com"
+     * @param {Conf} config - the extension configuration
      */
-    constructor(mailbox) {
+    constructor(mailbox, config) {
         this._mailbox = mailbox;
+        this._config = config;
     }
 
     /**
@@ -66,7 +69,9 @@ var GmailScanner = class {
      * @returns {string} - the URL
      */
     getApiURL() {
-        return "https://mail.google.com/mail/feed/atom/inbox";
+        const gmail_system_label = this._config.getGmailSystemLabel();
+        const apiurl = "https://mail.google.com/mail/feed/atom/" + encodeURIComponent(gmail_system_label);
+        return apiurl;
     }
 
     /**

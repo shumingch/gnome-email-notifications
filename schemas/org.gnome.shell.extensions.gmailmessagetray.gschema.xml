@@ -16,5 +16,10 @@
             <summary>Stores ids of all messages shown</summary>
             <description>Stores ids of all messages shown so they don't get shown again</description>
         </key>
+        <key type="s" name="gmailsystemlabel">
+            <default>"^i"</default>
+            <summary>Gmail mailbox system label</summary>
+            <description>Internal Gmail system label for preferred mailbox</description>
+        </key>
     </schema>
 </schemalist>
