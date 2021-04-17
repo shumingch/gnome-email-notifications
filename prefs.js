@@ -21,7 +21,7 @@
  *
  */
 "use strict";
-const {GObject, Gtk} = imports.gi;
+const { GObject, Gtk } = imports.gi;
 
 const Gettext = imports.gettext;
 const _ = Gettext.domain('gmail_notify').gettext;
@@ -129,7 +129,6 @@ function init() {
  */
 function buildPrefsWidget() {
     const prefs = new Prefs();
-    prefs.show_all();
     return prefs;
 }
 
@@ -148,17 +147,17 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
         const gmailSystemLabelLabel = _("Select mailbox (for Gmail accounts only)");
         this._addSwitchSetting(useMailLabel, useMailLabel);
         this._addSliderSetting(timeoutLabel, timeoutLabel);
-        const gmailSystemLabelRadioDefinitions = [];
+        const gmailSystemLabelToggleDefinitions = [];
         for (let key in GMAIL_SYSTEM_LABELS) {
             if (GMAIL_SYSTEM_LABELS[key].include) {
-                gmailSystemLabelRadioDefinitions.push(Object.assign({}, GMAIL_SYSTEM_LABELS[key]))
+                gmailSystemLabelToggleDefinitions.push(Object.assign({}, GMAIL_SYSTEM_LABELS[key]))
             }
         }
-        gmailSystemLabelRadioDefinitions.sort((a, b) => a.order - b.order)
-        this._addRadioSetting(
+        gmailSystemLabelToggleDefinitions.sort((a, b) => a.order - b.order)
+        this._addToggleSetting(
             gmailSystemLabelLabel,
             gmailSystemLabelLabel,
-            gmailSystemLabelRadioDefinitions
+            gmailSystemLabelToggleDefinitions
         );
     }
 
@@ -169,19 +168,19 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
      * @param {array of objects} definitions - Each radio button, with "display" and "value" entries
      * @private
      */
-    _addRadioSetting(label, help, definitions) {
-        const vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
+    _addToggleSetting(label, help, definitions) {
+        const vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
         const setting_label = new Gtk.Label({
             label: label,
             xalign: 0,
             use_markup: true
         });
         setting_label.set_tooltip_text(help);
-        vbox.pack_start(setting_label, true, true, 0);
+        vbox.append(setting_label, true, true, 0);
 
         let previous_radio_button = null;
         definitions.forEach(d => {
-            const setting_radio_button = new Gtk.RadioButton({
+            const setting_radio_button = new Gtk.ToggleButton({
                 group: previous_radio_button,
                 label: d.display,
                 active: this._conf.getGmailSystemLabel() === d.value
@@ -192,9 +191,9 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
                     this._conf.setGmailSystemLabel(d.value)
                 }
             })
-            vbox.pack_start(setting_radio_button, true, true, 0)
+            vbox.append(setting_radio_button, true, true, 0)
         })
-        this.add(vbox);
+        this.append(vbox);
     }
 
     /**
@@ -212,8 +211,8 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
             this._conf.setReader(button.active ? 1 : 0);
         });
         this._addLabel(hbox, label, help);
-        hbox.add(setting_switch);
-        this.add(hbox);
+        hbox.append(setting_switch);
+        this.append(hbox);
     }
 
     /**
@@ -222,7 +221,7 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
      * @private
      */
     _createHBox() {
-        return new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+        return new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
     }
 
     /**
@@ -241,7 +240,8 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
             upper: 1800,
             step_increment: 1
         });
-        const setting_slider = new Gtk.HScale({
+        const setting_slider = new Gtk.Scale({
+            hexpand: true,
             digits: 0,
             adjustment: adjustment,
             value_pos: Gtk.PositionType.RIGHT
@@ -252,8 +252,8 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
             setting_label.label = label.replace('{0}', i.toString());
             this._conf.setTimeout(i);
         });
-        hbox.pack_end(setting_slider, true, true, 0);
-        this.add(hbox);
+        hbox.append(setting_slider, true, true, 0);
+        this.append(hbox);
     }
 
     /**
@@ -271,7 +271,7 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
             use_markup: true
         });
         setting_label.set_tooltip_text(help);
-        hbox.pack_start(setting_label, true, true, 0);
+        hbox.prepend(setting_label, true, true, 0);
         return setting_label;
     }
 });
