@@ -21,7 +21,7 @@
  *
  */
 "use strict";
-const {GObject, Gtk} = imports.gi;
+const { GObject, Gtk } = imports.gi;
 
 const Gettext = imports.gettext;
 const _ = Gettext.domain('gmail_notify').gettext;
@@ -169,14 +169,14 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
      * @private
      */
     _addToggleSetting(label, help, definitions) {
-        const vbox = new Gtk.Box({orientation: Gtk.Orientation.VERTICAL});
+        const vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
         const setting_label = new Gtk.Label({
             label: label,
             xalign: 0,
             use_markup: true
         });
         setting_label.set_tooltip_text(help);
-        vbox.prepend(setting_label, true, true, 0);
+        vbox.append(setting_label, true, true, 0);
 
         let previous_radio_button = null;
         definitions.forEach(d => {
@@ -191,7 +191,7 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
                     this._conf.setGmailSystemLabel(d.value)
                 }
             })
-            vbox.prepend(setting_radio_button, true, true, 0)
+            vbox.append(setting_radio_button, true, true, 0)
         })
         this.append(vbox);
     }
@@ -221,7 +221,7 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
      * @private
      */
     _createHBox() {
-        return new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+        return new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
     }
 
     /**
@@ -241,6 +241,7 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
             step_increment: 1
         });
         const setting_slider = new Gtk.Scale({
+            hexpand: true,
             digits: 0,
             adjustment: adjustment,
             value_pos: Gtk.PositionType.RIGHT
