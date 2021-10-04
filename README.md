@@ -24,3 +24,8 @@ run `git clone --depth 1 https://github.com/shumingch/gnome-email-notifications 
 
 Shuming Chan <shuming0207@gmail.com>
 
+## Update
+
+Extension now supports Notification Sound
+
+Note: Beware of Initial Setup. Multiple unread mails can cause the extension to play the Notification sound multiple times in a row.
