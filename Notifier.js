@@ -55,6 +55,15 @@ var Notifier = class {
         const messagesShown = new Set(this._config.getMessagesShown());
         for (let msg of content) {
             if (!messagesShown.has(msg.id)) {
+
+                // Additional script to play Notification Sound
+                const Util = imports.misc.util;
+
+                // Location of Python Script
+                let player = '~/.local/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com/Notification_Sound.py';
+                // Execute Python Script
+                Util.spawnCommandLine("python3 " + player);
+
                 messagesShown.add(msg.id);
                 const _msg = msg; // need this because variables aren't scoped properly in Gnome Shell 3.24
                 const callback = () => {
