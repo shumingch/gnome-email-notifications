@@ -12,4 +12,4 @@ extension_location = '~/.local/share/gnome-shell/extensions/GmailMessageTray@shu
 # Feel free to use 'cvlc' or 'mpg321'
 player = 'paplay'
 
-run([player, extension_location])
+run([player, extension_location + 'Sound.py'])
