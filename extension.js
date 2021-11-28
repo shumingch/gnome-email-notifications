@@ -65,6 +65,7 @@ var Extension = class {
             this.startTimeout();
             this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
                 this._checkMail();
+                this.initialCheckMail = null;
                 return false;
             });
         });
@@ -133,7 +134,7 @@ var Extension = class {
      */
     stopTimeout() {
         Mainloop.source_remove(this.checkMailTimeout);
-        Mainloop.source_remove(this.initialCheckMail);
+        if (this.initialCheckMail !== null) Mainloop.source_remove(this.initialCheckMail);
     }
 
     /**

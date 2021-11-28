@@ -139,7 +139,10 @@ function buildPrefsWidget() {
 var Prefs = GObject.registerClass(class extends Gtk.Box {
     _init(params) {
         super._init(params);
-        this.margin = 24;
+        this.margin_start = 24;
+        this.margin_end = 24;
+        this.margin_top = 16;
+        this.margin_bottom = 16;
         this.orientation = Gtk.Orientation.VERTICAL;
         this._conf = new Conf();
         const useMailLabel = _("Use default email client instead of browser");
@@ -173,6 +176,8 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
         const setting_label = new Gtk.Label({
             label: label,
             xalign: 0,
+            margin_top: 2,
+            margin_bottom: 2,
             use_markup: true
         });
         setting_label.set_tooltip_text(help);
@@ -183,6 +188,10 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
             const setting_radio_button = new Gtk.ToggleButton({
                 group: previous_radio_button,
                 label: d.display,
+                margin_top: 2,
+                margin_bottom: 2,
+                margin_start: 20,
+                margin_end: 20,
                 active: this._conf.getGmailSystemLabel() === d.value
             })
             previous_radio_button = setting_radio_button
@@ -205,6 +214,7 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
     _addSwitchSetting(label, help) {
         const hbox = this._createHBox();
         const setting_switch = new Gtk.CheckButton({
+            margin_start: 2,
             active: this._conf.getReader() === 1
         });
         setting_switch.connect('toggled', button => {
@@ -221,7 +231,11 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
      * @private
      */
     _createHBox() {
-        return new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL });
+        return new Gtk.Box({ 
+            orientation: Gtk.Orientation.HORIZONTAL, 
+            margin_top: 2,
+            margin_bottom: 2
+        });
     }
 
     /**
