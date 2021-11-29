@@ -80,7 +80,10 @@ var NotificationFactory = class {
      * @private
      */
     _newErrorSource() {
-        if (this._errorSource !== undefined) this._errorSource.destroy();
+        if (this._errorSource !== undefined) {
+            this.sources.delete(this._errorSource);
+            this._errorSource.destroy();
+        }
         const source = new Source(this._mailbox, 'dialog-error');
         this.sources.add(source);
         return source;
@@ -120,6 +123,9 @@ var NotificationFactory = class {
             } catch (err) {
                 console.error(err);
             }
+        });
+        notification.connect('destroy', (destroyed_source) => {
+            this.sources.delete(destroyed_source.source);
         });
 
         if (permanent) {
