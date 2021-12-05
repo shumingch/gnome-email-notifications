@@ -65,7 +65,7 @@ var InboxScanner = class {
                 if (msg.status_code === 200) {
                     const folders = this._scanner.parseResponse(body, callback);
                     callback(null, folders, this._account);
-                } else {
+                } else if (msg.status_code !== 2 && msg.status_code !== 3) {
                     const err = new Error('Status ' + msg.status_code + ': ' + msg.reason_phrase);
                     callback(err);
                 }
