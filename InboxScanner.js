@@ -101,8 +101,10 @@ var InboxScanner = class {
                 const [, token] = this._account.get_oauth2_based().call_get_access_token_finish(asyncResult);
                 callback(token);
             } catch (err) {
-                const message = _("Failed to get Authorization for {0}");
-                Main.notifyError(message.replace("{0}", this._mailbox));
+                if (!err.message.includes("Goa.Error.Failed")) {
+                    const message = _("Failed to get Authorization for {0}");
+                    Main.notifyError(message.replace("{0}", this._mailbox));
+                }
                 console.error(err);
             }
         });
