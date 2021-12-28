@@ -19,8 +19,5 @@ run `git clone --depth 1 https://github.com/shumingch/gnome-email-notifications 
 ## Troubleshooting
 
 1. For any errors, try rebooting or signing back in to your Gnome Online Accounts. 
-
-## Authors
-
-Shuming Chan <shuming0207@gmail.com>
+2. To see logs, enter `journalctl | grep "Gnome Email Notification"` into terminal. 
 
