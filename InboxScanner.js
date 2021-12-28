@@ -65,7 +65,7 @@ var InboxScanner = class {
                 if (msg.status_code === 200) {
                     const folders = this._scanner.parseResponse(body, callback);
                     callback(null, folders, this._account);
-                } else {
+                } else if (msg.status_code !== 2 && msg.status_code !== 3) {
                     const err = new Error('Status ' + msg.status_code + ': ' + msg.reason_phrase);
                     callback(err);
                 }
@@ -101,8 +101,10 @@ var InboxScanner = class {
                 const [, token] = this._account.get_oauth2_based().call_get_access_token_finish(asyncResult);
                 callback(token);
             } catch (err) {
-                const message = _("Failed to get Authorization for {0}");
-                Main.notifyError(message.replace("{0}", this._mailbox));
+                if (!err.message.includes("Goa.Error.Failed")) {
+                    const message = _("Failed to get Authorization for {0}");
+                    Main.notifyError(message.replace("{0}", this._mailbox));
+                }
                 console.error(err);
             }
         });
