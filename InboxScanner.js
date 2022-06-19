@@ -21,7 +21,6 @@ const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const console = Me.imports.console.console;
 const Soup = imports.gi.Soup;
-const Sess = new Soup.SessionAsync();
 const OutlookScanner = Me.imports.OutlookScanner.OutlookScanner;
 const GmailScanner = Me.imports.GmailScanner.GmailScanner;
 const Gettext = imports.gettext.domain('gmail_notify');
@@ -43,6 +42,7 @@ var InboxScanner = class {
         this._mailbox = account.get_account().presentation_identity;
         this._provider = this._account.get_account().provider_type;
         this._scanner = this._createScanner();
+        this._sess = new Soup.SessionAsync();
     }
 
     /**
@@ -60,7 +60,7 @@ var InboxScanner = class {
         const msg = Soup.Message.new("GET", this._scanner.getApiURL());
         this._getCurrentToken(token => {
             msg.request_headers.append('Authorization', 'Bearer ' + token);
-            Sess.queue_message(msg, (sess, msg) => {
+            this._sess.queue_message(msg, (sess, msg) => {
                 const body = msg.response_body.data;
                 if (msg.status_code === 200) {
                     const folders = this._scanner.parseResponse(body, callback);
