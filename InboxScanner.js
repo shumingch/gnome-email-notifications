@@ -20,6 +20,7 @@
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const console = Me.imports.console.console;
+const GLib = imports.gi.GLib;
 const Soup = imports.gi.Soup;
 const OutlookScanner = Me.imports.OutlookScanner.OutlookScanner;
 const GmailScanner = Me.imports.GmailScanner.GmailScanner;
@@ -42,7 +43,7 @@ var InboxScanner = class {
         this._mailbox = account.get_account().presentation_identity;
         this._provider = this._account.get_account().provider_type;
         this._scanner = this._createScanner();
-        this._sess = new Soup.SessionAsync();
+        this._sess = new Soup.Session();
     }
 
     /**
@@ -60,13 +61,15 @@ var InboxScanner = class {
         const msg = Soup.Message.new("GET", this._scanner.getApiURL());
         this._getCurrentToken(token => {
             msg.request_headers.append('Authorization', 'Bearer ' + token);
-            this._sess.queue_message(msg, (sess, msg) => {
-                const body = msg.response_body.data;
-                if (msg.status_code === 200) {
+            this._sess.send_and_read_async(msg, GLib.PRIORITY_DEFAULT, null, (sess, result) => {
+                if (msg.get_status() === 200) {
+                    const bytes = sess.send_and_read_finish(result);
+                    const decoder = new TextDecoder('utf-8');
+                    const body = decoder.decode(bytes.get_data());
                     const folders = this._scanner.parseResponse(body, callback);
                     callback(null, folders, this._account);
-                } else if (msg.status_code !== 2 && msg.status_code !== 3) {
-                    const err = new Error('Status ' + msg.status_code + ': ' + msg.reason_phrase);
+                } else if (msg.get_status() !== 2 && msg.get_status() !== 3) {
+                    const err = new Error('Status ' + msg.get_status() + ': ' + msg.get_reason_phrase());
                     callback(err);
                 }
             });
