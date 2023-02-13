@@ -29,5 +29,3 @@ Console.prototype.error = function (err) {
 Console.prototype.json = function (obj) {
     this.log(JSON.stringify(obj));
 };
-
-var console = new Console();

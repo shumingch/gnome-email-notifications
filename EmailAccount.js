@@ -18,7 +18,7 @@
  */
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const console = Me.imports.console.console;
+const Console = Me.imports.console.Console;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 const InboxScanner = Me.imports.InboxScanner.InboxScanner;
@@ -39,6 +39,7 @@ var EmailAccount = class {
         if (this.mailbox === undefined) this.mailbox = '';
         this._scanner = new InboxScanner(account, this.config);
         this._notifier = new Notifier(this);
+        this._console = new Console();
     }
 
     /**
@@ -46,7 +47,7 @@ var EmailAccount = class {
      * @param {Error} error - the error to display
      */
     _showError(error) {
-        console.error(error);
+        this._console.error(error);
         this._notifier.showError(error);
     }
 

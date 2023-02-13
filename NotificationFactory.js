@@ -20,7 +20,7 @@
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Main = imports.ui.main;
 const Source = imports.ui.messageTray.Source;
-const console = Me.imports.console.console;
+const Console = Me.imports.console.Console;
 const Gettext = imports.gettext.domain('gmail_notify');
 const _ = Gettext.gettext;
 const Notification = Me.imports.Notification.Notification;
@@ -38,6 +38,7 @@ var NotificationFactory = class {
         this._mailbox = emailAccount.mailbox;
         this.sources = new Set();
         this._errorSource = this._newErrorSource();
+        this._console = new Console();
     }
 
     /**
@@ -121,7 +122,7 @@ var NotificationFactory = class {
             try {
                 cb();
             } catch (err) {
-                console.error(err);
+                this._console.error(err);
             }
         });
         notification.connect('destroy', (destroyed_source) => {

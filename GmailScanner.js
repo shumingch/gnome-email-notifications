@@ -19,7 +19,6 @@
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const XML = Me.imports.rexml;
-const console = Me.imports.console.console;
 
 /**
  * Scans Gmail atom api for unread emails.

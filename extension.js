@@ -26,7 +26,7 @@ const GLib = imports.gi.GLib;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const Mainloop = imports.mainloop;
 const Main = imports.ui.main;
-const console = Me.imports.console.console;
+const Console = Me.imports.console.Console;
 const Conf = Me.imports.Conf.Conf;
 const EmailAccount = Me.imports.EmailAccount.EmailAccount;
 
@@ -37,14 +37,14 @@ let Goa;
 try {
     Goa = imports.gi.Goa;
 } catch (err) {
-    console.error(err);
+    log("[" + Me.metadata['name'] + "] " + err.message + ", " + err.stack);
 }
 
 /**
  * Initializes translations for the extension
  */
 function init() {
-    console.log('Init version ' + _version);
+    log("[" + Me.metadata['name'] + "] Init version " + _version);
     Conf.setupTranslations();
 }
 
@@ -55,7 +55,8 @@ const supportedProviders = new Set(["google", "windows_live"]);
  */
 var Extension = class {
     constructor() {
-        console.log('Enabling ' + _version);
+        this._console = new Console();
+        this._console.log('Enabling ' + _version);
         /** @type Conf */
         this.config = new Conf(this);
         this.checkMailTimeout = null;
@@ -76,7 +77,7 @@ var Extension = class {
      * @private
      */
     _checkMail() {
-        console.log("Checking mail");
+        this._console.log("Checking mail");
         for (let account of this.goaAccounts) {
             account.scanInbox();
         }
@@ -90,21 +91,21 @@ var Extension = class {
     _getEmailAccounts(callback) {
         const emailAccounts = [];
         Goa.Client.new(null, (proxy, asyncResult) => {
-                const aClient = Goa.Client.new_finish(asyncResult);
-                const accounts = aClient.get_accounts();
+            const aClient = Goa.Client.new_finish(asyncResult);
+            const accounts = aClient.get_accounts();
 
-                for (let account of accounts) {
-                    const provider = account.get_account().provider_type;
-                    if (supportedProviders.has(provider)) {
-                        emailAccounts.push(new EmailAccount(this.config, account));
-                    }
+            for (let account of accounts) {
+                const provider = account.get_account().provider_type;
+                if (supportedProviders.has(provider)) {
+                    emailAccounts.push(new EmailAccount(this.config, account));
                 }
-                if (emailAccounts.length === 0) {
-                    Main.notifyError(_("No email accounts found"));
-                    throw new Error("No email accounts found");
-                }
-                callback(emailAccounts);
             }
+            if (emailAccounts.length === 0) {
+                Main.notifyError(_("No email accounts found"));
+                throw new Error("No email accounts found");
+            }
+            callback(emailAccounts);
+        }
         );
     }
 
@@ -155,7 +156,7 @@ function enable() {
     try {
         extension = new Extension();
     } catch (err) {
-        console.error(err);
+        log("[" + Me.metadata['name'] + "] " + err);
     }
 }
 
@@ -167,6 +168,6 @@ function disable() {
         extension.destroy();
         extension = null;
     } catch (err) {
-        console.error(err);
+        log("[" + Me.metadata['name'] + "] " + err);
     }
 }

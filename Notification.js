@@ -22,7 +22,7 @@
  */
 "use strict";
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const console = Me.imports.console.console;
+const Console = Me.imports.console.Console;
 const MessageTray = imports.ui.messageTray;
 const {Gio, GLib, GObject} = imports.gi;
 
@@ -61,6 +61,7 @@ var Notification = GObject.registerClass(
             
             super._init(source, title, banner, params);
         } catch (err) {
+            const console = new Console();
             console.error(err);
         }
     }

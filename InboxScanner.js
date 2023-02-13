@@ -19,7 +19,7 @@
 "use strict";
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const console = Me.imports.console.console;
+const Console = Me.imports.console.Console;
 const GLib = imports.gi.GLib;
 const Soup = imports.gi.Soup;
 const OutlookScanner = Me.imports.OutlookScanner.OutlookScanner;
@@ -44,6 +44,7 @@ var InboxScanner = class {
         this._provider = this._account.get_account().provider_type;
         this._scanner = this._createScanner();
         this._sess = new Soup.Session();
+        this._console = new Console();
     }
 
     /**
@@ -108,7 +109,7 @@ var InboxScanner = class {
                     const message = _("Failed to get Authorization for {0}");
                     Main.notifyError(message.replace("{0}", this._mailbox));
                 }
-                console.error(err);
+                this._console.error(err);
             }
         });
     }

@@ -181,7 +181,7 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
             use_markup: true
         });
         setting_label.set_tooltip_text(help);
-        vbox.append(setting_label, true, true, 0);
+        vbox.append(setting_label);
 
         let previous_radio_button = null;
         definitions.forEach(d => {
@@ -200,7 +200,7 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
                     this._conf.setGmailSystemLabel(d.value)
                 }
             })
-            vbox.append(setting_radio_button, true, true, 0)
+            vbox.append(setting_radio_button)
         })
         this.append(vbox);
     }
@@ -266,7 +266,7 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
             setting_label.label = label.replace('{0}', i.toString());
             this._conf.setTimeout(i);
         });
-        hbox.append(setting_slider, true, true, 0);
+        hbox.append(setting_slider);
         this.append(hbox);
     }
 
@@ -285,7 +285,7 @@ var Prefs = GObject.registerClass(class extends Gtk.Box {
             use_markup: true
         });
         setting_label.set_tooltip_text(help);
-        hbox.prepend(setting_label, true, true, 0);
+        hbox.prepend(setting_label);
         return setting_label;
     }
 });
