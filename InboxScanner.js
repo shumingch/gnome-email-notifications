@@ -69,7 +69,7 @@ var InboxScanner = class {
                     const body = decoder.decode(bytes.get_data());
                     const folders = this._scanner.parseResponse(body, callback);
                     callback(null, folders, this._account);
-                } else if (msg.get_status() !== 2 && msg.get_status() !== 3) {
+                } else if (msg.get_status() !== 0 && msg.get_status() !== 2 && msg.get_status() !== 3) {
                     const err = new Error('Status ' + msg.get_status() + ': ' + msg.get_reason_phrase());
                     callback(err);
                 }
