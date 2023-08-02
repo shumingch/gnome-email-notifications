@@ -35,8 +35,9 @@ var InboxScanner = class {
      * Creates a new scanner using a Gnome Online Account
      * @param account - Gnome Online Account
      * @param {Conf} config - the extension configuration
+     * @param {number} [timeout=1] - the request timeout in seconds (optional, default is 1 second)
      */
-    constructor(account, config) {
+    constructor(account, config, timeout = 1) {
         this._config = config;
 
         this._account = account;
@@ -45,6 +46,7 @@ var InboxScanner = class {
         this._scanner = this._createScanner();
         this._sess = new Soup.Session();
         this._console = new Console();
+        this._sess.set_timeout(timeout);       
     }
 
     /**
