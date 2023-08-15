@@ -21,3 +21,8 @@ run `git clone --depth 1 https://github.com/shumingch/gnome-email-notifications 
 1. For any errors, try rebooting or signing back in to your Gnome Online Accounts. 
 2. To see logs, enter `journalctl | grep "Gnome Email Notification"` into terminal. 
 
+## Update
+
+Extension now supports Notification Sound
+
+Note: Beware of Initial Setup. Multiple unread mails can cause the extension to play the Notification sound multiple times in a row.
