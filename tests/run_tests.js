@@ -1,6 +1,7 @@
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import system from 'system';
 
 const textDecoder = new TextDecoder();
 const textEncoder = new TextEncoder();
@@ -16,6 +17,8 @@ class Assert {
 
 async function run() {
     print("Starting tests...");
+    let failures = 0;
+
     const assert = (condition, message) => {
         if (!condition) {
             throw new Error(`Assertion Failed: ${message}`);
@@ -69,17 +72,17 @@ async function run() {
                 "import Gio from './mocks/Gio.js';")
             .replace(/import\s+GLib\s+from\s+['"]gi:\/\/GLib['"];/g,
                 "import GLib from './mocks/GLib.js';")
+            .replace(/import\s+Soup\s+from\s+['"]gi:\/\/Soup\?version=3\.0['"];/g,
+                "import Soup from './mocks/Soup.js';")
             .replace(/import\s+{.*Conf.*}\s+from\s+['"][\.\/]+Conf\.js['"];/g,
                 "import { Conf } from './mocks/Conf.js';")
             // Fix relative imports to use temp files
-            .replace(/import\s+(.*)\s+from\s+['"]\.\/(.*)\.js['"];/g, (match, p1, p2) => {
+            .replace(/import\s+(.*)\s+from\s+['"][\.\/]+(.*)\.js['"];/g, (match, p1, p2) => {
                 if (p2.startsWith('mocks/')) return match;
-                const lowP2 = p2.toLowerCase();
-                if (lowP2 === 'conf' || lowP2 === 'shell' || lowP2 === 'resource_prefs' || lowP2 === 'gio' || lowP2 === 'glib') return match;
+                const lowP2 = p2.split('/').pop().toLowerCase();
+                if (lowP2 === 'conf' || lowP2 === 'shell' || lowP2 === 'resource_prefs' || lowP2 === 'gio' || lowP2 === 'glib' || lowP2 === 'soup') return match;
                 return `import ${p1} from './temp_${lowP2}.js';`;
-            })
-            .replace(/import\s+Soup\s+from\s+['"]gi:\/\/Soup\?version=3\.0['"];/g,
-                "import Soup from './mocks/Soup.js';");
+            });
     };
 
     const mockify = (filename) => {
@@ -94,12 +97,27 @@ async function run() {
         }
     };
 
-    // Mockify everything
+    // Mockify everything including tests
     const files = [
         'Conf.js', 'InboxScanner.js', 'Notifier.js', 'NotificationFactory.js',
-        'EmailAccount.js', 'GmailScanner.js', 'OutlookScanner.js', 'console.js', 'rexml.js', 'prefs.js'
+        'EmailAccount.js', 'GmailScanner.js', 'OutlookScanner.js', 'console.js', 'rexml.js', 'prefs.js',
+        'tests/test_gmail_scanner.js', 'tests/test_outlook_scanner.js', 'tests/test_inbox_scanner.js',
+        'tests/test_conf.js', 'tests/test_notification_factory.js', 'tests/test_email_account.js',
+        'tests/test_notifier.js'
     ];
     files.forEach(mockify);
+
+    const runTestSuite = async (name, testModulePath, ...args) => {
+        print(`\n--- Running ${name} ---`);
+        try {
+            const module = await import(testModulePath);
+            await module.runTests(assert, ...args);
+        } catch (e) {
+            print(`  FAIL: ${name}: ${e}`);
+            print(e.stack);
+            failures++;
+        }
+    };
 
     try {
         // 1. Prefs Test
@@ -115,84 +133,55 @@ async function run() {
                 print("  PASS: fillPreferencesWindow executed without error.");
             } catch (e) {
                 print("  FAIL: Prefs Test: " + e);
-                print(e.stack);
+                failures++;
             }
         } else {
             print("\n--- Skipping Prefs Tests (No GTK) ---");
         }
 
         // 2. Scanners
-        print("\n--- Running GmailScanner Tests ---");
-        try {
-            const gmailModule = await import('./test_gmail_scanner.js');
-            gmailModule.runTests(assert);
-        } catch (e) { print("  FAIL: GmailScanner Test: " + e); }
-
-        print("\n--- Running OutlookScanner Tests ---");
-        try {
-            const outlookModule = await import('./test_outlook_scanner.js');
-            outlookModule.runTests(assert);
-        } catch (e) { print("  FAIL: OutlookScanner Test: " + e); }
+        await runTestSuite('GmailScanner Tests', './temp_test_gmail_scanner.js');
+        await runTestSuite('OutlookScanner Tests', './temp_test_outlook_scanner.js');
 
         // 3. InboxScanner
-        print("\n--- Running InboxScanner Tests ---");
         try {
             const tempModule = await import('./temp_inboxscanner.js');
-            const testModule = await import('./test_inbox_scanner.js');
-            testModule.runTests(assert, tempModule.InboxScanner);
-        } catch (e) {
-            print("  FAIL: InboxScanner Test: " + e);
-            print(e.stack);
-        }
+            await runTestSuite('InboxScanner Tests', './temp_test_inbox_scanner.js', tempModule.InboxScanner);
+        } catch (e) { failures++; print(`  FAIL: InboxScanner Load: ${e}`); }
 
         // 4. Conf
-        print("\n--- Running Conf Tests ---");
         try {
             const tempModule = await import('./temp_conf.js');
-            const testModule = await import('./test_conf.js');
-            testModule.runTests(assert, tempModule.Conf);
-        } catch (e) {
-            print("  FAIL: Conf Test: " + e);
-            print(e.stack);
-        }
+            await runTestSuite('Conf Tests', './temp_test_conf.js', tempModule.Conf);
+        } catch (e) { failures++; print(`  FAIL: Conf Load: ${e}`); }
 
         // 5. NotificationFactory
-        print("\n--- Running NotificationFactory Tests ---");
         try {
             const tempModule = await import('./temp_notificationfactory.js');
-            const testModule = await import('./test_notification_factory.js');
-            testModule.runTests(assert, tempModule.NotificationFactory, tempModule._unescapeXML);
-        } catch (e) {
-            print("  FAIL: NotificationFactory Test: " + e);
-            print(e.stack);
-        }
+            await runTestSuite('NotificationFactory Tests', './temp_test_notification_factory.js', tempModule.NotificationFactory, tempModule._unescapeXML);
+        } catch (e) { failures++; print(`  FAIL: NotificationFactory Load: ${e}`); }
 
         // 6. EmailAccount
-        print("\n--- Running EmailAccount Tests ---");
         try {
             const tempModule = await import('./temp_emailaccount.js');
-            const testModule = await import('./test_email_account.js');
-            testModule.runTests(assert, tempModule.EmailAccount);
-        } catch (e) {
-            print("  FAIL: EmailAccount Test: " + e);
-            print(e.stack);
-        }
+            await runTestSuite('EmailAccount Tests', './temp_test_email_account.js', tempModule.EmailAccount);
+        } catch (e) { failures++; print(`  FAIL: EmailAccount Load: ${e}`); }
 
         // 7. Notifier
-        print("\n--- Running Notifier Tests ---");
         try {
             const tempModule = await import('./temp_notifier.js');
-            const testModule = await import('./test_notifier.js');
-            testModule.runTests(assert, tempModule.Notifier);
-        } catch (e) {
-            print("  FAIL: Notifier Test: " + e);
-            print(e.stack);
-        }
+            await runTestSuite('Notifier Tests', './temp_test_notifier.js', tempModule.Notifier);
+        } catch (e) { failures++; print(`  FAIL: Notifier Load: ${e}`); }
 
         print("\nTests complete.");
+        if (failures > 0) {
+            print(`FAILED with ${failures} error(s).`);
+            system.exit(1);
+        }
     } catch (err) {
         print("An unexpected error occurred during tests: " + err);
         print(err.stack);
+        system.exit(1);
     }
 }
 
