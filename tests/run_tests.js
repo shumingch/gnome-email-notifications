@@ -22,6 +22,13 @@ async function run() {
         }
         print(`  PASS: ${message}`);
     };
+    // Backward compatibility for .equal()
+    assert.equal = (actual, expected, message) => {
+        if (actual !== expected) {
+            throw new Error(`Assertion Failed: ${message}\n  Actual: ${actual}\n  Expected: ${expected}`);
+        }
+        print(`  PASS: ${message}`);
+    };
 
     // Mock global object for Shell environment
     Object.assign(globalThis, {
@@ -70,7 +77,9 @@ async function run() {
                 const lowP2 = p2.toLowerCase();
                 if (lowP2 === 'conf' || lowP2 === 'shell' || lowP2 === 'resource_prefs' || lowP2 === 'gio' || lowP2 === 'glib') return match;
                 return `import ${p1} from './temp_${lowP2}.js';`;
-            });
+            })
+            .replace(/import\s+Soup\s+from\s+['"]gi:\/\/Soup\?version=3\.0['"];/g,
+                "import Soup from './mocks/Soup.js';");
     };
 
     const mockify = (filename) => {

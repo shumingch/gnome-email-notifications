@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="gnome-shell-extensions-gmailmessagetray">
+    <schema path="/org/gnome/shell/extensions/gmailmessagetray/" id="org.gnome.shell.extensions.gmailmessagetray">
+        <key type="i" name="usemail">
+            <default>0</default>
+            <summary>Use default email client instead of browser</summary>
+            <description>Use default email client instead of browser.</description>
+        </key>
+        <key type="i" name="timeout">
+            <default>60</default>
+            <summary>Check mail every (sec):</summary>
+            <description>Check mail every (sec):</description>
+        </key>
+        <key type="as" name="messagesshown">
+            <default>[]</default>
+            <summary>Stores ids of all messages shown</summary>
+            <description>Stores ids of all messages shown so they don't get shown again</description>
+        </key>
+        <key type="s" name="gmailsystemlabel">
+            <default>"^i"</default>
+            <summary>Gmail mailbox system label</summary>
+            <description>Internal Gmail system label for preferred mailbox</description>
+        </key>
+    </schema>
+</schemalist>
