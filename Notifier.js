@@ -100,8 +100,14 @@ export class Notifier {
         if (link === '' || link === undefined) {
             link = 'https://' + this._mailbox.match(/@(.*)/)[1];
         }
-        const defaultBrowser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
-        Util.trySpawnCommandLine(defaultBrowser + " " + link);
+
+        try {
+            const context = global.create_app_launch_context();
+            Gio.AppInfo.launch_default_for_uri(link, context);
+        } catch (e) {
+            Main.notifyError("Gnome Email Notifications", _("Failed to open browser"));
+            Util.trySpawnCommandLine(`xdg-open ${link}`);
+        }
     }
 
     /**
@@ -113,14 +119,13 @@ export class Notifier {
         if (this._config.getReader() === 0) {
             this._openBrowser(link);
         } else {
-            const mailto = Gio.app_info_get_default_for_uri_scheme("mailto");
-            if (mailto === null) {
+            try {
+                const context = global.create_app_launch_context();
+                Gio.AppInfo.launch_default_for_uri('mailto:', context);
+            } catch (e) {
                 const error = _("No default email client found");
                 Main.notifyError("Gnome Email Notifications", error);
-                throw new Error(error);
             }
-            const defaultMailClient = mailto.get_executable();
-            Util.trySpawnCommandLine(defaultMailClient);
         }
     }
 };
