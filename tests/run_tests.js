@@ -40,27 +40,26 @@ async function run() {
 
     const replaceImports = (source) => {
         return source
-            .replace(/import .* from 'resource:\/\/\/org\/gnome\/[Ss]hell\/ui\/main.js';/g,
+            .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/ui\/main\.js['"];/g,
                 "import * as Main from './mocks/shell.js';")
-            .replace(/import .* from 'resource:\/\/\/org\/gnome\/[Ss]hell\/ui\/messageTray.js';/g,
+            .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/ui\/messageTray\.js['"];/g,
                 "import { MsgTray, messageTray } from './mocks/shell.js';")
-            .replace(/import .* from 'resource:\/\/\/org\/gnome\/[Ss]hell\/extensions\/extension.js';/g,
+            .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/extensions\/extension\.js['"];/g,
                 "import { gettext as _ } from './mocks/shell.js';")
-            .replace(/import .* from 'resource:\/\/\/org\/gnome\/[Ss]hell\/misc\/util.js';/g,
+            .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/misc\/util\.js['"];/g,
                 "import * as Util from './mocks/shell.js';")
-            .replace(/import Gio from 'gi:\/\/Gio';/g,
+            .replace(/import\s+Gio\s+from\s+['"]gi:\/\/Gio['"];/g,
                 "import Gio from './mocks/Gio.js';")
-            .replace(/import GLib from 'gi:\/\/GLib';/g,
+            .replace(/import\s+GLib\s+from\s+['"]gi:\/\/GLib['"];/g,
                 "import GLib from './mocks/GLib.js';")
-            .replace(/import { Conf } from '[\./]+Conf.js';/g,
-                "import { Conf } from './mocks/Conf.js';")
-            .replace(/import {Conf} from '[\./]+Conf.js';/g,
+            .replace(/import\s+{.*Conf.*}\s+from\s+['"][\.\/]+Conf\.js['"];/g,
                 "import { Conf } from './mocks/Conf.js';")
             // Fix relative imports to use temp files
-            .replace(/import (.*) from '\.\/(.*)\.js';/g, (match, p1, p2) => {
+            .replace(/import\s+(.*)\s+from\s+['"]\.\/(.*)\.js['"];/g, (match, p1, p2) => {
                 if (p2.startsWith('mocks/')) return match;
-                if (p2 === 'Conf' || p2 === 'shell' || p2 === 'resource_prefs' || p2 === 'Gio' || p2 === 'GLib') return match;
-                return `import ${p1} from './temp_${p2.toLowerCase()}.js';`;
+                const lowP2 = p2.toLowerCase();
+                if (lowP2 === 'conf' || lowP2 === 'shell' || lowP2 === 'resource_prefs' || lowP2 === 'gio' || lowP2 === 'glib') return match;
+                return `import ${p1} from './temp_${lowP2}.js';`;
             });
     };
 
@@ -171,10 +170,10 @@ async function run() {
             print(e.stack);
         }
 
-        console.log("\nTests complete.");
+        print("\nTests complete.");
     } catch (err) {
-        console.error("An unexpected error occurred during tests:", err);
-        console.error(err.stack);
+        print("An unexpected error occurred during tests: " + err);
+        print(err.stack);
     }
 }
 
