@@ -20,6 +20,7 @@ import Gio from 'gi://Gio';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
 import { NotificationFactory } from './NotificationFactory.js';
+import { Console } from './console.js';
 import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 /**
@@ -40,6 +41,7 @@ export class Notifier {
         if (this._config && this._config._extension) {
             this._extensionMetadata = this._config._extension.metadata;
         }
+        this._console = new Console();
     }
 
     /**
@@ -101,10 +103,22 @@ export class Notifier {
             link = 'https://' + this._mailbox.match(/@(.*)/)[1];
         }
 
+        this._console.log("Attempting to open URI: " + link);
         try {
             const context = global.create_app_launch_context();
-            Gio.AppInfo.launch_default_for_uri(link, context);
+            // Provide a timestamp to bypass focus stealing prevention
+            context.set_timestamp(global.get_current_time());
+
+            const appInfo = Gio.AppInfo.get_default_for_uri_scheme("https");
+            if (appInfo) {
+                appInfo.launch_uris([link], context);
+                this._console.log("Launch successful via AppInfo.launch_uris");
+            } else {
+                this._console.error("No default app found for https scheme");
+                throw new Error("No default script for https");
+            }
         } catch (e) {
+            this._console.error("Failed to launch URI via Gio: " + e.message);
             Main.notifyError("Gnome Email Notifications", _("Failed to open browser"));
             Util.trySpawnCommandLine(`xdg-open ${link}`);
         }
@@ -119,13 +133,7 @@ export class Notifier {
         if (this._config.getReader() === 0) {
             this._openBrowser(link);
         } else {
-            try {
-                const context = global.create_app_launch_context();
-                Gio.AppInfo.launch_default_for_uri('mailto:', context);
-            } catch (e) {
-                const error = _("No default email client found");
-                Main.notifyError("Gnome Email Notifications", error);
-            }
+            this._openBrowser('mailto:');
         }
     }
 };

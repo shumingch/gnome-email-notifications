@@ -19,7 +19,7 @@
 export class Console {
     constructor() {
         let extensionName = "Gnome Email Notifications";
-        
+
         // Try to get extension metadata
         try {
             const extUtils = imports.misc.extensionUtils;
@@ -28,7 +28,7 @@ export class Console {
         } catch (err) {
             // Fallback to default name
         }
-        
+
         this.extensionString = "[" + extensionName + "] ";
     }
 
@@ -37,7 +37,11 @@ export class Console {
     }
 
     error(err) {
-        this.log(err.message, err.stack);
+        if (err && err.stack) {
+            this.log(err.message, err.stack);
+        } else {
+            this.log(String(err));
+        }
     }
 
     json(obj) {
