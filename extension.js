@@ -106,17 +106,7 @@ export default class GmailNotificationExtension extends Extension {
         });
     }
 
-    /**
-     * Checks if required libraries are installed
-     * @private
-     */
-    /**
-     * Checks if required libraries are installed
-     * @private
-     */
-    _libCheck() {
-        // Handled by static import
-    }
+
 
     /**
      * Checks mail using timeout from config
