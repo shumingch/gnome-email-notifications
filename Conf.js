@@ -117,43 +117,33 @@ export class Conf {
      */
     _getSettings(extension) {
         let schemaDir;
-        
-        // Try to get schema directory from extension object (works with both Extension and ExtensionPreferences)
+
         if (extension && extension.dir) {
             schemaDir = extension.dir.get_child('schemas').get_path();
         } else {
-            // Fallback: try using imports.misc.extensionUtils if available
-            try {
-                const extUtils = imports.misc.extensionUtils;
-                const ext = extUtils.getCurrentExtension();
-                if (ext && ext.dir) {
-                    schemaDir = ext.dir.get_child('schemas').get_path();
-                }
-            } catch (err) {
-                schemaDir = null;
-            }
+            schemaDir = null;
         }
-        
+
         let schemaName = 'org.gnome.shell.extensions.gmailmessagetray';
-        
+
         if (schemaDir) {
             try {
                 let schemaSource = Gio.SettingsSchemaSource.new_from_directory(schemaDir,
                     Gio.SettingsSchemaSource.get_default(),
                     false);
                 let schema = schemaSource.lookup(schemaName, false);
-                
+
                 if (schema) {
-                    return new Gio.Settings({settings_schema: schema});
+                    return new Gio.Settings({ settings_schema: schema });
                 }
             } catch (err) {
                 console.log("Error loading schema from " + schemaDir + ": " + err);
             }
         }
-        
+
         // Fallback to system schema if available (should not be needed if schema dir is found)
         try {
-            return new Gio.Settings({schema_id: schemaName});
+            return new Gio.Settings({ schema_id: schemaName });
         } catch (err) {
             console.error("Failed to load settings schema: " + err);
             throw err;

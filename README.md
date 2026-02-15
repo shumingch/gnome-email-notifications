@@ -5,8 +5,6 @@ Utilizes Gnome Online Accounts to login to Gmail/Outlook and check your incoming
 ## Features
 - Gmail and Outlook (Microsoft 365) support via GNOME Online Accounts (GOA).
 - Native GNOME Shell notifications with message tray integration.
-- Focus-aware browser/client opening from notifications.
-- Robust error handling for network and disposal issues.
 
 ## Installation
 
@@ -47,11 +45,14 @@ We welcome contributions! Here is how to get started:
    ```
 
 ### Troubleshooting & Logs
-- **Journal Logs**: See logs in real-time:
+- **Journal Logs**: See logs:
   ```bash
-  journalctl -f -o cat /usr/bin/gnome-shell | grep "Gnome Email Notification"
+  journalctl | grep "Gnome Email Notifications"
   ```
-- **Disposed Objects**: If you see "Object already disposed" errors, ensure you are managing the lifecycle of notification sources correctly (see `NotificationFactory.js`).
+  or 
+  ```bash
+  journalctl | grep "GmailMessageTray"
+  ```
 
 ## Screenshot
 
