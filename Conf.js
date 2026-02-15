@@ -20,27 +20,29 @@
  * Shuming Chan <shuming0207@gmail.com>
  *
  */
-"use strict";
-const Gettext = imports.gettext;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const {Gio, GLib} = imports.gi;
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 
 /**
  * Controls configuration for extension.
  */
-var Conf = class {
+export class Conf {
     /**
      * Creates a new conf for an extension
-     * @param {Extension} extension - the extension to control
+     * @param {Extension} extension - the extension to control (optional)
      */
     constructor(extension) {
-
-        this.settings = Conf.getSettings();
-        if (extension === undefined) return;
-        this.settings.connect("changed::timeout", () => {
-            extension.stopTimeout();
-            extension.startTimeout();
-        });
+        this._extension = extension;
+        this.settings = this._getSettings(extension);
+        if (extension === undefined || extension === null) return;
+        // Only set up timeout listeners if the extension has these methods
+        // (true for main extension, false for preferences extension)
+        if (typeof extension.stopTimeout === 'function' && typeof extension.startTimeout === 'function') {
+            this.settings.connect("changed::timeout", () => {
+                extension.stopTimeout();
+                extension.startTimeout();
+            });
+        }
     }
 
     /**
@@ -113,23 +115,38 @@ var Conf = class {
      * Gets the settings from Gio.
      * @returns {Gio.Settings}
      */
-    static getSettings() {
+    _getSettings(extension) {
+        let schemaDir;
+
+        if (extension && extension.dir) {
+            schemaDir = extension.dir.get_child('schemas').get_path();
+        } else {
+            schemaDir = null;
+        }
+
         let schemaName = 'org.gnome.shell.extensions.gmailmessagetray';
-        let schemaDir = Me.dir.get_child('schemas').get_path();
 
-        let schemaSource = Gio.SettingsSchemaSource.new_from_directory(schemaDir,
-            Gio.SettingsSchemaSource.get_default(),
-            false);
-        let schema = schemaSource.lookup(schemaName, false);
+        if (schemaDir) {
+            try {
+                let schemaSource = Gio.SettingsSchemaSource.new_from_directory(schemaDir,
+                    Gio.SettingsSchemaSource.get_default(),
+                    false);
+                let schema = schemaSource.lookup(schemaName, false);
 
-        return new Gio.Settings({settings_schema: schema});
-    }
+                if (schema) {
+                    return new Gio.Settings({ settings_schema: schema });
+                }
+            } catch (err) {
+                console.log("Error loading schema from " + schemaDir + ": " + err);
+            }
+        }
 
-    /**
-     * Sets up translations from locale directory.
-     */
-    static setupTranslations() {
-        const localeDir = Me.dir.get_child('locale').get_path();
-        Gettext.bindtextdomain('gmail_notify', localeDir);
+        // Fallback to system schema if available (should not be needed if schema dir is found)
+        try {
+            return new Gio.Settings({ schema_id: schemaName });
+        } catch (err) {
+            console.error("Failed to load settings schema: " + err);
+            throw err;
+        }
     }
 };

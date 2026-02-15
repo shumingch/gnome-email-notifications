@@ -16,12 +16,10 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
-"use strict";
-
 /**
  * Scans Outlook json api for unread emails.
  */
-var OutlookScanner = class {
+export class OutlookScanner {
     constructor() {
     }
 

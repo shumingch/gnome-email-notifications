@@ -16,19 +16,32 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
-"use strict";
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Main = imports.ui.main;
-const Source = imports.ui.messageTray.Source;
-const Console = Me.imports.console.Console;
-const Gettext = imports.gettext.domain('gmail_notify');
-const _ = Gettext.gettext;
-const Notification = Me.imports.Notification.Notification;
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as MsgTray from 'resource:///org/gnome/shell/ui/messageTray.js';
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+import { Console } from './console.js';
+import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
+
+// Helper function to unescape XML in notification content
+export function _unescapeXML(xmlString) {
+    if (xmlString === null) return "";
+    const escaped_one_to_xml_special_map = {
+        '&amp;': '&',
+        '&#39;': "'",
+        '&quot;': '"',
+        '&lt;': '<',
+        '&gt;': '>'
+    };
+    const unescape_regex = /(&quot;|&#39;|&lt;|&gt;|&amp;)/g;
+    return xmlString.replace(unescape_regex,
+        (str, item) => escaped_one_to_xml_special_map[item]);
+}
 
 /**
  * Creates and displays notifications.
  */
-var NotificationFactory = class {
+export class NotificationFactory {
 
     /**
      * Creates new notifier for an email account.
@@ -37,6 +50,8 @@ var NotificationFactory = class {
     constructor(emailAccount) {
         this._mailbox = emailAccount.mailbox;
         this.sources = new Set();
+        this._addedToTray = new Set();
+        this._emailSource = this._newEmailSource();
         this._errorSource = this._newErrorSource();
         this._console = new Console();
     }
@@ -47,7 +62,9 @@ var NotificationFactory = class {
      * @param {function} cb - callback that runs when notification is clicked
      */
     createEmailNotification(msg, cb) {
-        this._createNotification(msg, 'mail-unread', true, false, cb);
+        if (!this._emailSource)
+            this._emailSource = this._newEmailSource();
+        this._createNotificationWithSource(this._emailSource, msg, 'mail-unread', true, false, cb);
     }
 
     /**
@@ -56,6 +73,8 @@ var NotificationFactory = class {
      * @param {function} cb - callback that runs when notification is clicked
      */
     createErrorNotification(content, cb) {
+        if (!this._errorSource)
+            this._errorSource = this._newErrorSource();
         this._createNotificationWithSource(this._errorSource, content, 'dialog-error', false, false, cb);
     }
 
@@ -63,16 +82,47 @@ var NotificationFactory = class {
      * Destroys all sources for the email account
      */
     destroySources() {
-        for (let source of this.sources) {
+        for (let source of [...this.sources]) {
             source.destroy();
         }
+        this.sources.clear();
+        this._addedToTray.clear();
+        this._emailSource = null;
+        this._errorSource = null;
     }
 
     /**
      * Removes all errors currently displaying for this email account
      */
     removeErrors() {
+
+        // If _errorSource is not null, it means it hasn't been destroyed yet
+        // (thanks to the signal handler in _newErrorSource)
+        if (this._errorSource) {
+            this._errorSource.destroy();
+            this._errorSource = null;
+        }
+
         this._errorSource = this._newErrorSource();
+    }
+
+    /**
+     * Creates a new source for email notifications
+     * @returns {Source} - the email source
+     * @private
+     */
+    _newEmailSource() {
+        const source = new MsgTray.Source({ title: this._mailbox });
+
+        source.connect('destroy', () => {
+            this.sources.delete(source);
+            this._addedToTray.delete(source);
+            if (this._emailSource === source)
+                this._emailSource = null;
+        });
+
+        this.sources.add(source);
+        return source;
     }
 
     /**
@@ -81,27 +131,19 @@ var NotificationFactory = class {
      * @private
      */
     _newErrorSource() {
-        if (this._errorSource !== undefined) {
-            this.sources.delete(this._errorSource);
-            this._errorSource.destroy();
-        }
-        const source = new Source(this._mailbox, 'dialog-error');
+        const source = new MsgTray.Source({ title: this._mailbox });
+
+        // Connect to destroy signal to clean up references if destroyed by Shell
+        source.connect('destroy', () => {
+            this.sources.delete(source);
+            this._addedToTray.delete(source);
+            if (this._errorSource === source) {
+                this._errorSource = null;
+            }
+        });
+
         this.sources.add(source);
         return source;
-    }
-
-    /**
-     * Creates a new notification with it's own source
-     * @param content - an object containing all information about the email
-     * @param {string} iconName - the name of the icon that will display
-     * @param {boolean} popUp - true if notification should display outside the message tray
-     * @param {boolean} permanent - true if notification should not go away if you click on it
-     * @param {function} cb - callback that runs when notification is clicked
-     * @returns {Notification} - the notification created
-     */
-    _createNotification(content, iconName, popUp, permanent, cb) {
-        const source = new Source(this._mailbox, 'mail-read');
-        return this._createNotificationWithSource(source, content, iconName, popUp, permanent, cb);
     }
 
     /**
@@ -116,30 +158,65 @@ var NotificationFactory = class {
      * @private
      */
     _createNotificationWithSource(source, content, iconName, popUp, permanent, cb) {
-        Main.messageTray.add(source);
-        const notification = new Notification(source, content, iconName);
-        notification.connect('activated', () => {
-            try {
-                cb();
-            } catch (err) {
-                this._console.error(err);
+        if (!source) return null;
+
+        if (!this._addedToTray.has(source)) {
+            Main.messageTray.add(source);
+            this._addedToTray.add(source);
+        }
+
+        try {
+            // Prepare content data
+            const date = new Date(content.date);
+            const title = _unescapeXML(content.subject);
+            const banner = _unescapeXML(content.from);
+
+            // Create a notification with source, title, and banner using property map
+            const notification = new MsgTray.Notification({
+                source: source,
+                title: title,
+                body: banner
+            });
+
+            // Set optional properties
+            if (iconName) {
+                const gicon = new Gio.ThemedIcon({ name: iconName });
+                notification.gicon = gicon;
             }
-        });
-        notification.connect('destroy', (destroyed_source) => {
-            this.sources.delete(destroyed_source.source);
-        });
 
-        if (permanent) {
-            notification.setResident(true);
-        }
-        if (popUp) {
-            source.showNotification(notification);
-        } else {
-            notification.acknowledged = true;
-            source.pushNotification(notification);
-        }
+            if (date) {
+                const unix_local = date.getTime() / 1000;
+                notification.datetime = GLib.DateTime.new_from_unix_local(unix_local);
+            }
 
-        this.sources.add(source);
-        return notification;
+            if (permanent) {
+                notification.setResident(true);
+            }
+
+            // Connect signals
+            notification.connect('activated', () => {
+                try {
+                    cb();
+                } catch (err) {
+                    this._console.error(err);
+                }
+            });
+
+
+
+            // Add notification to source using the proper method
+            if (source.addNotification) {
+                source.addNotification(notification);
+            } else if (source.pushNotification) {
+                source.pushNotification(notification);
+            } else if (source.showNotification) {
+                source.showNotification(notification);
+            }
+
+            return notification;
+        } catch (err) {
+            this._console.error("Error creating notification:", err);
+            throw err;
+        }
     }
 };

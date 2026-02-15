@@ -16,18 +16,15 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
-"use strict";
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Console = Me.imports.console.Console;
-const Gettext = imports.gettext.domain('gmail_notify');
-const _ = Gettext.gettext;
-const InboxScanner = Me.imports.InboxScanner.InboxScanner;
-const Notifier = Me.imports.Notifier.Notifier;
+import { Console } from './console.js';
+import { InboxScanner } from './InboxScanner.js';
+import { Notifier } from './Notifier.js';
+import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 /**
  * Controls a single Gnome Online Account
  */
-var EmailAccount = class {
+export class EmailAccount {
     /**
      * Creates a new EmailAccount with a Gnome Online Account
      * @param {Conf} config
@@ -37,9 +34,9 @@ var EmailAccount = class {
         this.config = config;
         this.mailbox = account.get_account().presentation_identity;
         if (this.mailbox === undefined) this.mailbox = '';
+        this._console = new Console();
         this._scanner = new InboxScanner(account, this.config);
         this._notifier = new Notifier(this);
-        this._console = new Console();
     }
 
     /**
@@ -71,6 +68,11 @@ var EmailAccount = class {
      */
     _processData(err, folders) {
         if (err) {
+            // Suppress notifications for transient server errors
+            if (err.message && (err.message.startsWith("Status 5") || err.message.startsWith("Status 429"))) {
+                this._console.log("Transient network error (suppressed notification): " + err.message);
+                return;
+            }
             this._showError(err);
         } else {
             try {

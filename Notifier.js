@@ -16,20 +16,17 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
-"use strict";
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Source = imports.ui.messageTray.Source;
-const Gettext = imports.gettext.domain('gmail_notify');
-const _ = Gettext.gettext;
-const Gio = imports.gi.Gio;
-const Main = imports.ui.main;
-const Util = imports.misc.util;
-const NotificationFactory = Me.imports.NotificationFactory.NotificationFactory;
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
+import * as Util from 'resource:///org/gnome/shell/misc/util.js';
+import { NotificationFactory } from './NotificationFactory.js';
+import { Console } from './console.js';
+import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 /**
  * Controls notifications in message tray.
  */
-var Notifier = class {
+export class Notifier {
     /**
      * Creates new notifier for an email account.
      * @param {EmailAccount} emailAccount
@@ -38,6 +35,13 @@ var Notifier = class {
         this._config = emailAccount.config;
         this._mailbox = emailAccount.mailbox;
         this._notificationFactory = new NotificationFactory(emailAccount);
+
+        // Get extension metadata from the injected config object
+        this._extensionMetadata = { url: 'https://github.com/shumingch/gnome-email-notifications' };
+        if (this._config && this._config._extension) {
+            this._extensionMetadata = this._config._extension.metadata;
+        }
+        this._console = new Console();
     }
 
     /**
@@ -77,7 +81,7 @@ var Notifier = class {
             subject: this._mailbox
         };
         const cb = () => {
-            this._openBrowser(Me.metadata["url"]);
+            this._openBrowser(this._extensionMetadata["url"]);
         };
         this._notificationFactory.createErrorNotification(content, cb);
     }
@@ -95,11 +99,33 @@ var Notifier = class {
      * @private
      */
     _openBrowser(link) {
-        if (link === '' || link === undefined) {
+        if (!link) {
             link = 'https://' + this._mailbox.match(/@(.*)/)[1];
         }
-        const defaultBrowser = Gio.app_info_get_default_for_uri_scheme("http").get_executable();
-        Util.trySpawnCommandLine(defaultBrowser + " " + link);
+
+        const timestamp = global.get_current_time();
+        const context = global.create_app_launch_context(timestamp, -1);
+
+        try {
+            // Standard GNOME way to open a URI with focus context
+            Gio.AppInfo.launch_default_for_uri(link, context);
+        } catch (e) {
+            this._console.error("Failed to launch default for URI: " + e.message);
+            try {
+                // Fallback 1: Get default app for https and launch uris
+                const appInfo = Gio.AppInfo.get_default_for_uri_scheme("https");
+                if (appInfo) {
+                    appInfo.launch_uris([link], context);
+                } else {
+                    throw new Error("No default app found for https");
+                }
+            } catch (e2) {
+                this._console.error("Fallback 1 failed: " + e2.message);
+                // Fallback 2: xdg-open (no focus context, but reliable)
+                // Use shell_quote for safety
+                Util.trySpawnCommandLine(`xdg-open ${GLib.shell_quote(link)}`);
+            }
+        }
     }
 
     /**
@@ -111,14 +137,7 @@ var Notifier = class {
         if (this._config.getReader() === 0) {
             this._openBrowser(link);
         } else {
-            const mailto = Gio.app_info_get_default_for_uri_scheme("mailto");
-            if (mailto === null) {
-                const error = _("No default email client found");
-                Main.notifyError(error);
-                throw new Error(error);
-            }
-            const defaultMailClient = mailto.get_executable();
-            Util.trySpawnCommandLine(defaultMailClient);
+            this._openBrowser('mailto:');
         }
     }
 };

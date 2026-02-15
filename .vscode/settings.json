@@ -1,0 +1,11 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "cp": true,
+        "glib-compile-schemas": true,
+        "gnome-extensions": true,
+        "journalctl": true,
+        "killall": true,
+        "dbus-send": true,
+        "gsettings": true
+    }
+}

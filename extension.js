@@ -20,56 +20,49 @@
  * Shuming Chan <shuming0207@gmail.com>
  *
  */
-"use strict";
-/** @external imports*/
-const GLib = imports.gi.GLib;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Mainloop = imports.mainloop;
-const Main = imports.ui.main;
-const Console = Me.imports.console.Console;
-const Conf = Me.imports.Conf.Conf;
-const EmailAccount = Me.imports.EmailAccount.EmailAccount;
+import GLib from 'gi://GLib';
+import Goa from 'gi://Goa';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-const _version = Me.metadata['version'];
+import { Extension, gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 
-let extension;
-let Goa;
-try {
-    Goa = imports.gi.Goa;
-} catch (err) {
-    log("[" + Me.metadata['name'] + "] " + err.message + ", " + err.stack);
-}
-
-/**
- * Initializes translations for the extension
- */
-function init() {
-    log("[" + Me.metadata['name'] + "] Init version " + _version);
-    Conf.setupTranslations();
-}
+import { Console } from './console.js';
+import { Conf } from './Conf.js';
+import { EmailAccount } from './EmailAccount.js';
 
 const supportedProviders = new Set(["google", "windows_live"]);
 
-/**
- * An instance of this gnome extension
- */
-var Extension = class {
-    constructor() {
-        this._console = new Console();
-        this._console.log('Enabling ' + _version);
+export default class GmailNotificationExtension extends Extension {
+    enable() {
+        const _version = this.metadata['version'];
+
         /** @type Conf */
         this.config = new Conf(this);
+        this._console = new Console();
         this.checkMailTimeout = null;
-        Extension._libCheck();
-        this._getEmailAccounts(emailAccounts => {
-            this.goaAccounts = emailAccounts;
-            this.startTimeout();
-            this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
-                this._checkMail();
-                this.initialCheckMail = null;
-                return false;
+        this.goaAccounts = [];
+
+        try {
+            this._getEmailAccounts(emailAccounts => {
+                this.goaAccounts = emailAccounts;
+                this.startTimeout();
+                this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
+                    this._checkMail();
+                    this.initialCheckMail = null;
+                    return false;
+                });
             });
-        });
+        } catch (err) {
+            this._console.log(err);
+        }
+    }
+
+    disable() {
+        try {
+            this.destroy();
+        } catch (err) {
+            this._console.log(err);
+        }
     }
 
     /**
@@ -77,7 +70,6 @@ var Extension = class {
      * @private
      */
     _checkMail() {
-        this._console.log("Checking mail");
         for (let account of this.goaAccounts) {
             account.scanInbox();
         }
@@ -91,40 +83,35 @@ var Extension = class {
     _getEmailAccounts(callback) {
         const emailAccounts = [];
         Goa.Client.new(null, (proxy, asyncResult) => {
-            const aClient = Goa.Client.new_finish(asyncResult);
-            const accounts = aClient.get_accounts();
+            try {
+                const aClient = Goa.Client.new_finish(asyncResult);
+                const accounts = aClient.get_accounts();
 
-            for (let account of accounts) {
-                const provider = account.get_account().provider_type;
-                if (supportedProviders.has(provider)) {
-                    emailAccounts.push(new EmailAccount(this.config, account));
+                for (let account of accounts) {
+                    const provider = account.get_account().provider_type;
+                    if (supportedProviders.has(provider)) {
+                        emailAccounts.push(new EmailAccount(this.config, account));
+                    }
                 }
+                if (emailAccounts.length === 0) {
+                    Main.notifyError("Gnome Email Notifications", _("No email accounts found"));
+                    throw new Error("No email accounts found");
+                }
+                callback(emailAccounts);
+            } catch (err) {
+                this._console.error(err);
             }
-            if (emailAccounts.length === 0) {
-                Main.notifyError(_("No email accounts found"));
-                throw new Error("No email accounts found");
-            }
-            callback(emailAccounts);
-        }
-        );
+        });
     }
 
-    /**
-     * Checks if required libraries are installed
-     * @private
-     */
-    static _libCheck() {
-        if (Goa === undefined) {
-            Main.notifyError(_("Install gir1.2-goa"));
-            throw new Error("No Goa found");
-        }
-    }
+
 
     /**
      * Checks mail using timeout from config
      */
     startTimeout() {
-        this.checkMailTimeout = GLib.timeout_add_seconds(0, this.config.getTimeout(), () => {
+        const timeout = this.config.getTimeout();
+        this.checkMailTimeout = GLib.timeout_add_seconds(0, timeout, () => {
             this._checkMail();
             return true;
         });
@@ -134,8 +121,10 @@ var Extension = class {
      * Stops checking mail
      */
     stopTimeout() {
-        Mainloop.source_remove(this.checkMailTimeout);
-        if (this.initialCheckMail !== null) Mainloop.source_remove(this.initialCheckMail);
+        if (this.checkMailTimeout) GLib.source_remove(this.checkMailTimeout);
+        if (this.initialCheckMail !== null && this.initialCheckMail !== undefined) {
+            GLib.source_remove(this.initialCheckMail);
+        }
     }
 
     /**
@@ -146,28 +135,5 @@ var Extension = class {
         for (let account of this.goaAccounts) {
             account.destroySources();
         }
-    }
-};
-
-/**
- * Sets up the extension
- */
-function enable() {
-    try {
-        extension = new Extension();
-    } catch (err) {
-        log("[" + Me.metadata['name'] + "] " + err);
-    }
-}
-
-/**
- * Stops and cleans up extension
- */
-function disable() {
-    try {
-        extension.destroy();
-        extension = null;
-    } catch (err) {
-        log("[" + Me.metadata['name'] + "] " + err);
     }
 }

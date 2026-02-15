@@ -16,14 +16,12 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
-"use strict";
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const XML = Me.imports.rexml;
+import * as XML from './rexml.js';
 
 /**
  * Scans Gmail atom api for unread emails.
  */
-var GmailScanner = class {
+export class GmailScanner {
     /**
      * Creates a scanner with the given config
      * @param {string} mailbox - email account in the form "email@gmail.com"
