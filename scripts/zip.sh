@@ -27,7 +27,6 @@ zip -r "$ZIP_FILE" . -x \
     "implementation_plan.md" \
     "task.md" \
     "walkthrough.md" \
-    ".gitignore" \
-    "README.md"
+    ".gitignore"
 
 echo "Successfully created ${ZIP_FILE}"
