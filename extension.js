@@ -34,9 +34,7 @@ const supportedProviders = new Set(["google", "windows_live"]);
 
 export default class GmailNotificationExtension extends Extension {
     enable() {
-        this._console = new Console();
         const _version = this.metadata['version'];
-        this._console.log('Enabling ' + _version);
 
         /** @type Conf */
         this.config = new Conf(this);
@@ -71,7 +69,6 @@ export default class GmailNotificationExtension extends Extension {
      * @private
      */
     _checkMail() {
-        this._console.log("Checking mail");
         for (let account of this.goaAccounts) {
             account.scanInbox();
         }
