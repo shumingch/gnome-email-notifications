@@ -1,46 +1,26 @@
-/*
- * Copyright (c) 2012-2017 Gnome Email Notifications contributors
- *
- * Gnome Email Notifications is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * Gnome Email Notifications is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with Gnome Documents; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- * Authors:
- * Adam Jabłoński <jablona123@gmail.com>
- * Shuming Chan <shuming0207@gmail.com>
- *
- */
-"use strict";
-const Gettext = imports.gettext;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const {Gio, GLib} = imports.gi;
+import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 
 /**
  * Controls configuration for extension.
  */
-var Conf = class {
+export class Conf {
     /**
      * Creates a new conf for an extension
-     * @param {Extension} extension - the extension to control
+     * @param {Extension} extension - the extension to control (optional)
      */
     constructor(extension) {
-
-        this.settings = Conf.getSettings();
-        if (extension === undefined) return;
-        this.settings.connect("changed::timeout", () => {
-            extension.stopTimeout();
-            extension.startTimeout();
-        });
+        this._extension = extension;
+        this.settings = this._getSettings(extension);
+        if (extension === undefined || extension === null) return;
+        // Only set up timeout listeners if the extension has these methods
+        // (true for main extension, false for preferences extension)
+        if (typeof extension.stopTimeout === 'function' && typeof extension.startTimeout === 'function') {
+            this.settings.connect("changed::timeout", () => {
+                extension.stopTimeout();
+                extension.startTimeout();
+            });
+        }
     }
 
     /**
@@ -113,23 +93,48 @@ var Conf = class {
      * Gets the settings from Gio.
      * @returns {Gio.Settings}
      */
-    static getSettings() {
+    _getSettings(extension) {
+        let schemaDir;
+        
+        // Try to get schema directory from extension object (works with both Extension and ExtensionPreferences)
+        if (extension && extension.dir) {
+            schemaDir = extension.dir.get_child('schemas').get_path();
+        } else {
+            // Fallback: try using imports.misc.extensionUtils if available
+            try {
+                const extUtils = imports.misc.extensionUtils;
+                const ext = extUtils.getCurrentExtension();
+                if (ext && ext.dir) {
+                    schemaDir = ext.dir.get_child('schemas').get_path();
+                }
+            } catch (err) {
+                schemaDir = null;
+            }
+        }
+        
         let schemaName = 'org.gnome.shell.extensions.gmailmessagetray';
-        let schemaDir = Me.dir.get_child('schemas').get_path();
-
-        let schemaSource = Gio.SettingsSchemaSource.new_from_directory(schemaDir,
-            Gio.SettingsSchemaSource.get_default(),
-            false);
-        let schema = schemaSource.lookup(schemaName, false);
-
-        return new Gio.Settings({settings_schema: schema});
-    }
-
-    /**
-     * Sets up translations from locale directory.
-     */
-    static setupTranslations() {
-        const localeDir = Me.dir.get_child('locale').get_path();
-        Gettext.bindtextdomain('gmail_notify', localeDir);
+        
+        if (schemaDir) {
+            try {
+                let schemaSource = Gio.SettingsSchemaSource.new_from_directory(schemaDir,
+                    Gio.SettingsSchemaSource.get_default(),
+                    false);
+                let schema = schemaSource.lookup(schemaName, false);
+                
+                if (schema) {
+                    return new Gio.Settings({settings_schema: schema});
+                }
+            } catch (err) {
+                console.log("Error loading schema from " + schemaDir + ": " + err);
+            }
+        }
+        
+        // Fallback to system schema if available (should not be needed if schema dir is found)
+        try {
+            return new Gio.Settings({schema_id: schemaName});
+        } catch (err) {
+            console.error("Failed to load settings schema: " + err);
+            throw err;
+        }
     }
 };

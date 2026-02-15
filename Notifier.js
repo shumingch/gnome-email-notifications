@@ -1,35 +1,13 @@
-/*
- * Copyright (c) 2012-2017 Gnome Email Notifications contributors
- *
- * Gnome Email Notifications Extension is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * Gnome Email Notifications Extension is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with Gnome Documents; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- */
-"use strict";
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Source = imports.ui.messageTray.Source;
-const Gettext = imports.gettext.domain('gmail_notify');
-const _ = Gettext.gettext;
-const Gio = imports.gi.Gio;
-const Main = imports.ui.main;
-const Util = imports.misc.util;
-const NotificationFactory = Me.imports.NotificationFactory.NotificationFactory;
+import Gio from 'gi://Gio';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as Util from 'resource:///org/gnome/shell/misc/util.js';
+import { NotificationFactory } from './NotificationFactory.js';
+import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 /**
  * Controls notifications in message tray.
  */
-var Notifier = class {
+export class Notifier {
     /**
      * Creates new notifier for an email account.
      * @param {EmailAccount} emailAccount
@@ -38,6 +16,12 @@ var Notifier = class {
         this._config = emailAccount.config;
         this._mailbox = emailAccount.mailbox;
         this._notificationFactory = new NotificationFactory(emailAccount);
+
+        // Get extension metadata from the injected config object
+        this._extensionMetadata = { url: 'https://github.com/shumingch/gnome-email-notifications' };
+        if (this._config && this._config._extension) {
+            this._extensionMetadata = this._config._extension.metadata;
+        }
     }
 
     /**
@@ -77,7 +61,7 @@ var Notifier = class {
             subject: this._mailbox
         };
         const cb = () => {
-            this._openBrowser(Me.metadata["url"]);
+            this._openBrowser(this._extensionMetadata["url"]);
         };
         this._notificationFactory.createErrorNotification(content, cb);
     }
@@ -114,7 +98,7 @@ var Notifier = class {
             const mailto = Gio.app_info_get_default_for_uri_scheme("mailto");
             if (mailto === null) {
                 const error = _("No default email client found");
-                Main.notifyError(error);
+                Main.notifyError("Gnome Email Notifications", error);
                 throw new Error(error);
             }
             const defaultMailClient = mailto.get_executable();

@@ -1,33 +1,12 @@
-/*
- * Copyright (c) 2012-2017 Gnome Email Notifications contributors
- *
- * Gnome Email Notifications Extension is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * Gnome Email Notifications Extension is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with Gnome Documents; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- *
- */
-"use strict";
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const Console = Me.imports.console.Console;
-const Gettext = imports.gettext.domain('gmail_notify');
-const _ = Gettext.gettext;
-const InboxScanner = Me.imports.InboxScanner.InboxScanner;
-const Notifier = Me.imports.Notifier.Notifier;
+import { Console } from './console.js';
+import { InboxScanner } from './InboxScanner.js';
+import { Notifier } from './Notifier.js';
+import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 /**
  * Controls a single Gnome Online Account
  */
-var EmailAccount = class {
+export class EmailAccount {
     /**
      * Creates a new EmailAccount with a Gnome Online Account
      * @param {Conf} config
@@ -71,6 +50,11 @@ var EmailAccount = class {
      */
     _processData(err, folders) {
         if (err) {
+            // Suppress notifications for transient server errors
+            if (err.message && (err.message.startsWith("Status 5") || err.message.startsWith("Status 429"))) {
+                this._console.log("Transient network error (suppressed notification): " + err.message);
+                return;
+            }
             this._showError(err);
         } else {
             try {

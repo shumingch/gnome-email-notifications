@@ -15,17 +15,32 @@
  * with Gnome Documents; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-"use strict";
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-function Console() {
-    this.extensionString = "[" +  Me.metadata['name'] + "] ";
+
+export class Console {
+    constructor() {
+        let extensionName = "Gnome Email Notifications";
+        
+        // Try to get extension metadata
+        try {
+            const extUtils = imports.misc.extensionUtils;
+            const extension = extUtils.getCurrentExtension();
+            extensionName = extension.metadata['name'];
+        } catch (err) {
+            // Fallback to default name
+        }
+        
+        this.extensionString = "[" + extensionName + "] ";
+    }
+
+    log(...args) {
+        console.log(this.extensionString + args.join());
+    }
+
+    error(err) {
+        this.log(err.message, err.stack);
+    }
+
+    json(obj) {
+        this.log(JSON.stringify(obj));
+    }
 }
-Console.prototype.log = function (...args) {
-    log(this.extensionString + args.join());
-};
-Console.prototype.error = function (err) {
-    this.log(err.message, err.stack);
-};
-Console.prototype.json = function (obj) {
-    this.log(JSON.stringify(obj));
-};
