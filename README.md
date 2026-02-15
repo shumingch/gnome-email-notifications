@@ -34,10 +34,14 @@ We welcome contributions! Here is how to get started:
 - `scripts/`: Development utility scripts.
 
 ### Development Workflow
-1. **Setup**: Clone the repo and link it to your extensions folder.
+1. **Setup**: Clone the repo.
 2. **Testing**: We use a custom mocking framework to test logic without a full GNOME Shell environment.
    ```bash
    gjs -m tests/run_tests.js
+   ```
+   Copy the output to your extensions folder.
+   ```bash
+   sudo cp -r . ~/.local/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com/
    ```
 3. **Packaging**: Use the provided script to create a production-ready zip (excludes tests/CI/etc).
    ```bash
@@ -53,6 +57,10 @@ We welcome contributions! Here is how to get started:
   ```bash
   journalctl | grep "GmailMessageTray"
   ```
+- **Reset Settings**: If you're having issues, you can reset the extension's settings to their defaults:
+  ```bash
+  dconf reset -f /org/gnome/shell/extensions/gmailmessagetray/
+  ``` 
 
 ## Screenshot
 
