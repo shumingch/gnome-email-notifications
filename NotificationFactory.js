@@ -55,7 +55,6 @@ export class NotificationFactory {
         this.sources.add(this._emailSource);
         this._errorSource = this._newErrorSource();
         this._console = new Console();
-        this._isDestroyed = false;
     }
 
     /**
@@ -64,7 +63,6 @@ export class NotificationFactory {
      * @param {function} cb - callback that runs when notification is clicked
      */
     createEmailNotification(msg, cb) {
-        if (this._isDestroyed) return;
         this._createNotificationWithSource(this._emailSource, msg, 'mail-unread', true, false, cb);
     }
 
@@ -74,7 +72,6 @@ export class NotificationFactory {
      * @param {function} cb - callback that runs when notification is clicked
      */
     createErrorNotification(content, cb) {
-        if (this._isDestroyed) return;
         this._createNotificationWithSource(this._errorSource, content, 'dialog-error', false, false, cb);
     }
 
@@ -82,19 +79,19 @@ export class NotificationFactory {
      * Destroys all sources for the email account
      */
     destroySources() {
-        this._isDestroyed = true;
         for (let source of [...this.sources]) {
             source.destroy();
         }
         this.sources.clear();
         this._addedToTray.clear();
+        this._emailSource = null;
+        this._errorSource = null;
     }
 
     /**
      * Removes all errors currently displaying for this email account
      */
     removeErrors() {
-        if (this._isDestroyed) return;
 
         // If _errorSource is not null, it means it hasn't been destroyed yet
         // (thanks to the signal handler in _newErrorSource)
@@ -112,7 +109,6 @@ export class NotificationFactory {
      * @private
      */
     _newErrorSource() {
-        if (this._isDestroyed) return null;
         const source = new MsgTray.Source({ title: this._mailbox });
 
         // Connect to destroy signal to clean up references if destroyed by Shell
@@ -140,7 +136,7 @@ export class NotificationFactory {
      * @private
      */
     _createNotificationWithSource(source, content, iconName, popUp, permanent, cb) {
-        if (this._isDestroyed || !source) return null;
+        if (!source) return null;
 
         if (!this._addedToTray.has(source)) {
             Main.messageTray.add(source);
@@ -186,7 +182,7 @@ export class NotificationFactory {
 
             notification.connect('destroy', (destroyed_notification) => {
                 // Remove from our source tracking
-                if (!this._isDestroyed && source === this._errorSource) {
+                if (source === this._errorSource) {
                     // Error source - just track it
                     this.sources.delete(source);
                 }
