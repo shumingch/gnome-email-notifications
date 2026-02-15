@@ -105,8 +105,8 @@ export class Notifier {
 
         this._console.log("Opening URI: " + link);
 
-        const context = global.create_app_launch_context();
-        context.set_timestamp(global.get_current_time());
+        const timestamp = global.get_current_time();
+        const context = global.create_app_launch_context(timestamp, -1);
 
         try {
             // Standard GNOME way to open a URI with focus context
