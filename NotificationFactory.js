@@ -51,8 +51,7 @@ export class NotificationFactory {
         this._mailbox = emailAccount.mailbox;
         this.sources = new Set();
         this._addedToTray = new Set();
-        this._emailSource = new MsgTray.Source({ title: this._mailbox });
-        this.sources.add(this._emailSource);
+        this._emailSource = this._newEmailSource();
         this._errorSource = this._newErrorSource();
         this._console = new Console();
     }
@@ -63,6 +62,8 @@ export class NotificationFactory {
      * @param {function} cb - callback that runs when notification is clicked
      */
     createEmailNotification(msg, cb) {
+        if (!this._emailSource)
+            this._emailSource = this._newEmailSource();
         this._createNotificationWithSource(this._emailSource, msg, 'mail-unread', true, false, cb);
     }
 
@@ -72,6 +73,8 @@ export class NotificationFactory {
      * @param {function} cb - callback that runs when notification is clicked
      */
     createErrorNotification(content, cb) {
+        if (!this._errorSource)
+            this._errorSource = this._newErrorSource();
         this._createNotificationWithSource(this._errorSource, content, 'dialog-error', false, false, cb);
     }
 
@@ -101,6 +104,25 @@ export class NotificationFactory {
         }
 
         this._errorSource = this._newErrorSource();
+    }
+
+    /**
+     * Creates a new source for email notifications
+     * @returns {Source} - the email source
+     * @private
+     */
+    _newEmailSource() {
+        const source = new MsgTray.Source({ title: this._mailbox });
+
+        source.connect('destroy', () => {
+            this.sources.delete(source);
+            this._addedToTray.delete(source);
+            if (this._emailSource === source)
+                this._emailSource = null;
+        });
+
+        this.sources.add(source);
+        return source;
     }
 
     /**
@@ -180,12 +202,9 @@ export class NotificationFactory {
                 }
             });
 
-            notification.connect('destroy', (destroyed_notification) => {
-                // Remove from our source tracking
-                if (source === this._errorSource) {
-                    // Error source - just track it
-                    this.sources.delete(source);
-                }
+            notification.connect('destroy', () => {
+                // No-op. Source tracking is handled by the source's own 'destroy' signal.
+                // Accessing the 'source' object here can cause "already disposed" errors.
             });
 
             // Add notification to source using the proper method
