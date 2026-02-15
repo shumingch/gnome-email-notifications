@@ -99,28 +99,36 @@ export class Notifier {
      * @private
      */
     _openBrowser(link) {
-        if (link === '' || link === undefined) {
+        if (!link) {
             link = 'https://' + this._mailbox.match(/@(.*)/)[1];
         }
 
-        this._console.log("Attempting to open URI: " + link);
-        try {
-            const context = global.create_app_launch_context();
-            // Provide a timestamp to bypass focus stealing prevention
-            context.set_timestamp(global.get_current_time());
+        this._console.log("Opening URI: " + link);
 
-            const appInfo = Gio.AppInfo.get_default_for_uri_scheme("https");
-            if (appInfo) {
-                appInfo.launch_uris([link], context);
-                this._console.log("Launch successful via AppInfo.launch_uris");
-            } else {
-                this._console.error("No default app found for https scheme");
-                throw new Error("No default script for https");
-            }
+        const context = global.create_app_launch_context();
+        context.set_timestamp(global.get_current_time());
+
+        try {
+            // Standard GNOME way to open a URI with focus context
+            Gio.AppInfo.launch_default_for_uri(link, context);
+            this._console.log("Successfully launched using launch_default_for_uri");
         } catch (e) {
-            this._console.error("Failed to launch URI via Gio: " + e.message);
-            Main.notifyError("Gnome Email Notifications", _("Failed to open browser"));
-            Util.trySpawnCommandLine(`xdg-open ${link}`);
+            this._console.log("launch_default_for_uri failed: " + e.message);
+            try {
+                // Fallback 1: Get default app for https and launch uris
+                const appInfo = Gio.AppInfo.get_default_for_uri_scheme("https");
+                if (appInfo) {
+                    appInfo.launch_uris([link], context);
+                    this._console.log("Successfully launched using launch_uris");
+                } else {
+                    throw new Error("No default app found for https");
+                }
+            } catch (e2) {
+                this._console.log("launch_uris failed: " + e2.message);
+                // Fallback 2: xdg-open (no focus context, but reliable)
+                // Use shell_quote for safety
+                Util.trySpawnCommandLine(`xdg-open ${GLib.shell_quote(link)}`);
+            }
         }
     }
 
