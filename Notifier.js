@@ -17,7 +17,7 @@
  *
  */
 import Gio from 'gi://Gio';
-import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import GLib from 'gi://GLib';
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
 import { NotificationFactory } from './NotificationFactory.js';
 import { Console } from './console.js';
