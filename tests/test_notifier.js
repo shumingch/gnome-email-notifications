@@ -1,6 +1,5 @@
-import { Notifier } from '../Notifier.js';
 
-export function runTests(assert, NotifierClass) {
+export function runTests(assert, Notifier) {
     console.log("--- Running Notifier Tests ---");
 
     const mockEmailAccount = {
