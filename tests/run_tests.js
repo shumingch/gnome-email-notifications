@@ -23,6 +23,16 @@ async function run() {
         print(`  PASS: ${message}`);
     };
 
+    // Mock global object for Shell environment
+    Object.assign(globalThis, {
+        global: {
+            get_current_time: () => Date.now(),
+            create_app_launch_context: () => ({
+                set_timestamp: () => { }
+            })
+        }
+    });
+
     let canRunGtk = false;
     try {
         const Gtk = (await import('gi://Gtk?version=4.0')).default;
