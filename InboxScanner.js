@@ -58,10 +58,8 @@ export class InboxScanner {
      * @param {requestCallback} callback
      */
     scanInbox(callback) {
-        this._console.log(`Scanning inbox for: ${this._mailbox}`);
         const msg = Soup.Message.new("GET", this._scanner.getApiURL());
         this._getCurrentToken(token => {
-            this._console.log("Token received, sending request...");
             msg.request_headers.append('Authorization', 'Bearer ' + token);
             if (this._provider === 'windows_live') {
                 msg.request_headers.append('X-AnchorMailbox', this._mailbox);
@@ -69,7 +67,6 @@ export class InboxScanner {
             this._sess.send_and_read_async(msg, GLib.PRIORITY_DEFAULT, null, (sess, result) => {
                 try {
                     const bytes = sess.send_and_read_finish(result);
-                    this._console.log(`Request finished with status: ${msg.get_status()}`);
 
                     if (msg.get_status() === 200) {
                         const decoder = new TextDecoder('utf-8');

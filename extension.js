@@ -39,13 +39,11 @@ export default class GmailNotificationExtension extends Extension {
         /** @type Conf */
         this.config = new Conf(this);
         this._console = new Console();
-        this._console.log("Enabling extension...");
         this.checkMailTimeout = null;
         this.goaAccounts = [];
 
         try {
             this._getEmailAccounts(emailAccounts => {
-                this._console.log(`Found ${emailAccounts.length} accounts. Starting timeout...`);
                 this.goaAccounts = emailAccounts;
                 this.startTimeout();
                 this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
@@ -113,7 +111,6 @@ export default class GmailNotificationExtension extends Extension {
      */
     startTimeout() {
         const timeout = this.config.getTimeout();
-        this._console.log(`Starting timeout: ${timeout}s`);
         this.checkMailTimeout = GLib.timeout_add_seconds(0, timeout, () => {
             this._checkMail();
             return true;

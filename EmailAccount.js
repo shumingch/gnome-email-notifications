@@ -35,7 +35,6 @@ export class EmailAccount {
         this.mailbox = account.get_account().presentation_identity;
         if (this.mailbox === undefined) this.mailbox = '';
         this._console = new Console();
-        this._console.log(`Initializing account: ${this.mailbox}`);
         this._scanner = new InboxScanner(account, this.config);
         this._notifier = new Notifier(this);
     }
