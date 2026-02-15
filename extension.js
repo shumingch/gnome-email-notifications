@@ -38,6 +38,7 @@ export default class GmailNotificationExtension extends Extension {
 
         /** @type Conf */
         this.config = new Conf(this);
+        this._console = new Console();
         this.checkMailTimeout = null;
         this.goaAccounts = [];
 

@@ -110,6 +110,7 @@ export class Notifier {
             // Standard GNOME way to open a URI with focus context
             Gio.AppInfo.launch_default_for_uri(link, context);
         } catch (e) {
+            this._console.error("Failed to launch default for URI: " + e.message);
             try {
                 // Fallback 1: Get default app for https and launch uris
                 const appInfo = Gio.AppInfo.get_default_for_uri_scheme("https");
@@ -119,6 +120,7 @@ export class Notifier {
                     throw new Error("No default app found for https");
                 }
             } catch (e2) {
+                this._console.error("Fallback 1 failed: " + e2.message);
                 // Fallback 2: xdg-open (no focus context, but reliable)
                 // Use shell_quote for safety
                 Util.trySpawnCommandLine(`xdg-open ${GLib.shell_quote(link)}`);
