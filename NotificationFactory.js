@@ -202,10 +202,7 @@ export class NotificationFactory {
                 }
             });
 
-            notification.connect('destroy', () => {
-                // No-op. Source tracking is handled by the source's own 'destroy' signal.
-                // Accessing the 'source' object here can cause "already disposed" errors.
-            });
+
 
             // Add notification to source using the proper method
             if (source.addNotification) {
