@@ -11,7 +11,7 @@ export function runTests(assert, Notifier) {
         mailbox: "test@gmail.com"
     };
 
-    const notifier = new NotifierClass(mockEmailAccount);
+    const notifier = new Notifier(mockEmailAccount);
 
     // Mock NotificationFactory
     notifier._notificationFactory = {
