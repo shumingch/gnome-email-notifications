@@ -24,7 +24,7 @@ import { Console } from './console.js';
 import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 // Helper function to unescape XML in notification content
-function _unescapeXML(xmlString) {
+export function _unescapeXML(xmlString) {
     if (xmlString === null) return "";
     const escaped_one_to_xml_special_map = {
         '&amp;': '&',

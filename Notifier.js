@@ -103,28 +103,22 @@ export class Notifier {
             link = 'https://' + this._mailbox.match(/@(.*)/)[1];
         }
 
-        this._console.log("Opening URI: " + link);
-
         const timestamp = global.get_current_time();
         const context = global.create_app_launch_context(timestamp, -1);
 
         try {
             // Standard GNOME way to open a URI with focus context
             Gio.AppInfo.launch_default_for_uri(link, context);
-            this._console.log("Successfully launched using launch_default_for_uri");
         } catch (e) {
-            this._console.log("launch_default_for_uri failed: " + e.message);
             try {
                 // Fallback 1: Get default app for https and launch uris
                 const appInfo = Gio.AppInfo.get_default_for_uri_scheme("https");
                 if (appInfo) {
                     appInfo.launch_uris([link], context);
-                    this._console.log("Successfully launched using launch_uris");
                 } else {
                     throw new Error("No default app found for https");
                 }
             } catch (e2) {
-                this._console.log("launch_uris failed: " + e2.message);
                 // Fallback 2: xdg-open (no focus context, but reliable)
                 // Use shell_quote for safety
                 Util.trySpawnCommandLine(`xdg-open ${GLib.shell_quote(link)}`);
