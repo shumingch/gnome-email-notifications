@@ -1,4 +1,0 @@
-TIME                          PID  UID  GID SIG     COREFILE EXE                                SIZE
-Mon 2026-02-16 21:17:04 UTC 35314 1000 1000 SIGTRAP none     /usr/share/antigravity/antigravity    -
-Mon 2026-02-16 21:18:27 UTC 35284 1000 1000 SIGTRAP present  /usr/share/antigravity/antigravity 2.9M
-Mon 2026-02-16 21:18:34 UTC 36192 1000 1000 SIGTRAP present  /usr/share/antigravity/antigravity   4M

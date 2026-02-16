@@ -1,8 +1,0 @@
-PING www.tm.a.prd.aadg.akadns.net (20.190.151.133) 56(84) bytes of data.
-64 bytes from 20.190.151.133: icmp_seq=1 ttl=255 time=91.8 ms
-64 bytes from 20.190.151.133: icmp_seq=2 ttl=255 time=82.2 ms
-64 bytes from 20.190.151.133: icmp_seq=3 ttl=255 time=85.4 ms
-
---- www.tm.a.prd.aadg.akadns.net ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2012ms
-rtt min/avg/max/mdev = 82.170/86.449/91.826/4.017 ms
