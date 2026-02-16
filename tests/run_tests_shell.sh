@@ -21,6 +21,13 @@ fi
 echo "GNOME Shell version: $(gnome-shell --version)"
 echo "XDG_DATA_DIRS: $XDG_DATA_DIRS"
 
+# Ensure /tmp/.X11-unix exists and is writable (required for XWayland in CI containers)
+if [ ! -d /tmp/.X11-unix ]; then
+    echo "Creating /tmp/.X11-unix..."
+    mkdir -p /tmp/.X11-unix || true
+fi
+chmod 1777 /tmp/.X11-unix || true
+
 run_in_shell() {
     echo "Starting GNOME Shell..."
     # --unsafe-mode is required for D-Bus Eval in newer GNOME versions
