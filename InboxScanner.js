@@ -22,6 +22,7 @@ import Soup from 'gi://Soup?version=3.0';
 import { Console } from './console.js';
 import { OutlookScanner } from './OutlookScanner.js';
 import { GmailScanner } from './GmailScanner.js';
+import { GraphScanner } from './GraphScanner.js';
 import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 /**
@@ -97,6 +98,8 @@ export class InboxScanner {
                 return new GmailScanner(this._mailbox, this._config);
             case 'windows_live':
                 return new OutlookScanner();
+            case 'ms_graph':
+                return new GraphScanner();
             default:
                 throw new Error("Provider type not found");
         }
@@ -121,5 +124,14 @@ export class InboxScanner {
                 this._console.error(err);
             }
         });
+    }
+
+    /**
+     * Aborts all network requests and cleans up
+     */
+    destroy() {
+        if (this._sess) {
+            this._sess.abort();
+        }
     }
 };

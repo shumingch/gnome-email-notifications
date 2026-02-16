@@ -34,14 +34,23 @@ export class Conf {
     constructor(extension) {
         this._extension = extension;
         this.settings = this._getSettings(extension);
-        if (extension === undefined || extension === null) return;
-        // Only set up timeout listeners if the extension has these methods
-        // (true for main extension, false for preferences extension)
+        if (!extension) return;
+
         if (typeof extension.stopTimeout === 'function' && typeof extension.startTimeout === 'function') {
-            this.settings.connect("changed::timeout", () => {
+            this._changedId = this.settings.connect("changed::timeout", () => {
                 extension.stopTimeout();
                 extension.startTimeout();
             });
+        }
+    }
+
+    /**
+     * Disconnects signals and cleans up
+     */
+    destroy() {
+        if (this._changedId) {
+            this.settings.disconnect(this._changedId);
+            this._changedId = null;
         }
     }
 
