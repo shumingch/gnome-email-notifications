@@ -9,7 +9,17 @@ PROJECT_ROOT=$(pwd)
 mkdir -p "$PROJECT_ROOT/share/glib-2.0/schemas"
 cp "$PROJECT_ROOT/schemas/"*.xml "$PROJECT_ROOT/share/glib-2.0/schemas/"
 glib-compile-schemas "$PROJECT_ROOT/share/glib-2.0/schemas"
-export XDG_DATA_DIRS="$PROJECT_ROOT/share:$XDG_DATA_DIRS"
+
+# Robustly prepend local share to XDG_DATA_DIRS, ensuring system paths are preserved
+if [ -z "$XDG_DATA_DIRS" ]; then
+    export XDG_DATA_DIRS="$PROJECT_ROOT/share:/usr/share:/usr/local/share"
+else
+    export XDG_DATA_DIRS="$PROJECT_ROOT/share:$XDG_DATA_DIRS"
+fi
+
+# Diagnostic info
+echo "GNOME Shell version: $(gnome-shell --version)"
+echo "XDG_DATA_DIRS: $XDG_DATA_DIRS"
 
 run_in_shell() {
     echo "Starting GNOME Shell..."
