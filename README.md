@@ -40,10 +40,9 @@ We welcome contributions! Here is how to get started:
    gjs -m tests/run_tests.js
    ```
    Copy the output to your extensions folder.
-```bash
-   sudo rm -rf ~/.local/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
-   sudo ln -s "$PWD" ~/.local/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
-```
+   ```bash
+      sudo rm -rf ~/.local/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
+      sudo ln -s "$PWD" ~/.local/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
    ```
 3. **Packaging**: Use the provided script to create a production-ready zip (excludes tests/CI/etc).
    ```bash
