@@ -4,14 +4,31 @@ on: [push]
 
 jobs:
   test:
+    name: Test on ${{ matrix.distro }}
     runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: ubuntu
+            image: ubuntu:latest
+          - distro: fedora
+            image: fedora:latest
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install Dependencies
+    - name: Install Dependencies (Ubuntu)
+      if: matrix.distro == 'ubuntu'
       run: |
-        sudo apt-get update
-        sudo apt-get install -y gjs gnome-shell xvfb libgtk-4-dev libadwaita-1-dev
+        apt-get update
+        apt-get install -y gjs gnome-shell dbus-x11 xvfb libgtk-4-dev libadwaita-1-dev
+    
+    - name: Install Dependencies (Fedora)
+      if: matrix.distro == 'fedora'
+      run: |
+        dnf install -y gjs gnome-shell dbus-x11 xorg-x11-server-Xvfb gtk4-devel libadwaita-devel
     
     - name: Run Tests
       run: ./tests/run_tests_shell.sh
