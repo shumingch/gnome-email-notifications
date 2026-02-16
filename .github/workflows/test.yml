@@ -11,7 +11,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gjs xvfb libgtk-4-dev libadwaita-1-dev
-
+        sudo apt-get install -y gjs gnome-shell xvfb libgtk-4-dev libadwaita-1-dev
+    
     - name: Run Tests
-      run: xvfb-run --auto-servernum gjs -m tests/run_tests.js
+      run: ./tests/run_tests_shell.sh
