@@ -30,7 +30,7 @@ import { Console } from './console.js';
 import { Conf } from './Conf.js';
 import { EmailAccount } from './EmailAccount.js';
 
-const supportedProviders = new Set(["google", "windows_live"]);
+const supportedProviders = new Set(["google", "windows_live", "ms_graph"]);
 
 export default class GmailNotificationExtension extends Extension {
     enable() {
