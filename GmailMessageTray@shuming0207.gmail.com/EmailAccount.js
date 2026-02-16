@@ -100,9 +100,6 @@ export class EmailAccount {
      */
     destroySources() {
         this._notifier.destroySources();
-        if (this._scanner) {
-            this._scanner.destroy();
-        }
     }
 };
 

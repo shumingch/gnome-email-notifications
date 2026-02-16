@@ -122,13 +122,4 @@ export class InboxScanner {
             }
         });
     }
-
-    /**
-     * Aborts all network requests and cleans up
-     */
-    destroy() {
-        if (this._sess) {
-            this._sess.abort();
-        }
-    }
 };

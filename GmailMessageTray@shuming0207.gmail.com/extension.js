@@ -132,9 +132,6 @@ export default class GmailNotificationExtension extends Extension {
      */
     destroy() {
         this.stopTimeout();
-        if (this.config) {
-            this.config.destroy();
-        }
         for (let account of this.goaAccounts) {
             account.destroySources();
         }
