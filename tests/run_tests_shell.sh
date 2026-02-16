@@ -42,9 +42,15 @@ run_in_shell() {
     Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     XVFB_PID=$!
     
+    # Mock system bus with session bus to satisfy LoginManager/systemd checks in CI
+    echo "Mocking system bus with session bus..."
+    export DBUS_SYSTEM_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS"
+
     echo "Starting GNOME Shell..."
     # --unsafe-mode is required for D-Bus Eval in newer GNOME versions
     # --mode=user helps skip some GDM/session logic that crashes in CI
+    # G_MESSAGES_DEBUG=all adds more verbose logging
+    export G_MESSAGES_DEBUG=all
     gnome-shell --headless --virtual-monitor=1024x768 --unsafe-mode --mode=user > shell.log 2>&1 &
     SHELL_PID=$!
     
