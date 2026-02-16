@@ -120,8 +120,8 @@
             // Mockify everything including tests
             const files = [
                 'Conf.js', 'InboxScanner.js', 'Notifier.js', 'NotificationFactory.js',
-                'EmailAccount.js', 'GmailScanner.js', 'OutlookScanner.js', 'console.js', 'rexml.js', 'prefs.js',
-                'tests/test_gmail_scanner.js', 'tests/test_outlook_scanner.js', 'tests/test_inbox_scanner.js',
+                'EmailAccount.js', 'GmailScanner.js', 'OutlookScanner.js', 'GraphScanner.js', 'console.js', 'rexml.js', 'prefs.js',
+                'tests/test_gmail_scanner.js', 'tests/test_outlook_scanner.js', 'tests/test_graph_scanner.js', 'tests/test_inbox_scanner.js',
                 'tests/test_conf.js', 'tests/test_notification_factory.js', 'tests/test_email_account.js',
                 'tests/test_notifier.js'
             ];
@@ -178,6 +178,7 @@
             // 2. Scanners
             await runTestSuite('GmailScanner Tests', './temp_test_gmail_scanner.js');
             await runTestSuite('OutlookScanner Tests', './temp_test_outlook_scanner.js');
+            await runTestSuite('GraphScanner Tests', './temp_test_graph_scanner.js');
 
             // 3. InboxScanner
             try {
