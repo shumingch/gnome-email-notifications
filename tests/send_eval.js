@@ -30,7 +30,9 @@ async function main() {
         system.exit(1);
     }
 
-    const script = new TextDecoder().decode(contents);
+    const scriptContent = new TextDecoder().decode(contents);
+    const projectRoot = GLib.get_current_dir();
+    const script = `const PROJECT_ROOT_INJECTED = "${projectRoot}";\n${scriptContent}`;
 
     const proxy = new ShellProxy(
         Gio.DBus.session,

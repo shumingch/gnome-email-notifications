@@ -4,6 +4,13 @@
 JS_TEST_RUNNER="${JS_TEST_RUNNER:-tests/run_tests.js}"
 export GJS_PATH=".:$GJS_PATH"
 
+# Compile schemas and set data dirs so Shell can find them
+PROJECT_ROOT=$(pwd)
+mkdir -p "$PROJECT_ROOT/share/glib-2.0/schemas"
+cp "$PROJECT_ROOT/schemas/"*.xml "$PROJECT_ROOT/share/glib-2.0/schemas/"
+glib-compile-schemas "$PROJECT_ROOT/share/glib-2.0/schemas"
+export XDG_DATA_DIRS="$PROJECT_ROOT/share:$XDG_DATA_DIRS"
+
 run_in_shell() {
     echo "Starting GNOME Shell..."
     # --unsafe-mode is required for D-Bus Eval in newer GNOME versions
@@ -36,22 +43,24 @@ run_in_shell() {
     
     echo "--- Shell Log (Full Filtered) ---"
     sleep 2
-    grep -E "JS LOG|PASS:|FAIL:|Native Shell|GNOME Shell started|Running in" shell.log || true
+    grep -E "JS LOG|PASS:|FAIL:|Native Shell|GNOME Shell started|Running in|Starting tests|Tests complete" shell.log || true
     
     if [ $RESULT_CODE -ne 0 ]; then
         echo "Test evaluation failed."
-        kill $SHELL_PID
+        # No kill here, shell might already be dead
         return 1
     fi
     
+    echo "Summary of results captured in log."
+    
     if grep -q "FAIL:" shell.log; then
         echo "One or more tests failed in log."
-        kill $SHELL_PID
+        kill $SHELL_PID 2>/dev/null || true
         return 1
     fi
     
     echo "All tests passed (inside Shell environment)!"
-    kill $SHELL_PID
+    kill $SHELL_PID 2>/dev/null || true
     return 0
 }
 
@@ -66,7 +75,8 @@ if [ $EXIT_CODE -ne 0 ]; then
     echo "Tests failed. Keeping shell.log for inspection."
 else
     # Clean up on success
-    rm -f shell.log
+    rm -rf shell.log share gschemas.compiled
+    echo "Tests passed. Cleaned up temporary files."
 fi
 
 exit $EXIT_CODE

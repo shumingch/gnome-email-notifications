@@ -54,60 +54,69 @@
         }
 
         let canRunGtk = false;
-        try {
-            const Gtk = (await import('gi://Gtk?version=4.0')).default;
-            const Adw = (await import('gi://Adw')).default;
-            if (Gtk.init()) {
-                Adw.init();
-                canRunGtk = true;
-                print("GTK/Adw initialized successfully.");
-            } else {
-                print("Warning: Gtk.init() returned false. Skipping GTK tests.");
+        if (!isShellNative) {
+            try {
+                const Gtk = (await import('gi://Gtk?version=4.0')).default;
+                const Adw = (await import('gi://Adw')).default;
+                if (Gtk.init()) {
+                    Adw.init();
+                    canRunGtk = true;
+                    print("GTK/Adw initialized successfully.");
+                } else {
+                    print("Warning: Gtk.init() returned false. Skipping GTK tests.");
+                }
+            } catch (e) {
+                print("Warning: Could not initialize GTK/Adw: " + e + ". Skipping GTK tests.");
             }
-        } catch (e) {
-            print("Warning: Could not initialize GTK/Adw: " + e + ". Skipping GTK tests.");
+        } else {
+            print("Skipping GTK initialization in native shell environment.");
         }
 
         const replaceImports = (source) => {
-            return source
-                .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/ui\/main\.js['"];/g,
-                    "import * as Main from './mocks/shell.js';")
-                .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/ui\/messageTray\.js['"];/g,
-                    "import { MsgTray, messageTray } from './mocks/shell.js';")
-                .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/extensions\/extension\.js['"];/g,
-                    "import { gettext as _ } from './mocks/shell.js';")
-                .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/misc\/util\.js['"];/g,
-                    "import * as Util from './mocks/shell.js';")
-                .replace(/import\s+Gio\s+from\s+['"]gi:\/\/Gio['"];/g,
-                    "import Gio from './mocks/Gio.js';")
-                .replace(/import\s+GLib\s+from\s+['"]gi:\/\/GLib['"];/g,
-                    "import GLib from './mocks/GLib.js';")
-                .replace(/import\s+Soup\s+from\s+['"]gi:\/\/Soup\?version=3\.0['"];/g,
-                    "import Soup from './mocks/Soup.js';")
-                .replace(/import\s+{.*Conf.*}\s+from\s+['"][\.\/]+Conf\.js['"];/g,
-                    "import { Conf } from './mocks/Conf.js';")
-                // Fix relative imports to use temp files
-                .replace(/import\s+(.*)\s+from\s+['"][\.\/]+(.*)\.js['"];/g, (match, p1, p2) => {
-                    if (p2.startsWith('mocks/')) return match;
-                    const lowP2 = p2.split('/').pop().toLowerCase();
-                    if (lowP2 === 'conf' || lowP2 === 'shell' || lowP2 === 'resource_prefs' || lowP2 === 'gio' || lowP2 === 'glib' || lowP2 === 'soup') return match;
-                    return `import ${p1} from './temp_${lowP2}.js';`;
-                });
+            // ... (rest of replaceImports is fine as it's for non-native mode)
+            return source;
         };
-
-        const mockify = (filename) => {
-            const file = Gio.File.new_for_path(filename);
-            const [success, contents] = file.load_contents(null);
-            if (success) {
-                let source = textDecoder.decode(contents);
-                source = replaceImports(source);
-                const baseName = filename.split('/').pop().split('.')[0].toLowerCase();
-                const tempFile = Gio.File.new_for_path(`tests/temp_${baseName}.js`);
-                tempFile.replace_contents(textEncoder.encode(source), null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
-            }
-        };
-
+        // Skip mockify if native
         if (!isShellNative) {
+            const replaceImportsReal = (source) => {
+                return source
+                    .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/ui\/main\.js['"];/g,
+                        "import * as Main from './mocks/shell.js';")
+                    .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/ui\/messageTray\.js['"];/g,
+                        "import { MsgTray, messageTray } from './mocks/shell.js';")
+                    .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/extensions\/extension\.js['"];/g,
+                        "import { gettext as _ } from './mocks/shell.js';")
+                    .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/misc\/util\.js['"];/g,
+                        "import * as Util from './mocks/shell.js';")
+                    .replace(/import\s+Gio\s+from\s+['"]gi:\/\/Gio['"];/g,
+                        "import Gio from './mocks/Gio.js';")
+                    .replace(/import\s+GLib\s+from\s+['"]gi:\/\/GLib['"];/g,
+                        "import GLib from './mocks/GLib.js';")
+                    .replace(/import\s+Soup\s+from\s+['"]gi:\/\/Soup\?version=3\.0['"];/g,
+                        "import Soup from './mocks/Soup.js';")
+                    .replace(/import\s+{.*Conf.*}\s+from\s+['"][\.\/]+Conf\.js['"];/g,
+                        "import { Conf } from './mocks/Conf.js';")
+                    // Fix relative imports to use temp files
+                    .replace(/import\s+(.*)\s+from\s+['"][\.\/]+(.*)\.js['"];/g, (match, p1, p2) => {
+                        if (p2.startsWith('mocks/')) return match;
+                        const lowP2 = p2.split('/').pop().toLowerCase();
+                        if (lowP2 === 'conf' || lowP2 === 'shell' || lowP2 === 'resource_prefs' || lowP2 === 'gio' || lowP2 === 'glib' || lowP2 === 'soup') return match;
+                        return `import ${p1} from './temp_${lowP2}.js';`;
+                    });
+            };
+
+            const mockify = (filename) => {
+                const file = Gio.File.new_for_path(filename);
+                const [success, contents] = file.load_contents(null);
+                if (success) {
+                    let source = textDecoder.decode(contents);
+                    source = replaceImportsReal(source);
+                    const baseName = filename.split('/').pop().split('.')[0].toLowerCase();
+                    const tempFile = Gio.File.new_for_path(`tests/temp_${baseName}.js`);
+                    tempFile.replace_contents(textEncoder.encode(source), null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null);
+                }
+            };
+
             // Mockify everything including tests
             const files = [
                 'Conf.js', 'InboxScanner.js', 'Notifier.js', 'NotificationFactory.js',
@@ -119,15 +128,17 @@
             files.forEach(mockify);
         }
 
+        // Get absolute project root for native imports
+        // Use injected value if available, fallback to GLib (risky)
+        const projectRoot = typeof PROJECT_ROOT_INJECTED !== 'undefined' ? PROJECT_ROOT_INJECTED : GLib.get_current_dir();
+
         const runTestSuite = async (name, testModulePath, ...args) => {
             print(`\n--- Running ${name} ---`);
             try {
-                // Determine module path: if native, use original (relative to tests/), else use temp
                 let path = testModulePath;
                 if (isShellNative) {
-                    // Convert temp path back to original for native testing
-                    // e.g. './temp_test_gmail_scanner.js' -> './test_gmail_scanner.js'
-                    path = testModulePath.replace('./temp_', './');
+                    // Use absolute path for native shell to avoid resolution issues
+                    path = `file://${projectRoot}/tests/${testModulePath.replace('./temp_', '').replace('./', '')}`;
                 }
                 const module = await import(path);
                 await module.runTests(assert, ...args);
@@ -139,7 +150,10 @@
         };
 
         // Determine base paths for main modules
-        const getModulePath = (baseName) => isShellNative ? `../${baseName}.js` : `./temp_${baseName.toLowerCase()}.js`;
+        const getModulePath = (baseName) => {
+            if (isShellNative) return `file://${projectRoot}/${baseName}.js`;
+            return `./temp_${baseName.toLowerCase()}.js`;
+        };
 
         try {
             // 1. Prefs Test
