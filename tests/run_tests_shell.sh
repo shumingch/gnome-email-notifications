@@ -37,10 +37,15 @@ if [ -z "$XDG_RUNTIME_DIR" ] || [ ! -d "$XDG_RUNTIME_DIR" ]; then
 fi
 
 run_in_shell() {
+    echo "Starting Xvfb..."
+    export DISPLAY=:99
+    Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    XVFB_PID=$!
+    
     echo "Starting GNOME Shell..."
     # --unsafe-mode is required for D-Bus Eval in newer GNOME versions
-    # We also use --mode=user to ensure it's a regular shell session
-    gnome-shell --headless --virtual-monitor=1024x768 --unsafe-mode > shell.log 2>&1 &
+    # --mode=user helps skip some GDM/session logic that crashes in CI
+    gnome-shell --headless --virtual-monitor=1024x768 --unsafe-mode --mode=user > shell.log 2>&1 &
     SHELL_PID=$!
     
     echo "Waiting for GNOME Shell to initialize (PID: $SHELL_PID)..."
@@ -81,11 +86,13 @@ run_in_shell() {
     if grep -q "FAIL:" shell.log; then
         echo "One or more tests failed in log."
         kill $SHELL_PID 2>/dev/null || true
+        kill $XVFB_PID 2>/dev/null || true
         return 1
     fi
     
     echo "All tests passed (inside Shell environment)!"
     kill $SHELL_PID 2>/dev/null || true
+    kill $XVFB_PID 2>/dev/null || true
     return 0
 }
 
