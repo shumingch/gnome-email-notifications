@@ -28,6 +28,14 @@ if [ ! -d /tmp/.X11-unix ]; then
 fi
 chmod 1777 /tmp/.X11-unix || true
 
+# Ensure XDG_RUNTIME_DIR is set and valid (required for Wayland socket)
+if [ -z "$XDG_RUNTIME_DIR" ] || [ ! -d "$XDG_RUNTIME_DIR" ]; then
+    export XDG_RUNTIME_DIR="/tmp/runtime-dir-$(id -u)"
+    echo "Setting XDG_RUNTIME_DIR to $XDG_RUNTIME_DIR"
+    mkdir -p "$XDG_RUNTIME_DIR"
+    chmod 700 "$XDG_RUNTIME_DIR"
+fi
+
 run_in_shell() {
     echo "Starting GNOME Shell..."
     # --unsafe-mode is required for D-Bus Eval in newer GNOME versions
