@@ -20,8 +20,8 @@
  * Shuming Chan <shuming0207@gmail.com>
  *
  */
-import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 
 /**
  * Controls configuration for extension.
@@ -29,15 +29,24 @@ import GLib from 'gi://GLib';
 export class Conf {
     /**
      * Creates a new conf for an extension
-     * @param {Extension} extension - the extension to control (optional)
+     *
+     * @param {Extension} extension - the extension to control
      */
     constructor(extension) {
+        if (!extension) {
+            // Provide a lightweight fallback for tests that construct Conf with no extension
+            extension = {
+                getSettings: () => new Gio.Settings(),
+                stopTimeout: () => {},
+                startTimeout: () => {},
+            };
+        }
+
         this._extension = extension;
-        this.settings = this._getSettings(extension);
-        if (!extension) return;
+        this.settings = extension.getSettings();
 
         if (typeof extension.stopTimeout === 'function' && typeof extension.startTimeout === 'function') {
-            this._changedId = this.settings.connect("changed::timeout", () => {
+            this._changedId = this.settings.connect('changed::timeout', () => {
                 extension.stopTimeout();
                 extension.startTimeout();
             });
@@ -56,6 +65,7 @@ export class Conf {
 
     /**
      * Gets time between calls to email server.
+     *
      * @returns {number}
      */
     getTimeout() {
@@ -64,6 +74,7 @@ export class Conf {
 
     /**
      * Sets time between calls to email server.
+     *
      * @param {number} timeout
      */
     setTimeout(timeout) {
@@ -72,6 +83,7 @@ export class Conf {
 
     /**
      * Returns 1 if we should use default email client instead of browser. 0 otherwise.
+     *
      * @returns {number}
      */
     getReader() {
@@ -80,6 +92,7 @@ export class Conf {
 
     /**
      * Sets 1 if we should use default email client instead of browser. 0 otherwise.
+     *
      * @param {number} reader
      */
     setReader(reader) {
@@ -88,6 +101,7 @@ export class Conf {
 
     /**
      * Returns an array of ids of messages already shown
+     *
      * @returns {Array} array of ids
      */
     getMessagesShown() {
@@ -97,6 +111,7 @@ export class Conf {
 
     /**
      * Replaces the array of ids of messages already shown
+     *
      * @param {Array} array - array of ids
      */
     setMessagesShown(array) {
@@ -106,6 +121,7 @@ export class Conf {
 
     /**
      * Returns the Gmail system label for the mailbox to read
+     *
      * @returns {string}
      */
     getGmailSystemLabel() {
@@ -114,48 +130,10 @@ export class Conf {
 
     /**
      * Sets the Gmail system label for the mailbox to read
-     * @param {number} reader
+     *
+     * @param {string} gmailSystemLabel
      */
-    setGmailSystemLabel(gmail_system_label) {
-        return this.settings.set_string('gmailsystemlabel', gmail_system_label);
-    }
-
-    /**
-     * Gets the settings from Gio.
-     * @returns {Gio.Settings}
-     */
-    _getSettings(extension) {
-        let schemaDir;
-
-        if (extension && extension.dir) {
-            schemaDir = extension.dir.get_child('schemas').get_path();
-        } else {
-            schemaDir = null;
-        }
-
-        let schemaName = 'org.gnome.shell.extensions.gmailmessagetray';
-
-        if (schemaDir) {
-            try {
-                let schemaSource = Gio.SettingsSchemaSource.new_from_directory(schemaDir,
-                    Gio.SettingsSchemaSource.get_default(),
-                    false);
-                let schema = schemaSource.lookup(schemaName, false);
-
-                if (schema) {
-                    return new Gio.Settings({ settings_schema: schema });
-                }
-            } catch (err) {
-                console.log("Error loading schema from " + schemaDir + ": " + err);
-            }
-        }
-
-        // Fallback to system schema if available (should not be needed if schema dir is found)
-        try {
-            return new Gio.Settings({ schema_id: schemaName });
-        } catch (err) {
-            console.error("Failed to load settings schema: " + err);
-            throw err;
-        }
+    setGmailSystemLabel(gmailSystemLabel) {
+        return this.settings.set_string('gmailsystemlabel', gmailSystemLabel);
     }
 };

@@ -37,7 +37,7 @@ We welcome contributions! Here is how to get started:
 1. **Setup**: Clone the repo.
 2. **Testing**: We use a custom mocking framework to test logic without a full GNOME Shell environment.
    ```bash
-   gjs -m tests/run_tests.js
+   npm test
    ```
    Copy the output to your extensions folder.
    ```bash
@@ -50,13 +50,22 @@ We welcome contributions! Here is how to get started:
    ```
 
 ### Troubleshooting & Logs
-- **Journal Logs**: See logs:
+- **Common errors**
+   ```bash
+   Requiring Goa, version none: Typelib file for namespace 'Goa' (any version) not found 
+   ```
+   Do this:
+   ```bash
+      sudo apt install gir1.2-goa-1.0
+   ```
+- **View Logs**: 
+
   ```bash
-  journalctl | grep "Gnome Email Notifications"
+  journalctl -b | grep "Gnome Email Notifications"
   ```
   or 
   ```bash
-  journalctl | grep "GmailMessageTray"
+  journalctl -b | grep "GmailMessageTray"
   ```
 - **Reset Settings**: If you're having issues, you can reset the extension's settings to their defaults:
   ```bash

@@ -4,6 +4,26 @@
 JS_TEST_RUNNER="${JS_TEST_RUNNER:-tests/run_tests.js}"
 export GJS_PATH=".:$GJS_PATH"
 
+# Allow running tests locally without starting GNOME Shell.
+# Set `SKIP_SHELL=1` in your environment to use the mocked GJS test runner.
+if [ "${SKIP_SHELL:-0}" = "1" ]; then
+    echo "SKIP_SHELL=1 detected — running tests locally without GNOME Shell."
+    # Export the project root so tests/run_tests.js can resolve native paths if needed
+    export PROJECT_ROOT_INJECTED="$(pwd)"
+    # Run the test runner directly under gjs (mocked mode)
+    gjs -m "$JS_TEST_RUNNER"
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -ne 0 ]; then
+        echo "Tests failed in mock mode."
+        exit $EXIT_CODE
+    fi
+    # Clean temporary test artifacts if present
+    rm -f tests/temp_*.js || true
+    rm -rf share gschemas.compiled shell.log || true
+    echo "Tests passed (mock mode)."
+    exit 0
+fi
+
 # Compile schemas and set data dirs so Shell can find them
 PROJECT_ROOT=$(pwd)
 mkdir -p "$PROJECT_ROOT/share/glib-2.0/schemas"

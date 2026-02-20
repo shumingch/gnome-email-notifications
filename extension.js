@@ -24,60 +24,56 @@ import GLib from 'gi://GLib';
 import Goa from 'gi://Goa';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-import { Extension, gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {Conf} from './Conf.js';
+import {EmailAccount} from './EmailAccount.js';
 
-import { Console } from './console.js';
-import { Conf } from './Conf.js';
-import { EmailAccount } from './EmailAccount.js';
-
-const supportedProviders = new Set(["google", "windows_live", "ms_graph"]);
+const supportedProviders = new Set(['google', 'windows_live', 'ms_graph']);
 
 export default class GmailNotificationExtension extends Extension {
     enable() {
-        const _version = this.metadata['version'];
+        const unusedVersion = this.metadata['version'];
 
         /** @type Conf */
         this.config = new Conf(this);
-        this._console = new Console();
         this.checkMailTimeout = null;
         this.goaAccounts = [];
 
-        try {
-            this._getEmailAccounts(emailAccounts => {
-                this.goaAccounts = emailAccounts;
-                this.startTimeout();
-                this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
-                    this._checkMail();
-                    this.initialCheckMail = null;
-                    return false;
-                });
-            });
-        } catch (err) {
-            this._console.log(err);
-        }
+        this._getEmailAccounts(emailAccounts => {
+            this.goaAccounts = emailAccounts;
+            this.startTimeout();
+        });
+
+        this.initialCheckMail = GLib.timeout_add_seconds(0, 5, () => {
+            this._checkMail();
+            this.initialCheckMail = null;
+            return false;
+        });
     }
 
     disable() {
         try {
             this.destroy();
         } catch (err) {
-            this._console.log(err);
+            const prefix = '[Gnome Email Notifications] ';
+            console.error(prefix + err);
         }
     }
 
     /**
      * Checks the mail for each account available
+     *
      * @private
      */
     _checkMail() {
-        for (let account of this.goaAccounts) {
+        for (const account of this.goaAccounts)
             account.scanInbox();
-        }
     }
 
     /**
      * Returns a list of all Gnome Online Accounts
-     * @param callback - callback that is called with {EmailAccount[]} as parameter
+     *
+     * @param {Function} callback - callback that is called with {EmailAccount[]} as parameter
      * @private
      */
     _getEmailAccounts(callback) {
@@ -87,19 +83,19 @@ export default class GmailNotificationExtension extends Extension {
                 const aClient = Goa.Client.new_finish(asyncResult);
                 const accounts = aClient.get_accounts();
 
-                for (let account of accounts) {
+                for (const account of accounts) {
                     const provider = account.get_account().provider_type;
-                    if (supportedProviders.has(provider)) {
+                    if (supportedProviders.has(provider))
                         emailAccounts.push(new EmailAccount(this.config, account));
-                    }
                 }
                 if (emailAccounts.length === 0) {
-                    Main.notifyError("Gnome Email Notifications", _("No email accounts found"));
-                    throw new Error("No email accounts found");
+                    Main.notifyError('Gnome Email Notifications', _('No email accounts found'));
+                    throw new Error('No email accounts found');
                 }
                 callback(emailAccounts);
             } catch (err) {
-                this._console.error(err);
+                const prefix = '[Gnome Email Notifications] ';
+                console.error(prefix + err);
             }
         });
     }
@@ -121,10 +117,10 @@ export default class GmailNotificationExtension extends Extension {
      * Stops checking mail
      */
     stopTimeout() {
-        if (this.checkMailTimeout) GLib.source_remove(this.checkMailTimeout);
-        if (this.initialCheckMail !== null && this.initialCheckMail !== undefined) {
+        if (this.checkMailTimeout)
+            GLib.source_remove(this.checkMailTimeout);
+        if (this.initialCheckMail !== null && this.initialCheckMail !== undefined)
             GLib.source_remove(this.initialCheckMail);
-        }
     }
 
     /**
@@ -132,11 +128,10 @@ export default class GmailNotificationExtension extends Extension {
      */
     destroy() {
         this.stopTimeout();
-        if (this.config) {
+        if (this.config)
             this.config.destroy();
-        }
-        for (let account of this.goaAccounts) {
+
+        for (const account of this.goaAccounts)
             account.destroySources();
-        }
     }
 }

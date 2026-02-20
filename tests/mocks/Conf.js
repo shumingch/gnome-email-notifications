@@ -1,17 +1,32 @@
 
 export class Conf {
-    constructor(extension) {
+    constructor(_extension) {
         this.timeout = 60;
         this.reader = 0;
         this.gmailLabel = '^i';
     }
 
-    getTimeout() { return this.timeout; }
-    setTimeout(val) { this.timeout = val; }
+    getTimeout() {
+        return this.timeout;
+    }
 
-    getReader() { return this.reader; }
-    setReader(val) { this.reader = val; }
+    setTimeout(val) {
+        this.timeout = val;
+    }
 
-    getGmailSystemLabel() { return this.gmailLabel; }
-    setGmailSystemLabel(val) { this.gmailLabel = val; }
+    getReader() {
+        return this.reader;
+    }
+
+    setReader(val) {
+        this.reader = val;
+    }
+
+    getGmailSystemLabel() {
+        return this.gmailLabel;
+    }
+
+    setGmailSystemLabel(val) {
+        this.gmailLabel = val;
+    }
 }

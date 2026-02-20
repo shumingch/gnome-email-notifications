@@ -20,11 +20,9 @@
  * Scans Microsoft Graph API for unread emails.
  */
 export class GraphScanner {
-    constructor() {
-    }
-
     /**
      * Parses a JSON response for unread emails
+     *
      * @param {string} body - JSON containing emails
      * @returns {Array} - a list of folders containing unread emails
      */
@@ -33,40 +31,44 @@ export class GraphScanner {
         const messages = [];
         const parsedBody = JSON.parse(body);
         const value = parsedBody.value;
-        for (let entry of value) {
+        for (const entry of value) {
             messages.push({
                 from: GraphScanner._decodeFrom(entry.from),
                 subject: entry.subject,
                 date: entry.receivedDateTime,
                 link: entry.webLink,
-                id: entry.id
+                id: entry.id,
             });
         }
         folders.push({
             name: 'inbox',
-            list: messages
+            list: messages,
         });
         return folders;
     }
 
     /**
      * Returns the Microsoft Graph API URL
+     *
      * @returns {string} - the URL
      */
     getApiURL() {
-        return "https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$select=from,subject,receivedDateTime,webLink";
+        return 'https://graph.microsoft.com/v1.0/me/mailFolders/inbox/messages?$select=from,subject,receivedDateTime,webLink';
     }
 
     /**
      * Converts the 'from' object into a readable string
-     * @param from - an object containing 'from' information
+     *
+     * @param {object} from - an object containing 'from' information
      * @returns {string} - the readable string
      * @private
      */
     static _decodeFrom(from) {
-        if (from === undefined) return "";
+        if (from === undefined)
+            return '';
         const email = from.emailAddress;
-        if (email === undefined) return "";
-        return email.name + " <" + email.address + ">";
+        if (email === undefined)
+            return '';
+        return `${email.name} <${email.address}>`;
     }
 };

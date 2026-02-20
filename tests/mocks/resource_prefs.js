@@ -4,11 +4,15 @@ export class ExtensionPreferences {
         return null;
     }
 
-    fillPreferencesWindow(window) {
+    fillPreferencesWindow(_window) {
         // Implement in subclass
     }
 }
 
+/**
+ *
+ * @param {string} str
+ */
 export function gettext(str) {
     return str;
 }

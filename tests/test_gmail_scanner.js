@@ -1,7 +1,11 @@
 
-import { GmailScanner } from '../GmailScanner.js';
-import { Conf } from './mocks/Conf.js';
+import {GmailScanner} from '../GmailScanner.js';
+import {Conf} from './mocks/Conf.js';
 
+/**
+ *
+ * @param {object} assert
+ */
 export function runTests(assert) {
     const mailbox = 'test@gmail.com';
     const config = new Conf();

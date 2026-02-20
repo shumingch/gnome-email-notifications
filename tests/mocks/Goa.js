@@ -8,18 +8,18 @@ export class MockAccount {
     get_account() {
         return {
             presentation_identity: this._identity,
-            provider_type: this._provider
+            provider_type: this._provider,
         };
     }
 
     get_oauth2_based() {
         return {
             call_get_access_token: (cancellable, callback) => {
-                callback(null, "mock_result");
+                callback(null, 'mock_result');
             },
-            call_get_access_token_finish: (result) => {
-                return [true, "mock_token"];
-            }
+            call_get_access_token_finish: _result => {
+                return [true, 'mock_token'];
+            },
         };
     }
 }

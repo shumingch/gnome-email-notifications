@@ -1,6 +1,6 @@
 
 export const messageTray = {
-    add: () => { }
+    add: () => { },
 };
 
 export class Notification {
@@ -9,6 +9,7 @@ export class Notification {
         this.title = params.title;
         this.body = params.body;
     }
+
     connect() { }
     destroy() { }
     addAction() { }
@@ -19,16 +20,18 @@ export const MsgTray = {
         constructor() {
             this.notifications = [];
         }
+
         connect() { }
         destroy() { }
     },
-    Notification: Notification
+    Notification,
 };
 
 export class SystemNotificationSource {
     constructor() {
         this.notifications = [];
     }
+
     connect() { }
     destroy() { }
 }
@@ -37,7 +40,7 @@ export const notifyError = (title, message) => {
     print(`  MOCK notifyError: ${title} - ${message}`);
 };
 
-export const gettext = (str) => str;
+export const gettext = str => str;
 
-export const spawn_command_line_async = () => { };
+export const spawnCommandLineAsync = () => { };
 export const trySpawnCommandLine = () => { };

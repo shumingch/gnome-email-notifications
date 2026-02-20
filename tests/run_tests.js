@@ -1,4 +1,6 @@
 
+/* global PROJECT_ROOT_INJECTED Meta */
+
 (async () => {
     const Gio = (await import('gi://Gio')).default;
     const GLib = (await import('gi://GLib')).default;
@@ -8,36 +10,36 @@
 
     // Detect environment
     const isShellNative = typeof Meta !== 'undefined';
-    if (isShellNative) {
-        print("Running in NATIVE GNOME Shell environment.");
-    } else {
-        print("Running in MOCKED GJS environment.");
-    }
+    if (isShellNative)
+        print('Running in NATIVE GNOME Shell environment.');
+    else
+        print('Running in MOCKED GJS environment.');
 
-    class Assert {
+
+    class Assert_ {
         equal(actual, expected, message) {
-            if (actual !== expected) {
+            if (actual !== expected)
                 throw new Error(`Assertion Failed: ${message}\n  Actual: ${actual}\n  Expected: ${expected}`);
-            }
+
             print(`  PASS: ${message}`);
         }
     }
 
     async function run() {
-        print("Starting tests...");
+        print('Starting tests...');
         let failures = 0;
 
         const assert = (condition, message) => {
-            if (!condition) {
+            if (!condition)
                 throw new Error(`Assertion Failed: ${message}`);
-            }
+
             print(`  PASS: ${message}`);
         };
         // Backward compatibility for .equal()
         assert.equal = (actual, expected, message) => {
-            if (actual !== expected) {
+            if (actual !== expected)
                 throw new Error(`Assertion Failed: ${message}\n  Actual: ${actual}\n  Expected: ${expected}`);
-            }
+
             print(`  PASS: ${message}`);
         };
 
@@ -47,9 +49,9 @@
                 global: {
                     get_current_time: () => Date.now(),
                     create_app_launch_context: () => ({
-                        set_timestamp: () => { }
-                    })
-                }
+                        set_timestamp: () => { },
+                    }),
+                },
             });
         }
 
@@ -61,24 +63,25 @@
                 if (Gtk.init()) {
                     Adw.init();
                     canRunGtk = true;
-                    print("GTK/Adw initialized successfully.");
+                    print('GTK/Adw initialized successfully.');
                 } else {
-                    print("Warning: Gtk.init() returned false. Skipping GTK tests.");
+                    print('Warning: Gtk.init() returned false. Skipping GTK tests.');
                 }
             } catch (e) {
-                print("Warning: Could not initialize GTK/Adw: " + e + ". Skipping GTK tests.");
+                print(`Warning: Could not initialize GTK/Adw: ${e}. Skipping GTK tests.`);
             }
         } else {
-            print("Skipping GTK initialization in native shell environment.");
+            print('Skipping GTK initialization in native shell environment.');
         }
 
-        const replaceImports = (source) => {
+        const replaceImports_ = source => {
             // ... (rest of replaceImports is fine as it's for non-native mode)
             return source;
         };
         // Skip mockify if native
         if (!isShellNative) {
-            const replaceImportsReal = (source) => {
+            const replaceImportsReal = source => {
+                /* eslint-disable no-useless-escape */
                 return source
                     .replace(/import\s+.*\s+from\s+['"]resource:\/\/\/org\/gnome\/[Ss]hell\/ui\/main\.js['"];/g,
                         "import * as Main from './mocks/shell.js';")
@@ -98,15 +101,22 @@
                         "import { Conf } from './mocks/Conf.js';")
                     // Fix relative imports to use temp files
                     .replace(/import\s+(.*)\s+from\s+['"][\.\/]+(.*)\.js['"];/g, (match, p1, p2) => {
-                        if (p2.startsWith('mocks/')) return match;
+                        if (p2.startsWith('mocks/'))
+                            return match;
                         const lowP2 = p2.split('/').pop().toLowerCase();
-                        if (lowP2 === 'conf' || lowP2 === 'shell' || lowP2 === 'resource_prefs' || lowP2 === 'gio' || lowP2 === 'glib' || lowP2 === 'soup') return match;
+                        if (lowP2 === 'conf' || lowP2 === 'shell' || lowP2 === 'resource_prefs' || lowP2 === 'gio' || lowP2 === 'glib' || lowP2 === 'soup')
+                            return match;
                         return `import ${p1} from './temp_${lowP2}.js';`;
                     });
+                /* eslint-enable no-useless-escape */
             };
 
-            const mockify = (filename) => {
+            const mockify = filename => {
                 const file = Gio.File.new_for_path(filename);
+                if (!file.query_exists(null)) {
+                    print(`Skipping missing file during mockify: ${filename}`);
+                    return;
+                }
                 const [success, contents] = file.load_contents(null);
                 if (success) {
                     let source = textDecoder.decode(contents);
@@ -120,10 +130,10 @@
             // Mockify everything including tests
             const files = [
                 'Conf.js', 'InboxScanner.js', 'Notifier.js', 'NotificationFactory.js',
-                'EmailAccount.js', 'GmailScanner.js', 'OutlookScanner.js', 'GraphScanner.js', 'console.js', 'rexml.js', 'prefs.js',
+                'EmailAccount.js', 'GmailScanner.js', 'OutlookScanner.js', 'GraphScanner.js', 'rexml.js', 'prefs.js',
                 'tests/test_gmail_scanner.js', 'tests/test_outlook_scanner.js', 'tests/test_graph_scanner.js', 'tests/test_inbox_scanner.js',
                 'tests/test_conf.js', 'tests/test_notification_factory.js', 'tests/test_email_account.js',
-                'tests/test_notifier.js'
+                'tests/test_notifier.js',
             ];
             files.forEach(mockify);
         }
@@ -150,15 +160,16 @@
         };
 
         // Determine base paths for main modules
-        const getModulePath = (baseName) => {
-            if (isShellNative) return `file://${projectRoot}/${baseName}.js`;
+        const getModulePath = baseName => {
+            if (isShellNative)
+                return `file://${projectRoot}/${baseName}.js`;
             return `./temp_${baseName.toLowerCase()}.js`;
         };
 
         try {
             // 1. Prefs Test
             if (canRunGtk) {
-                print("\n--- Running Prefs Tests ---");
+                print('\n--- Running Prefs Tests ---');
                 try {
                     const module = await import(getModulePath('prefs'));
                     const Adw = (await import('gi://Adw')).default;
@@ -166,13 +177,13 @@
                     const prefs = new GmailNotificationPreferences();
                     const window = new Adw.PreferencesWindow();
                     prefs.fillPreferencesWindow(window);
-                    print("  PASS: fillPreferencesWindow executed without error.");
+                    print('  PASS: fillPreferencesWindow executed without error.');
                 } catch (e) {
-                    print("  FAIL: Prefs Test: " + e);
+                    print(`  FAIL: Prefs Test: ${e}`);
                     failures++;
                 }
             } else {
-                print("\n--- Skipping Prefs Tests (No GTK) ---");
+                print('\n--- Skipping Prefs Tests (No GTK) ---');
             }
 
             // 2. Scanners
@@ -184,33 +195,48 @@
             try {
                 const tempModule = await import(getModulePath('InboxScanner'));
                 await runTestSuite('InboxScanner Tests', './temp_test_inbox_scanner.js', tempModule.InboxScanner);
-            } catch (e) { failures++; print(`  FAIL: InboxScanner Load: ${e}`); }
+            } catch (e) {
+                failures++;
+                print(`  FAIL: InboxScanner Load: ${e}`);
+            }
 
             // 4. Conf
             try {
                 const tempModule = await import(getModulePath('Conf'));
                 await runTestSuite('Conf Tests', './temp_test_conf.js', tempModule.Conf);
-            } catch (e) { failures++; print(`  FAIL: Conf Load: ${e}`); }
+            } catch (e) {
+                failures++;
+                print(`  FAIL: Conf Load: ${e}`);
+            }
 
             // 5. NotificationFactory
             try {
                 const tempModule = await import(getModulePath('NotificationFactory'));
                 await runTestSuite('NotificationFactory Tests', './temp_test_notification_factory.js', tempModule.NotificationFactory, tempModule._unescapeXML);
-            } catch (e) { failures++; print(`  FAIL: NotificationFactory Load: ${e}`); }
+            } catch (e) {
+                failures++;
+                print(`  FAIL: NotificationFactory Load: ${e}`);
+            }
 
             // 6. EmailAccount
             try {
                 const tempModule = await import(getModulePath('EmailAccount'));
                 await runTestSuite('EmailAccount Tests', './temp_test_email_account.js', tempModule.EmailAccount);
-            } catch (e) { failures++; print(`  FAIL: EmailAccount Load: ${e}`); }
+            } catch (e) {
+                failures++;
+                print(`  FAIL: EmailAccount Load: ${e}`);
+            }
 
             // 7. Notifier
             try {
                 const tempModule = await import(getModulePath('Notifier'));
                 await runTestSuite('Notifier Tests', './temp_test_notifier.js', tempModule.Notifier);
-            } catch (e) { failures++; print(`  FAIL: Notifier Load: ${e}`); }
+            } catch (e) {
+                failures++;
+                print(`  FAIL: Notifier Load: ${e}`);
+            }
 
-            print("\nTests complete.");
+            print('\nTests complete.');
             if (failures > 0) {
                 print(`FAILED with ${failures} error(s).`);
                 if (!isShellNative) {
@@ -222,7 +248,7 @@
                 system.exit(0);
             }
         } catch (err) {
-            print("An unexpected error occurred during tests: " + err);
+            print(`An unexpected error occurred during tests: ${err}`);
             print(err.stack);
             if (!isShellNative) {
                 const system = (await import('system')).default;
@@ -231,8 +257,19 @@
         }
     }
 
-    await run();
-    if (isShellNative) {
-        Meta.quit();
+    try {
+        await run();
+    } catch (e) {
+        print(`FATAL UNHANDLED ERROR: ${e}`);
+        if (e && e.stack)
+            print(e.stack);
+        try {
+            const system = (await import('system')).default;
+            system.exit(1);
+        } catch {
+            // best effort
+        }
     }
+    if (isShellNative)
+        Meta.quit();
 })();

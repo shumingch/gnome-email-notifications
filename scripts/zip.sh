@@ -28,6 +28,15 @@ zip -r "$ZIP_FILE" . -x \
     "task.md" \
     "walkthrough.md" \
     ".gitignore" \
-    "*.po"
+    "screenshot.png" \
+    "GmailMessageTray@shuming0207.gmail.com/screenshot.png" \
+    "*.po" \
+    "schemas/gschemas.compiled" \
+    "node_modules/*" \
+    "*.zip" \
+    "run_tests_output.txt" \
+    "eslint.config.mjs" \
+    "package-lock.json" \
+    "package.json"
 
 echo "Successfully created ${ZIP_FILE}"

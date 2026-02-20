@@ -20,11 +20,9 @@
  * Scans Outlook json api for unread emails.
  */
 export class OutlookScanner {
-    constructor() {
-    }
-
     /**
      * Parses a JSON response for unread emails
+     *
      * @param {string} body - JSON containing emails
      * @returns {Array} - a list of folders containing unread emails
      */
@@ -33,39 +31,42 @@ export class OutlookScanner {
         const messages = [];
         const parsedBody = JSON.parse(body);
         const value = parsedBody.value;
-        for (let entry of value) {
+        for (const entry of value) {
             messages.push({
                 from: OutlookScanner._decodeFrom(entry.From),
                 subject: entry.Subject,
                 date: entry.ReceivedDateTime,
                 link: entry.WebLink,
-                id: entry.Id
+                id: entry.Id,
             });
         }
         folders.push({
             name: 'inbox',
-            list: messages
+            list: messages,
         });
         return folders;
     }
 
     /**
      * Returns the Outlook API URL
+     *
      * @returns {string} - the URL
      */
     getApiURL() {
-        return "https://outlook.office.com/api/v2.0/me/MailFolders/Inbox/messages?$select=From,Subject,ReceivedDateTime,WebLink";
+        return 'https://outlook.office.com/api/v2.0/me/MailFolders/Inbox/messages?$select=From,Subject,ReceivedDateTime,WebLink';
     }
 
     /**
      * Converts the 'from' object into a readable string
-     * @param from - an object containing 'from' information
+     *
+     * @param {object} from - an object containing 'from' information
      * @returns {string} - the readable string
      * @private
      */
     static _decodeFrom(from) {
-        if (from === undefined) return "";
+        if (from === undefined)
+            return '';
         const email = from.EmailAddress;
-        return email.Name + " <" + email.Address + ">";
+        return `${email.Name} <${email.Address}>`;
     }
 };

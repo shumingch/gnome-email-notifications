@@ -17,11 +17,8 @@
  *
  */
 import Gio from 'gi://Gio';
-import GLib from 'gi://GLib';
-import * as Util from 'resource:///org/gnome/shell/misc/util.js';
-import { NotificationFactory } from './NotificationFactory.js';
-import { Console } from './console.js';
-import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
+import {NotificationFactory} from './NotificationFactory.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 /**
  * Controls notifications in message tray.
@@ -29,19 +26,13 @@ import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.j
 export class Notifier {
     /**
      * Creates new notifier for an email account.
+     *
      * @param {EmailAccount} emailAccount
      */
     constructor(emailAccount) {
         this._config = emailAccount.config;
         this._mailbox = emailAccount.mailbox;
         this._notificationFactory = new NotificationFactory(emailAccount);
-
-        // Get extension metadata from the injected config object
-        this._extensionMetadata = { url: 'https://github.com/shumingch/gnome-email-notifications' };
-        if (this._config && this._config._extension) {
-            this._extensionMetadata = this._config._extension.metadata;
-        }
-        this._console = new Console();
     }
 
     /**
@@ -53,11 +44,12 @@ export class Notifier {
 
     /**
      * Creates a notification for each unread email
-     * @param content - a list of unread emails
+     *
+     * @param {Array} content - a list of unread emails
      */
     displayUnreadMessages(content) {
         const messagesShown = new Set(this._config.getMessagesShown());
-        for (let msg of content) {
+        for (const msg of content) {
             if (!messagesShown.has(msg.id)) {
                 messagesShown.add(msg.id);
                 const _msg = msg; // need this because variables aren't scoped properly in Gnome Shell 3.24
@@ -72,16 +64,17 @@ export class Notifier {
 
     /**
      * Creates a notification for an error
+     *
      * @param {Error} error - the error to display
      */
     showError(error) {
         const content = {
             from: error.message,
             date: new Date(),
-            subject: this._mailbox
+            subject: this._mailbox,
         };
         const cb = () => {
-            this._openBrowser(this._extensionMetadata["url"]);
+            this._openBrowser('https://github.com/shumingch/gnome-email-notifications');
         };
         this._notificationFactory.createErrorNotification(content, cb);
     }
@@ -95,49 +88,29 @@ export class Notifier {
 
     /**
      * Opens the default browser with the given link
+     *
      * @param {undefined | string} link - the URL to open
      * @private
      */
     _openBrowser(link) {
-        if (!link) {
-            link = 'https://' + this._mailbox.match(/@(.*)/)[1];
-        }
+        if (!link)
+            link = `https://${this._mailbox.match(/@(.*)/)[1]}`;
 
         const timestamp = global.get_current_time();
         const context = global.create_app_launch_context(timestamp, -1);
-
-        try {
-            // Standard GNOME way to open a URI with focus context
-            Gio.AppInfo.launch_default_for_uri(link, context);
-        } catch (e) {
-            this._console.error("Failed to launch default for URI: " + e.message);
-            try {
-                // Fallback 1: Get default app for https and launch uris
-                const appInfo = Gio.AppInfo.get_default_for_uri_scheme("https");
-                if (appInfo) {
-                    appInfo.launch_uris([link], context);
-                } else {
-                    throw new Error("No default app found for https");
-                }
-            } catch (e2) {
-                this._console.error("Fallback 1 failed: " + e2.message);
-                // Fallback 2: xdg-open (no focus context, but reliable)
-                // Use shell_quote for safety
-                Util.trySpawnCommandLine(`xdg-open ${GLib.shell_quote(link)}`);
-            }
-        }
+        Gio.AppInfo.launch_default_for_uri(link, context);
     }
 
     /**
      * Opens email using either browser or email client
+     *
      * @param {undefined | string} link - the link to open
      * @private
      */
     _openEmail(link) {
-        if (this._config.getReader() === 0) {
+        if (this._config.getReader() === 0)
             this._openBrowser(link);
-        } else {
+        else
             this._openBrowser('mailto:');
-        }
     }
 };

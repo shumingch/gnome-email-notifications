@@ -1,9 +1,14 @@
 
-import { MockAccount } from './mocks/Goa.js';
-import { Conf } from './mocks/Conf.js';
-import Soup from 'gi://Soup?version=3.0';
-import GLib from 'gi://GLib';
+import {MockAccount} from './mocks/Goa.js';
+import {Conf} from './mocks/Conf.js';
+import Soup_ from 'gi://Soup?version=3.0';
+import GLib_ from 'gi://GLib';
 
+/**
+ *
+ * @param {object} assert
+ * @param {Function} InboxScannerClass
+ */
 export function runTests(assert, InboxScannerClass) {
     const config = new Conf();
     const account = new MockAccount('test@gmail.com', 'google');
