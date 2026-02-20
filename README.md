@@ -39,12 +39,17 @@ We welcome contributions! Here is how to get started:
    ```bash
    npm test
    ```
-   Copy the output to your extensions folder.
+   Copy the output to your extensions folder. e.g.
    ```bash
       sudo rm -rf ~/.local/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
       sudo ln -s "$PWD" ~/.local/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
    ```
-3. **Packaging**: Use the provided script to create a production-ready zip (excludes tests/CI/etc).
+   or
+   ```bash
+      sudo rm -rf /usr/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
+      sudo ln -s "$PWD" /usr/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
+   ```
+4. **Packaging**: Use the provided script to create a production-ready zip (excludes tests/CI/etc).
    ```bash
    ./scripts/zip.sh
    ```
