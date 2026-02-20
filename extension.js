@@ -32,9 +32,6 @@ const supportedProviders = new Set(['google', 'windows_live', 'ms_graph']);
 
 export default class GmailNotificationExtension extends Extension {
     enable() {
-        const unusedVersion = this.metadata['version'];
-
-        /** @type Conf */
         this.config = new Conf(this);
         this.checkMailTimeout = null;
         this.goaAccounts = [];

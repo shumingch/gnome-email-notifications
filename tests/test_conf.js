@@ -1,3 +1,4 @@
+import Gio from 'gi://Gio';
 
 /**
  *
@@ -5,7 +6,15 @@
  * @param {Function} ConfClass
  */
 export function runTests(assert, ConfClass) {
-    const conf = new ConfClass();
+    // Create a mock extension object with getSettings method
+    // Pass schema_id for native shell compatibility; mock Gio ignores it
+    const mockExtension = {
+        getSettings: () => new Gio.Settings({schema_id: 'org.gnome.shell.extensions.gmailmessagetray'}),
+        stopTimeout: () => {},
+        startTimeout: () => {},
+    };
+
+    const conf = new ConfClass(mockExtension);
 
     // Test timeout
     conf.setTimeout(120);

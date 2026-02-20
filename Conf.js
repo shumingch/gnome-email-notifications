@@ -21,7 +21,6 @@
  *
  */
 import GLib from 'gi://GLib';
-import Gio from 'gi://Gio';
 
 /**
  * Controls configuration for extension.
@@ -33,15 +32,6 @@ export class Conf {
      * @param {Extension} extension - the extension to control
      */
     constructor(extension) {
-        if (!extension) {
-            // Provide a lightweight fallback for tests that construct Conf with no extension
-            extension = {
-                getSettings: () => new Gio.Settings(),
-                stopTimeout: () => {},
-                startTimeout: () => {},
-            };
-        }
-
         this._extension = extension;
         this.settings = extension.getSettings();
 
