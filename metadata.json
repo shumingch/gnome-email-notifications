@@ -9,7 +9,7 @@
   ],
   "url": "https://github.com/shumingch/gnome-email-notifications",
   "uuid": "GmailMessageTray@shuming0207.gmail.com",
-  "version": 33,
+  "version": 34,
   "gettext-domain": "gmail_notify",
   "settings-schema": "org.gnome.shell.extensions.gmailmessagetray",
   "donations": {
