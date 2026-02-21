@@ -13,6 +13,6 @@
   "gettext-domain": "gmail_notify",
   "settings-schema": "org.gnome.shell.extensions.gmailmessagetray",
   "donations": {
-    "github": "https://github.com/sponsors/shumingch"
+    "github": "shumingch"
   }
 }
