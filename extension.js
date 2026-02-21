@@ -53,12 +53,15 @@ export default class GmailNotificationExtension extends Extension {
     }
 
     disable() {
-        try {
-            this.destroy();
-        } catch (err) {
-            const prefix = '[Gnome Email Notifications] ';
-            console.error(prefix + err);
+        this.config = null;
+        this.stopTimeout();
+        if (this._timeoutChangedId) {
+            this.getSettings().disconnect(this._timeoutChangedId);
+            this._timeoutChangedId = null;
         }
+
+        for (const account of this.goaAccounts)
+            account.destroySources();
     }
 
     /**
@@ -144,19 +147,5 @@ export default class GmailNotificationExtension extends Extension {
             GLib.source_remove(this.checkMailTimeout);
         if (this.initialCheckMail !== null && this.initialCheckMail !== undefined)
             GLib.source_remove(this.initialCheckMail);
-    }
-
-    /**
-     * Stops and cleans up extension
-     */
-    destroy() {
-        this.stopTimeout();
-        if (this._timeoutChangedId) {
-            this.getSettings().disconnect(this._timeoutChangedId);
-            this._timeoutChangedId = null;
-        }
-
-        for (const account of this.goaAccounts)
-            account.destroySources();
     }
 }
