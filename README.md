@@ -30,33 +30,47 @@ We welcome contributions! Here is how to get started:
 - `Notifier.js`: Handles opening URLs and managing notification state.
 - `NotificationFactory.js`: Low-level GNOME Shell notification creation.
 - `Conf.js`: Settings management.
-- `tests/`: Extensive unit test suite with mocks.
+- `tests/`: Extensive unit test suite.
 - `scripts/`: Development utility scripts.
 
 ### Development Workflow
 1. **Setup**: Clone the repo.
-2. **Testing**: We use a custom mocking framework to test logic without a full GNOME Shell environment.
+2. **Testing**: We use a headless gnome-shell to test.
    ```bash
-   gjs -m tests/run_tests.js
+   npm test
    ```
-   Copy the output to your extensions folder.
+   Copy the output to your extensions folder. e.g.
    ```bash
       sudo rm -rf ~/.local/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
       sudo ln -s "$PWD" ~/.local/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
    ```
-3. **Packaging**: Use the provided script to create a production-ready zip (excludes tests/CI/etc).
+   or
+   ```bash
+      sudo rm -rf /usr/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
+      sudo ln -s "$PWD" /usr/share/gnome-shell/extensions/GmailMessageTray@shuming0207.gmail.com
+   ```
+4. **Packaging**: Use the provided script to create a production-ready zip (excludes tests/CI/etc).
    ```bash
    ./scripts/zip.sh
    ```
 
 ### Troubleshooting & Logs
-- **Journal Logs**: See logs:
+- **Common errors**
+   ```bash
+   Requiring Goa, version none: Typelib file for namespace 'Goa' (any version) not found 
+   ```
+   Do this:
+   ```bash
+      sudo apt install gir1.2-goa-1.0
+   ```
+- **View Logs**: 
+
   ```bash
-  journalctl | grep "Gnome Email Notifications"
+  journalctl -b | grep "Gnome Email Notifications"
   ```
   or 
   ```bash
-  journalctl | grep "GmailMessageTray"
+  journalctl -b | grep "GmailMessageTray"
   ```
 - **Reset Settings**: If you're having issues, you can reset the extension's settings to their defaults:
   ```bash

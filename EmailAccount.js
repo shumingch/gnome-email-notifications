@@ -16,10 +16,9 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
-import { Console } from './console.js';
-import { InboxScanner } from './InboxScanner.js';
-import { Notifier } from './Notifier.js';
-import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
+import {InboxScanner} from './InboxScanner.js';
+import {Notifier} from './Notifier.js';
+import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 /**
  * Controls a single Gnome Online Account
@@ -27,24 +26,29 @@ import { gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.j
 export class EmailAccount {
     /**
      * Creates a new EmailAccount with a Gnome Online Account
+     *
      * @param {Conf} config
-     * @param account - the Gnome Online Account
+     * @param {object} account - the Gnome Online Account
      */
     constructor(config, account) {
         this.config = config;
-        this.mailbox = account.get_account().presentation_identity;
-        if (this.mailbox === undefined) this.mailbox = '';
-        this._console = new Console();
+        const goaAccount = account.get_account();
+        this.id = goaAccount.id ?? goaAccount.presentation_identity ?? '';
+        this.mailbox = goaAccount.presentation_identity ?? '';
+        if (this.mailbox === undefined)
+            this.mailbox = '';
         this._scanner = new InboxScanner(account, this.config);
         this._notifier = new Notifier(this);
     }
 
     /**
      * Creates a notification for an error and logs it to the console
+     *
      * @param {Error} error - the error to display
      */
     _showError(error) {
-        this._console.error(error);
+        const prefix = '[Gnome Email Notifications] ';
+        console.error(prefix + error);
         this._notifier.showError(error);
     }
 
@@ -62,31 +66,34 @@ export class EmailAccount {
 
     /**
      * Displays error or emails to message tray.
-     * @param {Error} err - the error to display
-     * @param folders - a list of folders which contain unread emails
+     *
+     * @param {Error|null} error - the error to display (or null)
+     * @param {Array} folders - a list of folders which contain unread emails
      * @private
      */
-    _processData(err, folders) {
-        if (err) {
+    _processData(error, folders) {
+        if (error) {
             // Suppress notifications for transient server errors
-            if (err.message && (err.message.startsWith("Status 5") || err.message.startsWith("Status 429"))) {
-                this._console.log("Transient network error (suppressed notification): " + err.message);
+            if (error.message && (error.message.startsWith('Status 5') || error.message.startsWith('Status 429'))) {
+                const prefix = '[Gnome Email Notifications] ';
+                console.log(`${prefix}Transient network error (suppressed notification): ${error.message}`);
                 return;
             }
-            this._showError(err);
+            this._showError(error);
         } else {
             try {
                 const content = folders[0].list;
                 this.updateContent(content);
-            } catch (err) {
-                this._showError(err);
+            } catch (e) {
+                this._showError(e);
             }
         }
     }
 
     /**
      * Displays notifications for unread emails
-     * @param content - a list of unread emails
+     *
+     * @param {Array} content - a list of unread emails
      */
     updateContent(content) {
         if (content !== undefined) {
@@ -100,9 +107,7 @@ export class EmailAccount {
      */
     destroySources() {
         this._notifier.destroySources();
-        if (this._scanner) {
+        if (this._scanner)
             this._scanner.destroy();
-        }
     }
 };
-

@@ -6,6 +6,8 @@
         "journalctl": true,
         "killall": true,
         "dbus-send": true,
-        "gsettings": true
+        "gsettings": true,
+        "npm install": true,
+        "npx eslint": true
     }
 }

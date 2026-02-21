@@ -1,4 +1,9 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea/
+GmailMessageTray@shuming0207.gmail.com/
 *.zip
 GmailMessageTray@shuming0207.gmail.com.zip
+node_modules/
+run_tests_output.txt
+share/
+shell.log

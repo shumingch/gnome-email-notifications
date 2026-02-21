@@ -105,6 +105,13 @@ run_in_shell() {
 export -f run_in_shell
 export JS_TEST_RUNNER
 
+# Run Arabic translation test first (no GNOME Shell required)
+echo "Running Arabic translation test..."
+if ! ./tests/run_translations_test.sh; then
+    echo "Arabic translation test failed."
+    exit 1
+fi
+
 # Run the function inside a new dbus session
 dbus-run-session -- bash -c "run_in_shell"
 EXIT_CODE=$?

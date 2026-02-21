@@ -1,6 +1,10 @@
 
-import { OutlookScanner } from '../OutlookScanner.js';
+import {OutlookScanner} from '../OutlookScanner.js';
 
+/**
+ *
+ * @param {object} assert
+ */
 export function runTests(assert) {
     const scanner = new OutlookScanner();
 
@@ -14,15 +18,15 @@ export function runTests(assert) {
                 From: {
                     EmailAddress: {
                         Name: 'Test Sender',
-                        Address: 'sender@example.com'
-                    }
+                        Address: 'sender@example.com',
+                    },
                 },
                 Subject: 'Test Subject',
                 ReceivedDateTime: '2026-02-15T18:00:00Z',
                 WebLink: 'https://outlook.office365.com/owa/?ItemID=123',
-                Id: '123'
-            }
-        ]
+                Id: '123',
+            },
+        ],
     });
 
     const folders = scanner.parseResponse(body);

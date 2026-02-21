@@ -18,7 +18,7 @@ const ShellProxy = Gio.DBusProxy.makeProxyWrapper(
 
 async function main() {
     if (ARGV.length < 1) {
-        console.error("Usage: gjs send_eval.js <filename>");
+        console.error('Usage: gjs send_eval.js <filename>');
         system.exit(1);
     }
 
@@ -44,17 +44,18 @@ async function main() {
         console.log(`Calling Eval with script from ${filename}...`);
         const [evalSuccess, result] = await new Promise((resolve, reject) => {
             proxy.EvalRemote(script, (res, error) => {
-                if (error) reject(error);
-                else resolve(res);
+                if (error)
+                    reject(error);
+                else
+                    resolve(res);
             });
         });
 
         console.log(`Eval Success: ${evalSuccess}`);
         console.log(`Eval Result: ${result}`);
 
-        if (!evalSuccess) {
+        if (!evalSuccess)
             system.exit(1);
-        }
     } catch (e) {
         console.error(`Error calling Eval: ${e}`);
         system.exit(1);

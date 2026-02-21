@@ -1,6 +1,10 @@
 
-import { GraphScanner } from '../GraphScanner.js';
+import {GraphScanner} from '../GraphScanner.js';
 
+/**
+ *
+ * @param {object} assert
+ */
 export function runTests(assert) {
     const scanner = new GraphScanner();
 
@@ -14,15 +18,15 @@ export function runTests(assert) {
                 from: {
                     emailAddress: {
                         name: 'Test Sender',
-                        address: 'sender@example.com'
-                    }
+                        address: 'sender@example.com',
+                    },
                 },
                 subject: 'Test Subject',
                 receivedDateTime: '2026-02-15T18:00:00Z',
                 webLink: 'https://outlook.office365.com/owa/?ItemID=123',
-                id: '123'
-            }
-        ]
+                id: '123',
+            },
+        ],
     });
 
     const folders = scanner.parseResponse(body);
