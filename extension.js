@@ -62,6 +62,7 @@ export default class GmailNotificationExtension extends Extension {
         for (const account of this.goaAccounts)
             account.destroySources();
         this.config = null;
+        this.goaAccounts = [];
     }
 
     /**
