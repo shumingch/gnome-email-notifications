@@ -194,7 +194,7 @@ export class NotificationFactory {
                 notification.gicon = gicon;
             }
 
-            if (date) {
+            if (date && !isNaN(date.getTime())) {
                 const unixLocal = date.getTime() / 1000;
                 notification.datetime = GLib.DateTime.new_from_unix_local(unixLocal);
             }

@@ -169,6 +169,6 @@ function ParseAttribute(strInput, Attribute) {
         Attr = new RegExp(`.*${Attribute}='([^']*)'.*>`);
     else if (str.indexOf(`${Attribute}="`) > -1)
         Attr = new RegExp(`.*${Attribute}="([^"]*)".*>`);
-    return str.replace(Attr, '$1');
+    return Attr ? str.replace(Attr, '$1') : '';
 }
 
