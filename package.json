@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "lint": "eslint --config eslint.config.mjs . --ext .js",
-    "test": "SKIP_SHELL=1 ./tests/run_tests_shell.sh"
+    "test": "./tests/run_tests_shell.sh"
   },
   "dependencies": {
     "ci-run-eslint": "git+https://gitlab.gnome.org/World/javascript/ci-run-eslint.git#f94b653606476d151439793ab8a8a93aa4a146de",

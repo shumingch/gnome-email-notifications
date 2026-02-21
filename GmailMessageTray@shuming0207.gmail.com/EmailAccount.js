@@ -32,9 +32,7 @@ export class EmailAccount {
      */
     constructor(config, account) {
         this.config = config;
-        const goaAccount = account.get_account();
-        this.id = goaAccount.id ?? goaAccount.presentation_identity ?? '';
-        this.mailbox = goaAccount.presentation_identity ?? '';
+        this.mailbox = account.get_account().presentation_identity;
         if (this.mailbox === undefined)
             this.mailbox = '';
         this._scanner = new InboxScanner(account, this.config);

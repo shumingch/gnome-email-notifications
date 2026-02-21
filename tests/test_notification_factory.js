@@ -26,6 +26,5 @@ export function runTests(assert, NotificationFactory, unescapeXML) {
         date: new Date().toISOString(),
     };
     const notification_ = factory.createEmailNotification(msg, () => { });
-    // Note: Notification set up in mocks/shell.js maps constructor params
     assert.equal(factory._mailbox, 'test@gmail.com', 'Mailbox should be set');
 }

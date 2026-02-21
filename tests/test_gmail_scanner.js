@@ -1,6 +1,7 @@
 
+import Gio from 'gi://Gio';
 import {GmailScanner} from '../GmailScanner.js';
-import {Conf} from './mocks/Conf.js';
+import {Conf} from '../Conf.js';
 
 /**
  *
@@ -8,7 +9,12 @@ import {Conf} from './mocks/Conf.js';
  */
 export function runTests(assert) {
     const mailbox = 'test@gmail.com';
-    const config = new Conf();
+    const mockExtension = {
+        getSettings: () => new Gio.Settings({schema_id: 'org.gnome.shell.extensions.gmailmessagetray'}),
+        stopTimeout: () => {},
+        startTimeout: () => {},
+    };
+    const config = new Conf(mockExtension);
     const scanner = new GmailScanner(mailbox, config);
 
     // Test getApiURL

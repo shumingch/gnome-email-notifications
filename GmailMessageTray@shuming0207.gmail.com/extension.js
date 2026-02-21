@@ -37,7 +37,7 @@ export default class GmailNotificationExtension extends Extension {
         this.goaAccounts = [];
 
         this._getEmailAccounts(emailAccounts => {
-            this._mergeAccounts(emailAccounts);
+            this.goaAccounts = emailAccounts;
             this.startTimeout();
         });
 
@@ -71,10 +71,9 @@ export default class GmailNotificationExtension extends Extension {
      * Returns a list of all Gnome Online Accounts
      *
      * @param {Function} callback - callback that is called with {EmailAccount[]} as parameter
-     * @param {boolean} [suppressEmptyError=false] - if true, do not notify when no accounts found
      * @private
      */
-    _getEmailAccounts(callback, suppressEmptyError = false) {
+    _getEmailAccounts(callback) {
         const emailAccounts = [];
         Goa.Client.new(null, (proxy, asyncResult) => {
             try {
@@ -86,7 +85,7 @@ export default class GmailNotificationExtension extends Extension {
                     if (supportedProviders.has(provider))
                         emailAccounts.push(new EmailAccount(this.config, account));
                 }
-                if (emailAccounts.length === 0 && !suppressEmptyError) {
+                if (emailAccounts.length === 0) {
                     Main.notifyError('Gnome Email Notifications', _('No email accounts found'));
                     throw new Error('No email accounts found');
                 }
@@ -98,24 +97,6 @@ export default class GmailNotificationExtension extends Extension {
         });
     }
 
-    /**
-     * Merges fresh accounts into goaAccounts. Adds new accounts, never removes.
-     * Uses account id to avoid duplicates.
-     *
-     * @param {EmailAccount[]} freshAccounts - accounts from _getEmailAccounts
-     * @private
-     */
-    _mergeAccounts(freshAccounts) {
-        const existingIds = new Set(this.goaAccounts.map(a => a.id));
-        for (const account of freshAccounts) {
-            if (!existingIds.has(account.id)) {
-                console.log('[Gnome Email Notifications] New account added:', account.mailbox);
-                this.goaAccounts.push(account);
-                existingIds.add(account.id);
-            }
-        }
-    }
-
 
 
     /**
@@ -124,10 +105,7 @@ export default class GmailNotificationExtension extends Extension {
     startTimeout() {
         const timeout = this.config.getTimeout();
         this.checkMailTimeout = GLib.timeout_add_seconds(0, timeout, () => {
-            this._getEmailAccounts(freshAccounts => {
-                this._mergeAccounts(freshAccounts);
-                this._checkMail();
-            }, true);
+            this._checkMail();
             return true;
         });
     }

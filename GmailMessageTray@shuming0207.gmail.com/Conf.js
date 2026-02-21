@@ -34,10 +34,13 @@ export class Conf {
     constructor(extension) {
         this._extension = extension;
         this.settings = extension.getSettings();
-        this._changedId = this.settings.connect('changed::timeout', () => {
-            extension.stopTimeout();
-            extension.startTimeout();
-        });
+
+        if (typeof extension.stopTimeout === 'function' && typeof extension.startTimeout === 'function') {
+            this._changedId = this.settings.connect('changed::timeout', () => {
+                extension.stopTimeout();
+                extension.startTimeout();
+            });
+        }
     }
 
     /**

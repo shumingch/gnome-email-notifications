@@ -12,6 +12,7 @@ export function runTests(assert, EmailAccountClass) {
     };
     const accountProxy = {
         get_account: () => ({
+            id: 'test-account-id',
             provider_type: 'google',
             presentation_identity: 'test@gmail.com',
         }),
