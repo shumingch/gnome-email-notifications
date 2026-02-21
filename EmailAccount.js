@@ -76,7 +76,7 @@ export class EmailAccount {
             // Suppress notifications for transient server errors
             if (error.message && (error.message.startsWith('Status 5') || error.message.startsWith('Status 429'))) {
                 const prefix = '[Gnome Email Notifications] ';
-                console.debug(`${prefix}Transient network error (suppressed notification): ${error.message}`);
+                console.log(`${prefix}Transient network error (suppressed notification): ${error.message}`);
                 return;
             }
             this._showError(error);

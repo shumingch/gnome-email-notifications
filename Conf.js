@@ -32,22 +32,7 @@ export class Conf {
      * @param {Extension} extension - the extension to control
      */
     constructor(extension) {
-        this._extension = extension;
         this.settings = extension.getSettings();
-        this._changedId = this.settings.connect('changed::timeout', () => {
-            extension.stopTimeout();
-            extension.startTimeout();
-        });
-    }
-
-    /**
-     * Disconnects signals and cleans up
-     */
-    destroy() {
-        if (this._changedId) {
-            this.settings.disconnect(this._changedId);
-            this._changedId = null;
-        }
     }
 
     /**

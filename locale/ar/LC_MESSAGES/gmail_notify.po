@@ -3,10 +3,10 @@ msgstr ""
 "Project-Id-Version: gmail_notify\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-02 20:32-0400\n"
-"PO-Revision-Date: 2012-02-04 19:59+0100\n"
-"Last-Translator: Adam Jabłoński <jablona123@gmail.com>\n"
-"Language-Team: \n"
-"Language: \n"
+"PO-Revision-Date: 2025-02-20 12:00+0000\n"
+"Last-Translator: Shuming Chan <shuming0207@gmail.com>\n"
+"Language-Team: Arabic\n"
+"Language: ar\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -26,9 +26,8 @@ msgid "Install gir1.2-goa"
 msgstr ""
 
 #: MailClientFocuser.js:46
-#, fuzzy
 msgid "No default email client found"
-msgstr "استخدام عميل البريد الإلكتروني الافتراضي بدلا من المتصفح"
+msgstr "لم يتم العثور على عميل بريد إلكتروني افتراضي"
 
 #: prefs.js:47
 msgid "Check every {0} sec: "
@@ -45,4 +44,68 @@ msgstr ""
 #: prefs.js:63
 msgid "Selects the correct Gmail account if more than one is present"
 msgstr ""
+
+#: prefs.js:123
+msgid "Email Notifications Settings"
+msgstr "إعدادات إشعارات البريد الإلكتروني"
+
+#: prefs.js:164
+msgid "Gmail mailbox label"
+msgstr "تسمية صندوق بريد Gmail"
+
+#: prefs.js:165
+msgid "Select which Gmail label to monitor"
+msgstr "حدد تسمية Gmail للمراقبة"
+
+#: prefs.js:38
+msgid "All Mail label"
+msgstr "تسمية البريد الكامل"
+
+#: prefs.js:44
+msgid "Drafts label"
+msgstr "تسمية المسودات"
+
+#: prefs.js:50
+msgid "Whole inbox (the 'inbox' label)"
+msgstr "البريد الوارد بالكامل (تسمية 'البريد الوارد')"
+
+#: prefs.js:56
+msgid "Forums inbox category"
+msgstr "فئة البريد الوارد للمنتديات"
+
+#: prefs.js:62
+msgid "Priority Inbox: Primary category only"
+msgstr "البريد الوارد بالأولوية: الفئة الأساسية فقط"
+
+#: prefs.js:68
+msgid "Promotions inbox category"
+msgstr "فئة البريد الوارد للتخفيضات"
+
+#: prefs.js:74
+msgid "Social inbox category"
+msgstr "فئة البريد الوارد للتواصل الاجتماعي"
+
+#: prefs.js:80
+msgid "Updates inbox category"
+msgstr "فئة البريد الوارد للتحديثات"
+
+#: prefs.js:86
+msgid "Priority Inbox"
+msgstr "البريد الوارد بالأولوية"
+
+#: prefs.js:92
+msgid "Sent label"
+msgstr "تسمية المرسلة"
+
+#: prefs.js:98
+msgid "Spam label"
+msgstr "تسمية البريد العشوائي"
+
+#: prefs.js:104
+msgid "Starred label"
+msgstr "تسمية المميزة"
+
+#: prefs.js:110
+msgid "Trash label"
+msgstr "تسمية المهملات"
 

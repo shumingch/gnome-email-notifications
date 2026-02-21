@@ -5,6 +5,14 @@ import {defineConfig} from '@eslint/config-helpers';
 import gnome from 'eslint-config-gnome';
 
 export default defineConfig([
+    {
+        ignores: [
+            'GmailMessageTray@shuming0207.gmail.com/**',
+            'node_modules/**',
+            'share/**',
+            '*.zip',
+        ],
+    },
     gnome.configs.recommended,
     gnome.configs.jsdoc,
     {

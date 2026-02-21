@@ -35,6 +35,10 @@ export default class GmailNotificationExtension extends Extension {
         this.config = new Conf(this);
         this.checkMailTimeout = null;
         this.goaAccounts = [];
+        this._timeoutChangedId = this.getSettings().connect('changed::timeout', () => {
+            this.stopTimeout();
+            this.startTimeout();
+        });
 
         this._getEmailAccounts(emailAccounts => {
             this._mergeAccounts(emailAccounts);
@@ -147,6 +151,10 @@ export default class GmailNotificationExtension extends Extension {
      */
     destroy() {
         this.stopTimeout();
+        if (this._timeoutChangedId) {
+            this.getSettings().disconnect(this._timeoutChangedId);
+            this._timeoutChangedId = null;
+        }
         if (this.config)
             this.config.destroy();
 
