@@ -155,8 +155,6 @@ export default class GmailNotificationExtension extends Extension {
             this.getSettings().disconnect(this._timeoutChangedId);
             this._timeoutChangedId = null;
         }
-        if (this.config)
-            this.config.destroy();
 
         for (const account of this.goaAccounts)
             account.destroySources();
