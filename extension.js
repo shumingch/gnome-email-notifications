@@ -24,9 +24,9 @@ import GLib from 'gi://GLib';
 import Goa from 'gi://Goa';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-import { Extension, gettext as _ } from 'resource:///org/gnome/shell/extensions/extension.js';
-import { Conf } from './Conf.js';
-import { EmailAccount } from './EmailAccount.js';
+import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
+import {Conf} from './Conf.js';
+import {EmailAccount} from './EmailAccount.js';
 
 const supportedProviders = new Set(['google', 'windows_live', 'ms_graph']);
 
