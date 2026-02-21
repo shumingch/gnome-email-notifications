@@ -23,7 +23,7 @@ jobs:
       if: matrix.distro == 'ubuntu'
       run: |
         apt-get update
-        apt-get install -y gjs gnome-shell dbus-x11 xvfb libgtk-4-dev libadwaita-1-dev
+        apt-get install -y gjs gnome-shell dbus-x11 xvfb libgtk-4-dev libadwaita-1-dev gir1.2-goa-1.0
     
     - name: Install Dependencies (Fedora)
       if: matrix.distro == 'fedora'
