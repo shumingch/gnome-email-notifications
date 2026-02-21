@@ -18,13 +18,13 @@ export function runTests(assert) {
     };
 
     const ext = new GmailNotificationExtension(metadata);
-    ext.config = { getTimeout: () => 60 };
+    ext.config = {getTimeout: () => 60};
     ext.goaAccounts = [];
 
     // Create mock accounts (same shape as EmailAccount: id, mailbox)
-    const acc1 = { id: 'id1', mailbox: 'a@test.com' };
-    const acc2 = { id: 'id2', mailbox: 'b@test.com' };
-    const acc3 = { id: 'id3', mailbox: 'c@test.com' };
+    const acc1 = {id: 'id1', mailbox: 'a@test.com'};
+    const acc2 = {id: 'id2', mailbox: 'b@test.com'};
+    const acc3 = {id: 'id3', mailbox: 'c@test.com'};
 
     // First merge: add two accounts
     ext._mergeAccounts([acc1, acc2]);

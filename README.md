@@ -30,12 +30,12 @@ We welcome contributions! Here is how to get started:
 - `Notifier.js`: Handles opening URLs and managing notification state.
 - `NotificationFactory.js`: Low-level GNOME Shell notification creation.
 - `Conf.js`: Settings management.
-- `tests/`: Extensive unit test suite with mocks.
+- `tests/`: Extensive unit test suite.
 - `scripts/`: Development utility scripts.
 
 ### Development Workflow
 1. **Setup**: Clone the repo.
-2. **Testing**: We use a custom mocking framework to test logic without a full GNOME Shell environment.
+2. **Testing**: We use a headless gnome-shell to test.
    ```bash
    npm test
    ```
