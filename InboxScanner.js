@@ -34,7 +34,7 @@ export class InboxScanner {
      *
      * @param {object} account - Gnome Online Account
      * @param {Conf} config - the extension configuration
-     * @param {number} [timeout=1] - the request timeout in seconds (optional, default is 1 second)
+     * @param {number} [timeout=30] - the request timeout in seconds (optional, default is 1 second)
      */
     constructor(account, config, timeout = 30) {
         this._config = config;
@@ -47,14 +47,6 @@ export class InboxScanner {
         this._sess.set_timeout(timeout);
     }
 
-    /**
-     * A callback to execute after the GET request is complete
-     *
-     * @callback requestCallback
-     * @param {Error} err - any error that occurred
-     * @param {Array} [folders] - a list of folders containing unread emails
-     * @param {object} [account] - the Gnome Online Account of the request
-     */
     /**
      * Scans the inbox and returns a callback
      *
