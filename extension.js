@@ -53,7 +53,6 @@ export default class GmailNotificationExtension extends Extension {
     }
 
     disable() {
-        this.config = null;
         this.stopTimeout();
         if (this._timeoutChangedId) {
             this.getSettings().disconnect(this._timeoutChangedId);
@@ -62,6 +61,7 @@ export default class GmailNotificationExtension extends Extension {
 
         for (const account of this.goaAccounts)
             account.destroySources();
+        this.config = null;
     }
 
     /**
